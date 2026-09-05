@@ -1,6 +1,7 @@
 const SYMBOL_NACH_STICHWORT: Array<[string, string]> = [
   ['tomate', '🍅'],
   ['erdbeere', '🍓'],
+  ['beere', '🫐'],
   ['paprika', '🫑'],
   ['chili', '🌶️'],
   ['gurke', '🥒'],
@@ -11,6 +12,9 @@ const SYMBOL_NACH_STICHWORT: Array<[string, string]> = [
   ['zitrone', '🍋'],
   ['apfel', '🍎'],
   ['blume', '🌸'],
+  ['süßkartoffel', '🍠'],
+  ['kartoffel', '🥔'],
+  ['zwiebel', '🧅'],
 ];
 
 export function ernteSymbol(pflanzeName: string, art: string | null): string {

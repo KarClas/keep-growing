@@ -16,13 +16,8 @@ export default async function Home() {
   const lebend = pflanzen.filter((p) => p.lebenszustand === 'lebend');
   const verstorben = pflanzen.filter((p) => p.lebenszustand === 'verstorben');
   const ernten = ernteListeFuerNutzer(nutzerId);
-
-  const ernteSymboleGesehen = new Map<string, string>();
-  for (const e of ernten) {
-    if (!ernteSymboleGesehen.has(e.pflanzeId)) {
-      ernteSymboleGesehen.set(e.pflanzeId, ernteSymbol(e.pflanzeName, e.pflanzeArt));
-    }
-  }
+  // Älteste zuerst, damit die Vitrine mit jeder neuen Ernte nach rechts wächst.
+  const ernteChronologisch = [...ernten].reverse();
 
   return (
     <div className="space-y-8 pb-6">
@@ -68,13 +63,22 @@ export default async function Home() {
 
       <section>
         <h2 className="mb-3 text-lg font-semibold">Ernte-Vitrine</h2>
-        {ernteSymboleGesehen.size === 0 ? (
+        {ernteChronologisch.length === 0 ? (
           <p className="text-sm text-stone-500">Noch nichts geerntet.</p>
         ) : (
           <div className="flex flex-wrap gap-3 text-2xl">
-            {[...ernteSymboleGesehen.entries()].map(([pflanzeId, symbol]) => (
-              <span key={pflanzeId}>{symbol}</span>
-            ))}
+            {ernteChronologisch.map((e, i) => {
+              const datum = new Date(e.datum).toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: 'long',
+              });
+              const titel = `${e.pflanzeName} · ${datum}${e.menge ? ' · ' + e.menge : ''}${e.notiz ? ' — ' + e.notiz : ''}`;
+              return (
+                <span key={i} title={titel}>
+                  {ernteSymbol(e.pflanzeName, e.pflanzeArt)}
+                </span>
+              );
+            })}
           </div>
         )}
       </section>
