@@ -123,9 +123,9 @@ export default async function AufgabenSeite() {
         </p>
       ) : (
         <>
-          <PlanListe titel={<><IconTropfen className="h-5 w-5 text-sky-600" /> Gießrunde</>} eintraege={giessplan} typ="giessen" />
+          <PlanListe titel={<><IconTropfen className="h-5 w-5 text-sky-600" /> Gießen</>} eintraege={giessplan} typ="giessen" />
           <PlanListe
-            titel={<><IconBlatt className="h-5 w-5 text-emerald-700" /> Düngerunde</>}
+            titel={<><IconBlatt className="h-5 w-5 text-emerald-700" /> Düngen</>}
             eintraege={duengeplan}
             typ="duengen"
             zusatz={(p) => p.duengerTyp}
