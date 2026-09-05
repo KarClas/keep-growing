@@ -345,6 +345,7 @@ export function aktivitaetenFuerPflanze(pflanzeId: string, nutzerId: string): Ak
 }
 
 export interface ErnteEintrag {
+  id: string;
   pflanzeId: string;
   pflanzeName: string;
   pflanzeArt: string | null;
@@ -356,7 +357,7 @@ export interface ErnteEintrag {
 export function ernteListeFuerNutzer(nutzerId: string): ErnteEintrag[] {
   const zeilen = db
     .prepare(
-      `SELECT aktivitaet.pflanze_id, pflanze.name AS pflanze_name, pflanze.art AS pflanze_art, aktivitaet.menge, aktivitaet.notiz, aktivitaet.datum
+      `SELECT aktivitaet.id, aktivitaet.pflanze_id, pflanze.name AS pflanze_name, pflanze.art AS pflanze_art, aktivitaet.menge, aktivitaet.notiz, aktivitaet.datum
        FROM aktivitaet
        JOIN pflanze ON pflanze.id = aktivitaet.pflanze_id
        JOIN garten ON garten.id = pflanze.garten_id
@@ -365,6 +366,7 @@ export function ernteListeFuerNutzer(nutzerId: string): ErnteEintrag[] {
     )
     .all(nutzerId) as any[];
   return zeilen.map((z) => ({
+    id: z.id,
     pflanzeId: z.pflanze_id,
     pflanzeName: z.pflanze_name,
     pflanzeArt: z.pflanze_art,
@@ -372,4 +374,17 @@ export function ernteListeFuerNutzer(nutzerId: string): ErnteEintrag[] {
     notiz: z.notiz,
     datum: z.datum,
   }));
+}
+
+export function aktivitaetLoeschen(aktivitaetId: string, nutzerId: string): void {
+  const eigentuemer = db
+    .prepare(
+      `SELECT 1 FROM aktivitaet
+       JOIN pflanze ON pflanze.id = aktivitaet.pflanze_id
+       JOIN garten ON garten.id = pflanze.garten_id
+       WHERE aktivitaet.id = ? AND garten.nutzer_id = ?`,
+    )
+    .get(aktivitaetId, nutzerId);
+  if (!eigentuemer) throw new KeinZugriff();
+  db.prepare('DELETE FROM aktivitaet WHERE id = ?').run(aktivitaetId);
 }

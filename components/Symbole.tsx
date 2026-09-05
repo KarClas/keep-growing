@@ -135,6 +135,15 @@ export function IconErledigt({ className }: IconProps) {
   );
 }
 
+export function IconX({ className }: IconProps) {
+  return (
+    <Basis className={className}>
+      <path d="M6 6l12 12" />
+      <path d="M18 6 6 18" />
+    </Basis>
+  );
+}
+
 export function IconNeu({ className }: IconProps) {
   return (
     <Basis className={className}>

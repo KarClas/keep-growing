@@ -1,9 +1,15 @@
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { aktuelleSitzung } from '@/lib/session';
-import { pflanzenFuerGarten, naechsteFaelligkeitGiessen, naechsteFaelligkeitDuengen, type Pflanze } from '@/lib/db/abfragen';
-import { aktivitaetAction } from '@/app/server-aktionen';
-import { IconTropfen, IconBlatt, IconKorb, IconErledigt } from '@/components/Symbole';
+import {
+  pflanzenFuerGarten,
+  naechsteFaelligkeitGiessen,
+  naechsteFaelligkeitDuengen,
+  ernteListeFuerNutzer,
+  type Pflanze,
+} from '@/lib/db/abfragen';
+import { ernteSymbol } from '@/lib/garten/symbole';
+import { aktivitaetAction, ernteEintragenAction, ernteLoeschenAction } from '@/app/server-aktionen';
+import { IconTropfen, IconBlatt, IconKorb, IconErledigt, IconX } from '@/components/Symbole';
 
 function tagSchluessel(datum: Date): string {
   return datum.toISOString().slice(0, 10);
@@ -101,6 +107,9 @@ export default async function AufgabenSeite() {
       gruppe: gruppe(naechsteFaelligkeitDuengen(pflanze)!, heute, morgen),
     }));
 
+  const heuteISO = heute.toISOString().slice(0, 10);
+  const ernten = ernteListeFuerNutzer(nutzerId);
+
   return (
     <div className="space-y-10 pb-6">
       <h1 className="flex items-center gap-2 text-2xl font-bold">
@@ -124,21 +133,92 @@ export default async function AufgabenSeite() {
       )}
 
       <section>
-        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><IconKorb className="h-5 w-5" /> Ernte eintragen</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><IconKorb className="h-5 w-5" /> Erntetagebuch</h2>
+
         {pflanzen.length === 0 ? (
           <p className="text-sm text-stone-500">Noch keine Pflanze da.</p>
         ) : (
+          <form action={ernteEintragenAction} className="mb-4 space-y-3 rounded-xl bg-white p-3 shadow-sm">
+            <input type="hidden" name="zurueck" value="/aufgaben" />
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-stone-500">Pflanze</span>
+              <select
+                name="pflanzeId"
+                required
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
+              >
+                {pflanzen.map((p) => (
+                  <option key={p.id} value={p.id}>
+                    {p.name}
+                  </option>
+                ))}
+              </select>
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1 block text-xs font-medium text-stone-500">Datum</span>
+                <input
+                  type="date"
+                  name="datum"
+                  defaultValue={heuteISO}
+                  className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
+                />
+              </label>
+              <label className="block">
+                <span className="mb-1 block text-xs font-medium text-stone-500">Menge</span>
+                <input
+                  name="menge"
+                  placeholder="z. B. 500 g, 6 Stück"
+                  className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
+                />
+              </label>
+            </div>
+            <label className="block">
+              <span className="mb-1 block text-xs font-medium text-stone-500">Notiz</span>
+              <input
+                name="notiz"
+                placeholder="Wie war's?"
+                className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
+              />
+            </label>
+            <button type="submit" className="w-full rounded-xl bg-emerald-700 px-4 py-2.5 font-semibold text-white">
+              Eintragen
+            </button>
+          </form>
+        )}
+
+        {ernten.length === 0 ? (
+          <p className="text-sm text-stone-500">Noch nichts geerntet.</p>
+        ) : (
           <ul className="space-y-1.5">
-            {pflanzen.map((p) => (
-              <li key={p.id}>
-                <Link
-                  href={`/pflanze/${p.id}/ernte`}
-                  className="block rounded-xl bg-white px-3 py-2.5 font-medium shadow-sm"
-                >
-                  {p.name}
-                </Link>
-              </li>
-            ))}
+            {ernten.map((e) => {
+              const datum = new Date(e.datum).toLocaleDateString('de-DE', {
+                day: '2-digit',
+                month: 'short',
+                year: '2-digit',
+              });
+              return (
+                <li key={e.id} className="flex items-start justify-between gap-3 rounded-xl bg-white px-3 py-2.5 shadow-sm">
+                  <div className="flex min-w-0 items-start gap-2">
+                    <span className="text-lg leading-6">{ernteSymbol(e.pflanzeName, e.pflanzeArt)}</span>
+                    <div className="min-w-0">
+                      <p className="text-sm">
+                        <span className="font-medium">{e.pflanzeName}</span>
+                        {e.menge && <span className="ml-1.5 font-semibold text-emerald-700">{e.menge}</span>}
+                        <span className="ml-1.5 text-xs text-stone-400">{datum}</span>
+                      </p>
+                      {e.notiz && <p className="mt-0.5 text-sm italic text-stone-500">{e.notiz}</p>}
+                    </div>
+                  </div>
+                  <form action={ernteLoeschenAction}>
+                    <input type="hidden" name="aktivitaetId" value={e.id} />
+                    <button type="submit" aria-label="Eintrag löschen" className="shrink-0 text-stone-400">
+                      <IconX className="h-4 w-4" />
+                    </button>
+                  </form>
+                </li>
+              );
+            })}
           </ul>
         )}
       </section>

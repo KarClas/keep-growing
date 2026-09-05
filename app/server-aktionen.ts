@@ -11,6 +11,7 @@ import {
   pflanzeAusErkennungAnlegen,
   aktivitaetHinzufuegen,
   pflanzeAlsVerstorbenMarkieren,
+  aktivitaetLoeschen,
   type AktivitaetTyp,
   type DrinnenDraussen,
 } from '@/lib/db/abfragen';
@@ -230,9 +231,20 @@ export async function ernteEintragenAction(formData: FormData) {
   const notiz = optionalesTextFeld(formData, 'notiz');
   const datumEingabe = optionalesTextFeld(formData, 'datum');
   const datum = datumEingabe ? new Date(datumEingabe).toISOString() : undefined;
+  const zurueck = optionalesTextFeld(formData, 'zurueck') ?? `/pflanze/${pflanzeId}`;
 
   aktivitaetHinzufuegen(pflanzeId, nutzerId, 'ernten', { menge, notiz, datum });
-  redirect(`/pflanze/${pflanzeId}`);
+  revalidatePath('/');
+  revalidatePath('/aufgaben');
+  redirect(zurueck);
+}
+
+export async function ernteLoeschenAction(formData: FormData) {
+  const nutzerId = angemeldetenNutzer(await aktiveNutzerId());
+  const aktivitaetId = textFeld(formData, 'aktivitaetId');
+  aktivitaetLoeschen(aktivitaetId, nutzerId);
+  revalidatePath('/');
+  revalidatePath('/aufgaben');
 }
 
 export async function alsVerstorbenAction(formData: FormData) {
