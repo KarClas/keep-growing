@@ -45,9 +45,11 @@ function PlanListe({
       <form action={aktivitaetAction}>
         <input type="hidden" name="pflanzeId" value={pflanze.id} />
         <input type="hidden" name="typ" value={typ} />
-        <button type="submit" className="flex items-center gap-1.5 rounded-full border border-emerald-600 px-3 py-1 text-sm text-emerald-700">
-          <IconErledigt className="h-4 w-4" /> erledigt
-        </button>
+        <button
+          type="submit"
+          aria-label={`${pflanze.name}: ${typ === 'giessen' ? 'Gießen' : 'Düngen'} erledigt`}
+          className="h-6 w-6 shrink-0 rounded-md border-2 border-emerald-600"
+        />
       </form>
     </li>
   );
