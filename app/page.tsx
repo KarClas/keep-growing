@@ -83,7 +83,13 @@ export default async function Home() {
             {verstorben.map((p) => (
               <div key={p.id}>
                 <div className="aspect-square">
-                  <EngelWolke name={p.name} />
+                  <EngelWolke
+                    id={p.id}
+                    wuchsstufe={wuchsstufeFuerPflanze(p)}
+                    name={p.name}
+                    art={p.art}
+                    darstellung={p.darstellung}
+                  />
                 </div>
                 <p className="mt-1 truncate text-center text-sm font-medium text-stone-500">{p.name}</p>
               </div>
