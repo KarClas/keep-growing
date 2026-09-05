@@ -1,154 +1,109 @@
 # Architektur: Pflanze Hinzufügen (2-Schritte-Prozess)
 
-Dieses Dokument beschreibt die Architektur der überarbeiteten **Hinzufügen-Sektion** in *keep-growing*. Der Prozess zum Anlegen eines neuen Pflanzenprofils wird in zwei getrennte Schritte unterteilt und stützt sich auf zwei spezialisierte Feature-APIs.
+Dieses Dokument beschreibt die Architektur der überarbeiteten **Hinzufügen-Sektion** in *keep-growing*. Der Prozess zum Anlegen eines neuen Pflanzenprofils gliedert sich in zwei aufeinanderfolgende Schritte und nutzt eine direkte KI-Fotoanalyse.
 
 ---
 
 ## 1. Übersicht des 2-Schritte-Prozesses
 
-Der Erfassungsprozess gliedert sich in zwei aufeinanderfolgende Phasen:
+Der Erfassungsprozess gliedert sich in zwei Phasen:
 
 ```
 ┌─────────────────────────────────────────────────────────────┐
-│ Schritt 1: Fotoaufnahme & API-Erkennung                     │
-│ Foto aufnehmen/wählen ──► id-plant-api ──► plant-details-api│
+│ Schritt 1: Fotoaufnahme & Erkennung (/hinzufuegen)          │
+│ Sucher / Foto aufnehmen / Datei ──► Vision-Modell           │
 └──────────────────────────────┬──────────────────────────────┘
-                               │ Vorbelegte Pflegedaten
+                               │ Übergabe per Query-Parameter
                                ▼
 ┌─────────────────────────────────────────────────────────────┐
-│ Schritt 2: Einstellung des Profils (Implementiert)          │
+│ Schritt 2: Einstellung des Profils (/hinzufuegen/schritt-2) │
 │ Boilerplate-Icon ──► Prüfung/Editierung ──► Profil anlegen  │
 └─────────────────────────────────────────────────────────────┘
 ```
 
-### Schritt 1: Fotoaufnahme & Erkennung (Vorgelagert)
-- **Funktion**: Der Nutzer nimmt ein Foto der Pflanze auf (oder wählt ein Bild aus). Das Bild durchläuft die beiden APIs (erst Art-Identifikation, dann Pflege-Ermittlung).
-- **Ergebnis**: Ein strukturiertes Datenpaket über Art, Gieß- und Düngeempfehlungen sowie Standort- und Lichtbedürfnisse wird an Schritt 2 übergeben.
+### Schritt 1: Fotoaufnahme & Erkennung (`/hinzufuegen`)
+- **Komponente**: `app/hinzufuegen/page.tsx` rendert `KameraHinzufuegen` als primären Zustand.
+- **Funktion**: Der Nutzer nimmt ein Foto über den Kamerasucher auf (oder wählt eine Bilddatei). Das Foto wird an den internen Endpunkt `POST /aktionen/erkennen` gesendet und direkt über das Vision-Modell (`qwen3.8-flash-next`) analysiert.
+- **Ergebnis**: Nach der Analyse wird das strukturierte Datenpaket an Schritt 2 weitergeleitet (`/hinzufuegen/schritt-2?art=...`).
 
-### Schritt 2: Einstellung des Profils (Implementierter Schritt)
-- **Funktion**: Kontroll-, Anpassungs- und Bestätigungsmaske vor dem Speichern in der lokalen Datenbank. Da KI- und Perenual-Treffer ungenau sein können (oder fehlende Werte aufweisen), prüft und korrigiert der Nutzer die Daten hier.
-- **Ergebnis**: Nach Betätigen von *„Das Profil Anlegen“* wird die Pflanze mit den validierten Daten in der Datenbank angelegt und das Nutzerprofil direkt auf `/pflanze/[id]` weitergeleitet.
-
----
-
-## 2. Die beiden Feature-APIs
-
-Die Erkennung basiert auf zwei eigenständigen Python-HTTP-Diensten, die nacheinander (**sequentiell**) aufgerufen werden:
-
-```
-[ Bilddatei ]
-     │
-     ▼  POST /id-plant (Port 5005)
-┌─────────────────────────────────────────────────────────────┐
-│ 1. id-plant-api: Bild ──► Pflanzenname (Top-Kandidaten)     │
-└─────────────────────────────────────────────────────────────┘
-     │ Top-Guess: z. B. "Rose"
-     ▼  POST /get-plant-details (Port 5006)
-┌─────────────────────────────────────────────────────────────┐
-│ 2. plant-details-api: Pflanzenname ──► Strukturierte Pflege │
-└─────────────────────────────────────────────────────────────┘
-     │ Strukturierte Daten
-     ▼
-[ Schritt 2: Formular ]
-```
-
-### API 1: Bild ──► Pflanze (`id-plant-api`)
-- **Dienst**: `id-plant-api/server.py`
-- **Port**: `5005`
-- **Endpunkt**: `POST http://127.0.0.1:5005/id-plant`
-- **Funktion**: Sendet das Bild an ein lokales Vision-Modell (`qwen3.8-flash-next`) und liefert die wahrscheinlichsten englischen Pflanzennamen.
-
-#### Eingabeformat (JSON):
-```json
-{
-  "image_path": "/Users/mk/Downloads/enjoy_05.jpg"
-}
-```
-
-#### Ausgabeformat (JSON Array):
-```json
-[
-  "Rosa chinensis",
-  "Rosa × hybrida",
-  "Rosa gallica",
-  "Rosa × damascena",
-  "Rosa moschata"
-]
-```
+### Schritt 2: Einstellung des Profils (`/hinzufuegen/schritt-2`)
+- **Komponente**: `app/hinzufuegen/schritt-2/page.tsx`
+- **Funktion**: Kontroll-, Anpassungs- und Bestätigungsmaske vor dem Speichern in der lokalen SQLite-Datenbank.
+- **Ergebnis**: Nach Betätigen von *„Das Profil anlegen“* wird die Pflanze mit den validierten Daten in der Datenbank angelegt und das Nutzerprofil direkt auf `/pflanze/[id]` weitergeleitet.
 
 ---
 
-### API 2: Pflanze ──► Pflegedaten (`plant-details-api`)
-- **Dienst**: `plant-details-api/server.py`
-- **Port**: `5006`
-- **Endpunkt**: `POST http://127.0.0.1:5006/get-plant-details` (oder `GET /get-plant-details?name=Rosa%20chinensis`)
-- **Funktion**: Nimmt den Namen des obersten Treffers aus API 1 (z. B. `"Rosa chinensis"`), fragt die Perenual-Datenbank ab und liefert konkrete Pflegeparameter mit Fallbacks.
+## 2. Direkte KI-Fotoanalyse
 
-#### Eingabeformat (JSON):
+Die bisherigen externen Hilfsdienste (`id-plant-api` und `plant-details-api`) wurden abgelöst. Die Erkennung erfolgt direkt über das Vision-Modell in `lib/erkennung/vision.ts` über den Endpunkt `POST /aktionen/erkennen`.
+
+### Strukturierte Modellausgabe (JSON):
 ```json
 {
-  "name": "Rosa chinensis"
-}
-```
-
-#### Ausgabeformat (JSON):
-```json
-{
-  "raw_name": "Rosa chinensis",
-  "identified_name": "Rosa chinensis",
-  "Giessrhythmus": "Bedarfsgerecht bei angetrockneter Erdoberfläche gießen (ca. alle 7–10 Tage)",
-  "Duengenrhytmus": "Alle 2–4 Wochen von Frühjahr bis Spätsommer mit handelsüblichem Flüssigdünger",
-  "Standort": "N/A",
-  "Licht": "N/A",
-  "Erde": "N/A",
-  "perenual_id": null
+  "erkannt": true,
+  "art": "Rosa chinensis",
+  "giessrhythmus": 7,
+  "duengenrhythmus": 14,
+  "erde": "50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde",
+  "licht": "Sonne",
+  "ort": "draußen",
+  "sicherheit": "hoch"
 }
 ```
 
 ---
 
-## 3. Layout und Aufbau von Schritt 2 (`Einstellung des Profils`)
+## 3. Felder und Formatierung in Schritt 2 (`Einstellung des Profils`)
 
-Die Seite ist unter `app/hinzufuegen/page.tsx` (und Alias `app/hinzufuegen/schritt-2/page.tsx`) implementiert.
+Die Seite ist unter `app/hinzufuegen/schritt-2/page.tsx` implementiert.
 
 ### Gestaltungsgrundsätze:
-1. **Mobile-First**: Optimiert für schmale Bildschirme im zentrierten Container (`max-w-md mx-auto`), bricht auf Desktop-Geräten nicht um oder ab.
-2. **Schlank & Schnörkellos**: Kein Einsatz von Animationen, reines natives Scrolling.
-3. **Keine Platzhalter-Fehler („N/A“-Bereinigung)**: Liefert die Datenbank/API leere Werte oder `"N/A"`, wird das entsprechende Eingabefeld in der UI vollständig leer gelassen — die Zeichenkette `"N/A"` wird aktiv herausgefiltert.
+1. **Mobile-First**: Optimiert für schmale Bildschirme im zentrierten Container (`max-w-md mx-auto`).
+2. **Schlank & Schnörkellos**: Konsistentes Design ohne störende Animationen.
+3. **Keine Platzhalter-Fehler („N/A“-Bereinigung)**: Werte wie `"N/A"`, `"none"` oder `"-"` werden aktiv gefiltert und bleiben leer.
 
 ### Elemente der Maske (von oben nach unten):
 
 1. **Seitentitel**:
    - Text: `Einstellung des Profils` (zentriert, `text-2xl font-bold`).
 
-2. **Pflanzen-Vorschau (Boilerplate Icon)**:
-   - Feststehendes Symbol der App (`TopfMitGesicht`), Zustand: zufrieden, Wuchsstufe: 2.
-   - Reine Vorschau ohne Korrektur-/Austauschoption an dieser Stelle.
+2. **Pflanzen-Vorschau links & Licht-Symbol rechts oben**:
+   - **Linksbündige Profil-Vorschau** mit dynamischem Hintergrund („Ich bleibe lieber drinnen“ & „Ich bleibe lieber draußen“):
+     - Feststehendes Symbol der App (`TopfMitGesicht`), Zustand: zufrieden, Wuchsstufe: 2.
+     - Vektor-Hintergründe: „Ich bleibe lieber drinnen“ vs. „Ich bleibe lieber draußen“.
+     - Pfeile links und rechts: Wechseln den Hintergrund mit Wisch-Animation und Touch-Unterstützung.
+     - Ersetzt das bisherige `Ort`-Feld vollständig.
+   - **Licht-Symbol oben rechts**:
+     - Ersetzt das bisherige sichtbare `Licht`-Textfeld vollständig.
+     - Drei grafische Sonnen-Symbole im App-Stil (warm, ohne reinweiß):
+       1. **Helle Sonne** (nur Umriss): `Sonne`
+       2. **Dunkle Sonne** (voll gefüllt): `Schatten`
+       3. **Halb dunkle, halb helle Sonne** (rechte Hälfte gefüllt): `Sonne oder Schatten` / `Sonne und Schatten` (Fallback: halb/halb).
+     - Entspricht der KI-Erkennung und lässt sich durch Antippen zyklisch durchschalten (`Sonne` ──► `Schatten` ──► `Sonne oder Schatten`).
+     - Wird als verstecktes Formularfeld (`<input type="hidden" name="licht" ... />`) an das Backend übertragen.
 
 3. **Formularfelder**:
    - **Name (`name`)**:
      - Pflichtfeld (`required`, Label: `Name *`).
-     - Standardmäßig leer mit dem Ghost-Text / Platzhalter `"Meine Schatzi"`, der beim Tippen sofort verschwindet und Platz für die Eingabe macht.
-     - Pflichtangabe auch serverseitig in der Server-Aktion.
+     - Standardmäßig immer leer (`defaultValue=""`), zeigt ausschließlich das Ghost-Template / Platzhalter `"Meine Schatzi"`.
    - **Art (`art`)**:
-     - Vorbefüllt mit dem Wert `identified_name` (oder `raw_name`) aus den Eingabedaten. Editierbar.
-   - **Gießrhythmus (`giessrhythmus`)**:
-     - Vorbefüllt mit der Gießempfehlung (`Giessrhythmus`). Als Textfeld/Textarea editierbar.
-   - **Düngrhythmus (`duengenrhythmus`)**:
-     - Vorbefüllt mit dem Düngezyklus (`Duengenrhytmus`). Editierbar.
+     - Vorbefüllt mit dem wissenschaftlichen Artnamen streng nach botanischer Nomenklatur (`art`, z. B. `"Rosa chinensis"`). Editierbar.
+     - **Reload-Button daneben**: Bleibt gesperrt / ausgegraut, solange der Art-Wert unverändert ist. Wird freigeschaltet, sobald der Wert geändert wird (auch bei manueller Neueingabe). Beim Klick ruft das Modell mit dem Text-Prompt (`ART_ANWEISUNG`) die Pflegeparameter für die neue Art ab und überschreibt die übrigen Felder in-place (inkl. Hintergrundauswahl und Licht-Symbol).
+   - **Gießrhythmus (`giessrhythmus`) & Düngrhythmus (`duengenrhythmus`)**:
+     - Platzsparend nebeneinander in einer Zeile angeordnet (jeweils halbe Breite).
+     - Zahlenfelder (`input type="number" min={1}`) mit nachgestellter Maßeinheit `"Tagen"`.
+     - Fallbacks bei fehlender Angabe: Gießrhythmus `7`, Düngrhythmus `28`.
+     - Harmonische Einbettung ohne weiße Hintergrundflächen (`bg-transparent` auf warmem Hintergrund).
    - **Erde (Erdemischung) (`erde`)**:
-     - Vorbefüllt mit dem Erdenvorschlag. War der API-Wert `"N/A"`, bleibt das Feld leer.
-   - **Licht (`licht`)**:
-     - Deterministisches Textfeld mit genau 3 Optionen: `Sonne`, `Schatten`, `Sonne oder Schatten`.
-     - Vorbefüllt durch deterministisches Parsing des API-Outputs (`sun` ──► `Sonne`, `shadow` ──► `Schatten`, `any` ──► `Sonne oder Schatten`, Default bei fehlender Angabe/`N/A`: `Sonne oder Schatten`).
-     - Standard-Textfeld ohne Browser-Vorschläge (`autoComplete="off"`).
+     - Klarer Textwert, vorbefüllt mit den empfohlenen Anteilen im Erdemix (z. B. `"50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde"`).
+     - Fallback: Vollständig leer (ohne Phantom-Platzhaltertext).
    - **Notiz (`notiz`)**:
-     - Freitextfeld für individuelle Notizen der Nutzer:in, optional wie bisher.
+     - Standardmäßig immer leer (`defaultValue=""`), kann ausschließlich von der Nutzer:in manuell befüllt und editiert werden. Bleibt beim Klick auf den Reload-Button unberührt.
 
 4. **Abschluss-Button**:
-   - Beschriftung: `Das Profil Anlegen`
+   - Beschriftung: `Das Profil anlegen`
    - Löst die Server-Aktion `profilSchritt2AnlegenAction` aus:
-     - Ermittelt/erstellt den aktiven Nutzer & Garten.
-     - Berechnet bzw. parst die Gieß- und Düngetage für die Wachstumslogik.
-     - Legt die Pflanze in SQLite an.
+     - Legt Nutzer & Garten bei Bedarf automatisch an.
+     - Ordnet `ort` dem internen Speicherformat (`drinnen` / `draussen`) zu.
+     - Legt die Pflanze mit allen final editierten Daten in SQLite an.
      - Leitet direkt zur Profilseite `/pflanze/[id]` weiter.

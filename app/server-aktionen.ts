@@ -16,7 +16,13 @@ import {
 } from '@/lib/db/abfragen';
 import { nutzerWaehlen, gartenWaehlen, aktiveNutzerId, aktiveGartenId, abmelden } from '@/lib/session';
 import { fotoSpeichern } from '@/lib/fotos';
-import { parseLichtAusgabe } from '@/lib/pflanzen-api';
+import {
+  parseLichtAusgabe,
+  parseOrtAusgabe,
+  parseTageZahl,
+  feldWertBereinigen,
+  artDetailsErmitteln,
+} from '@/lib/erkennung/vision';
 
 function textFeld(formData: FormData, feld: string): string {
   const wert = formData.get(feld);
@@ -162,72 +168,43 @@ export async function profilSchritt2AnlegenAction(formData: FormData) {
     }
   }
 
-  function sanitisieren(wert: string | null): string {
-    if (!wert) return '';
-    const getrimmt = wert.trim();
-    const lower = getrimmt.toLowerCase();
-    if (lower === 'n/a' || lower === 'na' || lower === 'none' || lower === 'null') return '';
-    return getrimmt;
-  }
+  const art = feldWertBereinigen(textFeld(formData, 'art'));
+  const name = feldWertBereinigen(textFeld(formData, 'name')) || 'Meine Schatzi';
 
-  const art = sanitisieren(optionalesTextFeld(formData, 'art'));
-  const name = sanitisieren(textFeld(formData, 'name')) || 'Meine Schatzi';
+  const giessTage =
+    parseTageZahl(formData.get('giessrhythmus')) ??
+    parseTageZahl(formData.get('gießrhythmus')) ??
+    parseTageZahl(formData.get('giessenrhythmus')) ??
+    7;
+  const duengerTage =
+    parseTageZahl(formData.get('duengenrhythmus')) ??
+    parseTageZahl(formData.get('düngrhythmus')) ??
+    parseTageZahl(formData.get('duengrhythmus')) ??
+    28;
+  const erde = feldWertBereinigen(optionalesTextFeld(formData, 'erde'));
+  const licht = parseLichtAusgabe(optionalesTextFeld(formData, 'licht'));
+  const ort = parseOrtAusgabe(optionalesTextFeld(formData, 'ort'));
+  const nutzerNotiz = feldWertBereinigen(optionalesTextFeld(formData, 'notiz'));
+  const fotoUrl = feldWertBereinigen(optionalesTextFeld(formData, 'fotoUrl'));
 
-  const giessrhythmus = sanitisieren(
-    optionalesTextFeld(formData, 'giessrhythmus') ??
-    optionalesTextFeld(formData, 'giessenrhythmus')
-  );
-  const duengenrhythmus = sanitisieren(optionalesTextFeld(formData, 'duengenrhythmus'));
-  const erde = sanitisieren(optionalesTextFeld(formData, 'erde'));
-  const licht = parseLichtAusgabe(sanitisieren(optionalesTextFeld(formData, 'licht')));
-  const nutzerNotiz = sanitisieren(optionalesTextFeld(formData, 'notiz'));
-
-  let giessTage = 7;
-  if (giessrhythmus) {
-    const tageMatch =
-      giessrhythmus.match(/(\d+)\s*[-–bis]\s*(\d+)\s*Tage/i) ||
-      giessrhythmus.match(/(\d+)\s*Tage/i);
-    if (tageMatch) {
-      giessTage = parseInt(tageMatch[1], 10);
-    } else if (
-      giessrhythmus.toLowerCase().includes('week') ||
-      giessrhythmus.toLowerCase().includes('woche')
-    ) {
-      giessTage = 7;
-    }
-  }
-
-  let duengerTage: number | null = null;
-  if (duengenrhythmus) {
-    const wochenMatch =
-      duengenrhythmus.match(/(\d+)\s*[-–bis]\s*(\d+)\s*Wochen/i) ||
-      duengenrhythmus.match(/(\d+)\s*Wochen/i);
-    if (wochenMatch) {
-      duengerTage = parseInt(wochenMatch[1], 10) * 7;
-    } else {
-      duengerTage = 14;
-    }
-  }
-
-  const pflegeDetails: string[] = [];
-  if (nutzerNotiz) pflegeDetails.push(nutzerNotiz);
-  if (giessrhythmus) pflegeDetails.push(`Gießrhythmus: ${giessrhythmus}`);
-  if (duengenrhythmus) pflegeDetails.push(`Düngrhythmus: ${duengenrhythmus}`);
-  const notiz = pflegeDetails.join('\n\n');
+  const drinnenDraussen: DrinnenDraussen = ort === 'draußen' ? 'draussen' : 'drinnen';
+  const notiz = nutzerNotiz;
 
   const pflanze = pflanzeAnlegen(gartenId, nutzerId, {
     name,
     art: art || null,
     erde: erde || null,
     licht: licht || null,
-    drinnenDraussen: 'drinnen',
+    drinnenDraussen,
     giessIntervallTage: giessTage,
     duengerIntervallTage: duengerTage,
     notiz,
+    fotoUrl: fotoUrl || null,
   });
 
   revalidatePath('/');
   revalidatePath('/hinzufuegen');
+  revalidatePath('/hinzufuegen/schritt-2');
   redirect(`/pflanze/${pflanze.id}`);
 }
 
@@ -261,4 +238,9 @@ export async function alsVerstorbenAction(formData: FormData) {
   const pflanzeId = textFeld(formData, 'pflanzeId');
   pflanzeAlsVerstorbenMarkieren(pflanzeId, nutzerId);
   redirect('/');
+}
+
+export async function artDetailsAction(art: string) {
+  if (!art || art.trim() === '') return null;
+  return await artDetailsErmitteln(art);
 }
