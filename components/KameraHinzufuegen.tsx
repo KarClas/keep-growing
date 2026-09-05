@@ -233,8 +233,10 @@ export function KameraHinzufuegen() {
           Datei hinzufügen
         </button>
 
-        {/* Sucher-Fenster */}
-        <div className="relative h-[58vh] overflow-hidden rounded-3xl bg-stone-900">
+        {/* Sucher-Fenster — Höhe als inline style, damit kein Tailwind-Cache-\
+            Problem (fehlende h-[..]-Klasse im ausgelieferten CSS) den Sucher
+            auf 0 px kollabieren lassen kann. */}
+        <div className="relative overflow-hidden rounded-3xl bg-stone-900" style={{ height: '58vh' }}>
           {kameraFehler ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-stone-400">
               <span className="text-4xl">📷</span>
@@ -296,7 +298,7 @@ export function KameraHinzufuegen() {
     <div className="space-y-4 pb-2">
       <div className="relative overflow-hidden rounded-3xl bg-stone-900">
         {/* eslint-disable-next-line @next/next/no-img-element */}
-        <img src={vorschau ?? ''} alt="Gemachtes Foto" className="max-h-[45vh] w-full object-cover" />
+        <img src={vorschau ?? ''} alt="Gemachtes Foto" className="w-full object-cover" style={{ maxHeight: '58vh' }} />
         <button
           type="button"
           onClick={zurueckZurKamera}
