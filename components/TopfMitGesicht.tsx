@@ -1,9 +1,9 @@
 import type { Pflegestimmung } from '@/lib/garten/berechnung';
+import { bestimmeFamilie, bestimmeAkzentfarbe } from '@/lib/garten/pflanzenfamilie';
+import { PflanzenZeichnung } from './PflanzenZeichnung';
 
 const POT_FARBE = '#c97b52';
 const POT_FARBE_DUNKEL = '#a85f3c';
-const BLATT_FARBE = '#5f9e5f';
-const STIEL_FARBE = '#4a7c4a';
 const LINIE_FARBE = '#3a2418';
 
 function Gesicht({ stimmung }: { stimmung: Pflegestimmung }) {
@@ -49,14 +49,15 @@ export function TopfMitGesicht({
   wuchsstufe,
   stimmung,
   name,
+  art,
 }: {
   wuchsstufe: number;
   stimmung: Pflegestimmung;
   name?: string;
+  art?: string | null;
 }) {
-  const stielHoehe = 16 + wuchsstufe * 12;
-  const stielOben = 132 - stielHoehe;
-  const blattPaare = Array.from({ length: wuchsstufe }, (_, i) => i);
+  const familie = bestimmeFamilie(name ?? '', art ?? null);
+  const akzentfarbe = bestimmeAkzentfarbe(name ?? '', art ?? null);
 
   return (
     <svg
@@ -67,26 +68,7 @@ export function TopfMitGesicht({
       aria-label={name ? `${name}, Pflegestimmung: ${stimmung}` : `Pflegestimmung: ${stimmung}`}
     >
       <g>
-        {wuchsstufe > 0 && (
-          <path d={`M80 132 V ${stielOben}`} stroke={STIEL_FARBE} strokeWidth={4} strokeLinecap="round" fill="none" />
-        )}
-        {blattPaare.map((i) => {
-          const y = 122 - i * 12;
-          const seite = i % 2 === 0 ? 1 : -1;
-          const x = 80 + seite * 14;
-          return (
-            <ellipse
-              key={i}
-              cx={x}
-              cy={y}
-              rx="12"
-              ry="7"
-              fill={BLATT_FARBE}
-              transform={`rotate(${seite * -25} ${x} ${y})`}
-            />
-          );
-        })}
-        {wuchsstufe === 0 && <ellipse cx="80" cy="122" rx="6" ry="4" fill={BLATT_FARBE} />}
+        <PflanzenZeichnung familie={familie} wuchsstufe={wuchsstufe} akzentfarbe={akzentfarbe} />
       </g>
 
       <path d="M35 132 H125 L112 190 H48 Z" fill={POT_FARBE} stroke={POT_FARBE_DUNKEL} strokeWidth={2} />

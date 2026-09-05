@@ -42,11 +42,11 @@ export default async function Home() {
           <div className="grid grid-cols-2 gap-4">
             {lebend.map((p) => {
               const stimmung = pflegestimmungFuerPflanze(p);
-              const wuchsstufe = wuchsstufeFuerPflanze(p.id);
+              const wuchsstufe = wuchsstufeFuerPflanze(p);
               return (
                 <Link key={p.id} href={`/pflanze/${p.id}`} className="rounded-2xl bg-white p-2 shadow-sm">
                   <div className="aspect-square">
-                    <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={p.name} />
+                    <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={p.name} art={p.art} />
                   </div>
                   <p className="mt-1 truncate text-center text-sm font-medium">{p.name}</p>
                 </Link>

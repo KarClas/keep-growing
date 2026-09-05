@@ -38,6 +38,7 @@ export interface Pflanze {
   notiz: string;
   lebenszustand: Lebenszustand;
   fotoUrl: string | null;
+  wuchsstufeSockel: number;
   erstelltAm: string;
 }
 
@@ -73,6 +74,7 @@ function zeileZuPflanze(zeile: any): Pflanze {
     notiz: zeile.notiz,
     lebenszustand: zeile.lebenszustand,
     fotoUrl: zeile.foto_url,
+    wuchsstufeSockel: zeile.wuchsstufe_sockel,
     erstelltAm: zeile.erstellt_am,
   };
 }
@@ -177,6 +179,7 @@ export interface NeuePflanzeDaten {
   duengerTyp?: string | null;
   notiz?: string;
   fotoUrl?: string | null;
+  wuchsstufeSockel?: number;
 }
 
 export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePflanzeDaten): Pflanze {
@@ -184,8 +187,8 @@ export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePf
   const id = randomUUID();
   db.prepare(
     `INSERT INTO pflanze
-      (id, garten_id, name, art, erde, licht, drinnen_draussen, giess_intervall_tage, duenger_intervall_tage, duenger_typ, notiz, foto_url)
-     VALUES (@id, @gartenId, @name, @art, @erde, @licht, @drinnenDraussen, @giessIntervallTage, @duengerIntervallTage, @duengerTyp, @notiz, @fotoUrl)`,
+      (id, garten_id, name, art, erde, licht, drinnen_draussen, giess_intervall_tage, duenger_intervall_tage, duenger_typ, notiz, foto_url, wuchsstufe_sockel)
+     VALUES (@id, @gartenId, @name, @art, @erde, @licht, @drinnenDraussen, @giessIntervallTage, @duengerIntervallTage, @duengerTyp, @notiz, @fotoUrl, @wuchsstufeSockel)`,
   ).run({
     id,
     gartenId,
@@ -199,6 +202,7 @@ export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePf
     duengerTyp: daten.duengerTyp ?? null,
     notiz: daten.notiz ?? '',
     fotoUrl: daten.fotoUrl ?? null,
+    wuchsstufeSockel: daten.wuchsstufeSockel ?? 0,
   });
   return pflanzeMitId(id, nutzerId);
 }
@@ -267,8 +271,8 @@ function anzahlPflegeaktionen(pflanzeId: string): number {
   return zeile.anzahl;
 }
 
-export function wuchsstufeFuerPflanze(pflanzeId: string): number {
-  return berechneWuchsstufe(anzahlPflegeaktionen(pflanzeId));
+export function wuchsstufeFuerPflanze(pflanze: Pflanze): number {
+  return berechneWuchsstufe(pflanze.wuchsstufeSockel + anzahlPflegeaktionen(pflanze.id));
 }
 
 export function pflegestimmungFuerPflanze(pflanze: Pflanze, heute: Date = new Date()): Pflegestimmung {

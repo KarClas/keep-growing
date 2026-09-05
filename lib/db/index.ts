@@ -40,6 +40,7 @@ db.exec(`
     notiz TEXT NOT NULL DEFAULT '',
     lebenszustand TEXT NOT NULL DEFAULT 'lebend' CHECK (lebenszustand IN ('lebend', 'verstorben')),
     foto_url TEXT,
+    wuchsstufe_sockel INTEGER NOT NULL DEFAULT 0,
     erstellt_am TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_pflanze_garten ON pflanze(garten_id);
@@ -55,3 +56,10 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_aktivitaet_pflanze ON aktivitaet(pflanze_id, typ);
 `);
+
+// Leichtgewichtige Nachrüstung für Datenbanken, die vor `wuchsstufe_sockel`
+// angelegt wurden (SQLite kennt kein "ADD COLUMN IF NOT EXISTS").
+const pflanzeSpalten = db.prepare('PRAGMA table_info(pflanze)').all() as { name: string }[];
+if (!pflanzeSpalten.some((spalte) => spalte.name === 'wuchsstufe_sockel')) {
+  db.exec('ALTER TABLE pflanze ADD COLUMN wuchsstufe_sockel INTEGER NOT NULL DEFAULT 0');
+}

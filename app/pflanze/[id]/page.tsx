@@ -18,7 +18,7 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
 
   const pflanze = pflanzeMitId(id, nutzerId);
   const stimmung = pflegestimmungFuerPflanze(pflanze);
-  const wuchsstufe = wuchsstufeFuerPflanze(pflanze.id);
+  const wuchsstufe = wuchsstufeFuerPflanze(pflanze);
   const verlauf = aktivitaetenFuerPflanze(pflanze.id, nutzerId).slice(0, 10);
 
   return (
@@ -28,7 +28,7 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
       </Link>
 
       <div className="mx-auto h-48 w-48">
-        <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={pflanze.name} />
+        <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={pflanze.name} art={pflanze.art} />
       </div>
 
       <h1 className="text-center text-2xl font-bold">{pflanze.name}</h1>
