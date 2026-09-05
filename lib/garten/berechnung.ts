@@ -1,6 +1,16 @@
-export type Pflegestimmung = 'zufrieden' | 'neutral' | 'traurig' | 'sehr_traurig';
+export type Pflegestimmung =
+  | 'sehr_gluecklich'
+  | 'sehr_gluecklich_geerntet'
+  | 'zufrieden'
+  | 'traurig'
+  | 'verzweifelt'
+  | 'wuetend';
 
 const MILLISEKUNDEN_PRO_TAG = 24 * 60 * 60 * 1000;
+
+function selberTag(a: Date, b: Date): boolean {
+  return a.getFullYear() === b.getFullYear() && a.getMonth() === b.getMonth() && a.getDate() === b.getDate();
+}
 
 // Wenn eine Pflege noch nie stattfand, zählt die Frist ab `seitWannBeobachten`
 // (der Erstellung der Pflanze) statt ab "Anfang der Zeit" — sonst wäre jede
@@ -27,16 +37,30 @@ export function berechnePflegestimmung(input: {
   giessIntervallTage: number;
   zuletztGeduengtAm: Date | null;
   duengerIntervallTage: number | null;
+  zuletztGeerntetAm: Date | null;
 }): Pflegestimmung {
+  // Freude-Auslöser gehen der Überfälligkeits-Leiter vor: eine heute gepflegte
+  // Pflanze ist unabhängig vom Fälligkeitsstand sehr glücklich. Ernten schlägt
+  // Gießen/Düngen (rote Wangen als "mehr Freude"), falls beides am selben Tag war.
+  if (input.zuletztGeerntetAm && selberTag(input.heute, input.zuletztGeerntetAm)) {
+    return 'sehr_gluecklich_geerntet';
+  }
+  if (
+    (input.zuletztGegossenAm && selberTag(input.heute, input.zuletztGegossenAm)) ||
+    (input.zuletztGeduengtAm && selberTag(input.heute, input.zuletztGeduengtAm))
+  ) {
+    return 'sehr_gluecklich';
+  }
+
   const ueberfaelligTage = Math.max(
     tageUeberfaellig(input.heute, input.zuletztGegossenAm, input.giessIntervallTage, input.seitWannBeobachten),
     tageUeberfaellig(input.heute, input.zuletztGeduengtAm, input.duengerIntervallTage, input.seitWannBeobachten),
   );
 
-  if (ueberfaelligTage <= 0) return 'zufrieden';
-  if (ueberfaelligTage <= 2) return 'neutral';
-  if (ueberfaelligTage <= 5) return 'traurig';
-  return 'sehr_traurig';
+  if (ueberfaelligTage <= 1) return 'zufrieden';
+  if (ueberfaelligTage <= 2) return 'traurig';
+  if (ueberfaelligTage <= 3) return 'verzweifelt';
+  return 'wuetend';
 }
 
 export const MAX_WUCHSSTUFE = 5;

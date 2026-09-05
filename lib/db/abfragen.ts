@@ -274,6 +274,7 @@ export function wuchsstufeFuerPflanze(pflanzeId: string): number {
 export function pflegestimmungFuerPflanze(pflanze: Pflanze, heute: Date = new Date()): Pflegestimmung {
   const zuletztGegossen = letzteAktivitaet(pflanze.id, 'giessen');
   const zuletztGeduengt = letzteAktivitaet(pflanze.id, 'duengen');
+  const zuletztGeerntet = letzteAktivitaet(pflanze.id, 'ernten');
   return berechnePflegestimmung({
     heute,
     seitWannBeobachten: new Date(pflanze.erstelltAm),
@@ -281,6 +282,7 @@ export function pflegestimmungFuerPflanze(pflanze: Pflanze, heute: Date = new Da
     giessIntervallTage: pflanze.giessIntervallTage,
     zuletztGeduengtAm: zuletztGeduengt ? new Date(zuletztGeduengt) : null,
     duengerIntervallTage: pflanze.duengerIntervallTage,
+    zuletztGeerntetAm: zuletztGeerntet ? new Date(zuletztGeerntet) : null,
   });
 }
 

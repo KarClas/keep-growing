@@ -5,7 +5,72 @@ import { berechnePflegestimmung, berechneWuchsstufe, MAX_WUCHSSTUFE } from './be
 const HEUTE = new Date('2026-09-05T12:00:00Z');
 const tageVorHeute = (tage: number) => new Date(HEUTE.getTime() - tage * 24 * 60 * 60 * 1000);
 
-test('Pflegestimmung: alles rechtzeitig gegossen und gedüngt -> zufrieden', () => {
+test('Pflegestimmung: heute gegossen -> sehr_gluecklich, unabhängig vom Fälligkeitsstand', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: HEUTE,
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: tageVorHeute(60),
+    duengerIntervallTage: 14,
+    zuletztGeerntetAm: null,
+  });
+  assert.equal(stimmung, 'sehr_gluecklich');
+});
+
+test('Pflegestimmung: heute gedüngt (nicht gegossen) -> auch sehr_gluecklich', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: tageVorHeute(1),
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: HEUTE,
+    duengerIntervallTage: 14,
+    zuletztGeerntetAm: null,
+  });
+  assert.equal(stimmung, 'sehr_gluecklich');
+});
+
+test('Pflegestimmung: heute geerntet -> sehr_gluecklich_geerntet, auch wenn das Gießen überfällig ist', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: tageVorHeute(10),
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: null,
+    duengerIntervallTage: null,
+    zuletztGeerntetAm: HEUTE,
+  });
+  assert.equal(stimmung, 'sehr_gluecklich_geerntet');
+});
+
+test('Pflegestimmung: heute gegossen UND geerntet -> Ernte gewinnt (mehr Freude als reines Gießen)', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: HEUTE,
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: null,
+    duengerIntervallTage: null,
+    zuletztGeerntetAm: HEUTE,
+  });
+  assert.equal(stimmung, 'sehr_gluecklich_geerntet');
+});
+
+test('Pflegestimmung: gestern geerntet zählt nicht mehr als "heute" -> fällt zurück auf die Fälligkeits-Leiter', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: tageVorHeute(1),
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: null,
+    duengerIntervallTage: null,
+    zuletztGeerntetAm: tageVorHeute(1),
+  });
+  assert.equal(stimmung, 'zufrieden');
+});
+
+test('Pflegestimmung: alles rechtzeitig gegossen und gedüngt, nicht heute -> zufrieden', () => {
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: tageVorHeute(30),
@@ -13,6 +78,7 @@ test('Pflegestimmung: alles rechtzeitig gegossen und gedüngt -> zufrieden', () 
     giessIntervallTage: 3,
     zuletztGeduengtAm: tageVorHeute(2),
     duengerIntervallTage: 14,
+    zuletztGeerntetAm: null,
   });
   assert.equal(stimmung, 'zufrieden');
 });
@@ -25,11 +91,25 @@ test('Pflegestimmung: genau am Fälligkeitstag -> zufrieden, noch nicht überfä
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
   assert.equal(stimmung, 'zufrieden');
 });
 
-test('Pflegestimmung: 1-2 Tage überfällig -> neutral', () => {
+test('Pflegestimmung: 1 Tag überfällig -> noch zufrieden (Ruhezustand)', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: tageVorHeute(4),
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: null,
+    duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
+  });
+  assert.equal(stimmung, 'zufrieden');
+});
+
+test('Pflegestimmung: 2 Tage überfällig -> traurig', () => {
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: tageVorHeute(30),
@@ -37,11 +117,25 @@ test('Pflegestimmung: 1-2 Tage überfällig -> neutral', () => {
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
-  assert.equal(stimmung, 'neutral');
+  assert.equal(stimmung, 'traurig');
 });
 
-test('Pflegestimmung: 3-5 Tage überfällig -> traurig', () => {
+test('Pflegestimmung: 3 Tage überfällig -> verzweifelt', () => {
+  const stimmung = berechnePflegestimmung({
+    heute: HEUTE,
+    seitWannBeobachten: tageVorHeute(30),
+    zuletztGegossenAm: tageVorHeute(6),
+    giessIntervallTage: 3,
+    zuletztGeduengtAm: null,
+    duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
+  });
+  assert.equal(stimmung, 'verzweifelt');
+});
+
+test('Pflegestimmung: 4 Tage überfällig -> wuetend', () => {
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: tageVorHeute(30),
@@ -49,11 +143,12 @@ test('Pflegestimmung: 3-5 Tage überfällig -> traurig', () => {
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
-  assert.equal(stimmung, 'traurig');
+  assert.equal(stimmung, 'wuetend');
 });
 
-test('Pflegestimmung: mehr als 5 Tage überfällig -> sehr_traurig', () => {
+test('Pflegestimmung: sehr lange überfällig -> bleibt wuetend, wird nicht schlimmer', () => {
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: tageVorHeute(30),
@@ -61,11 +156,12 @@ test('Pflegestimmung: mehr als 5 Tage überfällig -> sehr_traurig', () => {
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
-  assert.equal(stimmung, 'sehr_traurig');
+  assert.equal(stimmung, 'wuetend');
 });
 
-test('Pflegestimmung: seit Anlage nie gegossen, Frist längst abgelaufen -> sehr_traurig', () => {
+test('Pflegestimmung: seit Anlage nie gegossen, Frist längst abgelaufen -> wuetend', () => {
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: tageVorHeute(20),
@@ -73,8 +169,9 @@ test('Pflegestimmung: seit Anlage nie gegossen, Frist längst abgelaufen -> sehr
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
-  assert.equal(stimmung, 'sehr_traurig');
+  assert.equal(stimmung, 'wuetend');
 });
 
 test('Pflegestimmung: gerade erst angelegt, noch nie gegossen -> zufrieden (Frist läuft erst)', () => {
@@ -85,20 +182,24 @@ test('Pflegestimmung: gerade erst angelegt, noch nie gegossen -> zufrieden (Fris
     giessIntervallTage: 7,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
   assert.equal(stimmung, 'zufrieden');
 });
 
-test('Regression: frisch angelegt mit Düngeplan, gerade gegossen, noch nie gedüngt -> zufrieden', () => {
+test('Regression: frisch angelegt mit Düngeplan, kürzlich gegossen, noch nie gedüngt -> zufrieden', () => {
   // Bug gefunden beim manuellen Testen: "noch nie gedüngt" wurde wie
   // "unendlich überfällig" behandelt statt ab Anlage der Pflanze zu zählen.
+  // zuletztGegossenAm bewusst nicht HEUTE, sonst würde der neue
+  // Freude-Auslöser greifen statt der hier geprüfte Fälligkeits-Fall.
   const stimmung = berechnePflegestimmung({
     heute: HEUTE,
     seitWannBeobachten: HEUTE,
-    zuletztGegossenAm: HEUTE,
+    zuletztGegossenAm: tageVorHeute(1),
     giessIntervallTage: 7,
     zuletztGeduengtAm: null,
     duengerIntervallTage: 14,
+    zuletztGeerntetAm: null,
   });
   assert.equal(stimmung, 'zufrieden');
 });
@@ -111,8 +212,9 @@ test('Pflegestimmung: Gießen pünktlich, aber Düngen stark überfällig -> zä
     giessIntervallTage: 3,
     zuletztGeduengtAm: tageVorHeute(60),
     duengerIntervallTage: 14,
+    zuletztGeerntetAm: null,
   });
-  assert.equal(stimmung, 'sehr_traurig');
+  assert.equal(stimmung, 'wuetend');
 });
 
 test('Pflegestimmung: kein Düngeplan (null) darf nicht fälschlich als überfällig zählen', () => {
@@ -123,6 +225,7 @@ test('Pflegestimmung: kein Düngeplan (null) darf nicht fälschlich als überfä
     giessIntervallTage: 3,
     zuletztGeduengtAm: null,
     duengerIntervallTage: null,
+    zuletztGeerntetAm: null,
   });
   assert.equal(stimmung, 'zufrieden');
 });
