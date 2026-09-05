@@ -161,21 +161,29 @@ export async function profilSchritt2AnlegenAction(formData: FormData) {
     }
   }
 
-  const art = optionalesTextFeld(formData, 'art') ?? '';
+  function sanitisieren(wert: string | null): string {
+    if (!wert) return '';
+    const getrimmt = wert.trim();
+    const lower = getrimmt.toLowerCase();
+    if (lower === 'n/a' || lower === 'na' || lower === 'none' || lower === 'null') return '';
+    return getrimmt;
+  }
+
+  const art = sanitisieren(optionalesTextFeld(formData, 'art'));
   const roherName = formData.get('name');
   let name = typeof roherName === 'string' ? roherName.trim() : '';
   if (!name) {
-    name = art ? `Meine ${art}` : 'Meine Pflanze';
+    name = art ? `Mein ${art}` : 'Meine Pflanze';
   }
 
-  const giessrhythmus =
+  const giessrhythmus = sanitisieren(
     optionalesTextFeld(formData, 'giessrhythmus') ??
-    optionalesTextFeld(formData, 'giessenrhythmus') ??
-    '';
-  const duengenrhythmus = optionalesTextFeld(formData, 'duengenrhythmus') ?? '';
-  const erde = optionalesTextFeld(formData, 'erde') ?? '';
-  const licht = optionalesTextFeld(formData, 'licht') ?? '';
-  const nutzerNotiz = optionalesTextFeld(formData, 'notiz') ?? '';
+    optionalesTextFeld(formData, 'giessenrhythmus')
+  );
+  const duengenrhythmus = sanitisieren(optionalesTextFeld(formData, 'duengenrhythmus'));
+  const erde = sanitisieren(optionalesTextFeld(formData, 'erde'));
+  const licht = sanitisieren(optionalesTextFeld(formData, 'licht'));
+  const nutzerNotiz = sanitisieren(optionalesTextFeld(formData, 'notiz'));
 
   let giessTage = 7;
   if (giessrhythmus) {

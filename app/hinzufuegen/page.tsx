@@ -15,17 +15,36 @@ interface Props {
   }>;
 }
 
+function feldWertBereinigen(wert?: string | null): string {
+  if (!wert) return '';
+  const getrimmt = wert.trim();
+  const lower = getrimmt.toLowerCase();
+  if (
+    lower === 'n/a' ||
+    lower === 'na' ||
+    lower === 'none' ||
+    lower === 'null' ||
+    lower === 'undefined' ||
+    lower === '-' ||
+    lower === '--'
+  ) {
+    return '';
+  }
+  return getrimmt;
+}
+
 export default async function ProfilSchritt2Seite({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
   const daten: PflanzenErkennungsErgebnis = ENJOY_05_PLANT_DATA;
 
-  const artVorgabe = params.art ?? daten.identified_name ?? daten.raw_name;
-  const nameVorgabe = params.name ?? (artVorgabe ? `Meine ${artVorgabe}` : 'Meine Pflanze');
-  const giessVorgabe = params.giessrhythmus ?? params.giessenrhythmus ?? daten.Giessrhythmus;
-  const duengenVorgabe = params.duengenrhythmus ?? daten.Duengenrhytmus;
-  const erdeVorgabe = params.erde ?? daten.Erde;
-  const lichtVorgabe = params.licht ?? daten.Licht;
-  const notizVorgabe = params.notiz ?? '';
+  const artVorgabe = feldWertBereinigen(params.art ?? daten.identified_name ?? daten.raw_name);
+  const giessVorgabe = feldWertBereinigen(params.giessrhythmus ?? params.giessenrhythmus ?? daten.Giessrhythmus);
+  const duengenVorgabe = feldWertBereinigen(params.duengenrhythmus ?? daten.Duengenrhytmus);
+  const erdeVorgabe = feldWertBereinigen(params.erde ?? daten.Erde);
+  const lichtVorgabe = feldWertBereinigen(params.licht ?? daten.Licht);
+  const notizVorgabe = feldWertBereinigen(params.notiz ?? '');
+
+  const hinweisName = `(Dein Wahl oder Mein ${artVorgabe || '<Art des Pflanzes>'})`;
 
   return (
     <div className="space-y-6 pb-10">
@@ -37,20 +56,21 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
       {/* 3.b Vorschau-Bild (Boilerplate Icon, keine Korrekturmöglichkeit) */}
       <div className="flex justify-center">
         <div className="flex h-44 w-44 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 shadow-sm">
-          <TopfMitGesicht wuchsstufe={2} stimmung="zufrieden" name={nameVorgabe} />
+          <TopfMitGesicht wuchsstufe={2} stimmung="zufrieden" name={artVorgabe || 'Pflanze'} />
         </div>
       </div>
 
       {/* 3.c Felder prüfen und ggf. bearbeiten */}
       <form action={profilSchritt2AnlegenAction} className="space-y-4">
-        {/* c.1: Name */}
+        {/* c.1: Name (standardmäßig leer, kleine graue Notiz in Klammern) */}
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Name</span>
+          <span className="mb-1 block text-sm font-medium text-stone-700">
+            Name <span className="text-xs font-normal text-stone-400">{hinweisName}</span>
+          </span>
           <input
             type="text"
             name="name"
-            defaultValue={nameVorgabe}
-            placeholder={`Meie ${artVorgabe}`}
+            defaultValue=""
             className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
           />
         </label>
