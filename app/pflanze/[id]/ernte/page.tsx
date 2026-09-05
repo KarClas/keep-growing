@@ -1,3 +1,4 @@
+import { IconZurueck, IconKorb } from '@/components/Symbole';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { aktuellerNutzer } from '@/lib/session';
@@ -15,10 +16,10 @@ export default async function ErnteEintragen({ params }: { params: Promise<{ id:
   return (
     <div className="space-y-6 pb-6">
       <Link href={`/pflanze/${pflanze.id}`} className="text-sm text-stone-500 underline">
-        ← Zurück
+        <IconZurueck className="h-4 w-4 inline" /> Zurück
       </Link>
 
-      <h1 className="text-2xl font-bold">🧺 Ernte eintragen</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold"><IconKorb className="h-6 w-6" /> Ernte eintragen</h1>
       <p className="text-stone-500">{pflanze.name}</p>
 
       <form action={ernteEintragenAction} className="space-y-4">

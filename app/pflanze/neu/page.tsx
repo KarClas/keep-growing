@@ -1,14 +1,15 @@
 import Link from 'next/link';
 import { pflanzeAnlegenAction } from '@/app/server-aktionen';
+import { IconZurueck } from '@/components/Symbole';
 
 export default function NeuePflanze() {
   return (
     <div className="space-y-6 pb-6">
       <Link href="/hinzufuegen" className="text-sm text-stone-500 underline">
-        ← Zurück
+        <IconZurueck className="h-4 w-4 inline" /> Zurück
       </Link>
 
-      <h1 className="text-2xl font-bold">✍️ Pflanze von Hand anlegen</h1>
+      <h1 className="text-2xl font-bold">Pflanze von Hand anlegen</h1>
 
       <form action={pflanzeAnlegenAction} className="space-y-4">
         <label className="block">

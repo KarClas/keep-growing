@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useTransition } from 'react';
 import Link from 'next/link';
 import { pflanzeAusScannerAction } from '@/app/server-aktionen';
 import type { FotoVorschlag } from '@/lib/erkennung/typ';
+import { IconKamera, IconBlitz, IconLupe, IconWarnung, IconNeu } from '@/components/Symbole';
 
 /**
  * Kamera-zuerst-Fluss nach Weißwandskizze (Handy füllt fast alles das Sucher-
@@ -239,7 +240,7 @@ export function KameraHinzufuegen() {
         <div className="relative overflow-hidden rounded-3xl bg-stone-900" style={{ height: '58vh' }}>
           {kameraFehler ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-stone-400">
-              <span className="text-4xl">📷</span>
+              <IconKamera className="h-10 w-10" />
               <p className="text-sm">{kameraFehler}</p>
             </div>
           ) : (
@@ -270,7 +271,7 @@ export function KameraHinzufuegen() {
                 blitzAn ? 'bg-amber-400 text-stone-900' : 'bg-black/40 text-white'
               }`}
             >
-              ⚡
+              <IconBlitz className="h-5 w-5" />
             </button>
           )}
         </div>
@@ -302,9 +303,9 @@ export function KameraHinzufuegen() {
         <button
           type="button"
           onClick={zurueckZurKamera}
-          className="absolute right-3 top-3 rounded-full bg-black/50 px-3.5 py-2 text-sm font-semibold text-white backdrop-blur"
+          className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/50 px-3.5 py-2 text-sm font-semibold text-white backdrop-blur"
         >
-          ↺ Neues Foto
+          <IconNeu className="h-4 w-4" /> Neues Foto
         </button>
       </div>
 
@@ -331,8 +332,8 @@ export function KameraHinzufuegen() {
               vorschlag.sicherheit === 'hoch' ? 'bg-emerald-50 text-emerald-900' : 'bg-amber-50 text-amber-900'
             }`}
           >
-            <p className="font-semibold">
-              🔍 Pflanze erkannt: {vorschlag.art}{' '}
+            <p className="flex items-center gap-2 font-semibold">
+              <IconLupe className="h-5 w-5 shrink-0" /> Pflanze erkannt: {vorschlag.art}{' '}
               <span className="text-xs font-normal opacity-80">
                 ({vorschlag.sicherheit === 'hoch' ? 'hohe Trefferwahrscheinlichkeit' : `${vorschlag.sicherheit}e Sicherheit — bitte prüfen`})
               </span>
@@ -358,12 +359,14 @@ export function KameraHinzufuegen() {
         ) : geprueft ? (
           <div className="rounded-2xl bg-white p-4 shadow-sm">
             {erkennungsFehler ? (
-              <p className="mb-3 rounded-xl bg-red-50 p-2.5 text-sm font-semibold text-red-700">
-                ⚠️ {erkennungsFehler} — bitte Name und Art von Hand eintragen.
+              <p className="mb-3 flex items-start gap-2 rounded-xl bg-red-50 p-2.5 text-sm font-semibold text-red-700">
+                <IconWarnung className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>{erkennungsFehler} — bitte Name und Art von Hand eintragen.</span>
               </p>
             ) : (
-              <p className="mb-3 rounded-xl bg-red-50 p-2.5 text-sm font-semibold text-red-700">
-                ⚠️ Keine Pflanze erkannt — bitte Name und Art von Hand eintragen.
+              <p className="mb-3 flex items-start gap-2 rounded-xl bg-red-50 p-2.5 text-sm font-semibold text-red-700">
+                <IconWarnung className="mt-0.5 h-4 w-4 shrink-0" />
+                <span>Keine Pflanze erkannt — bitte Name und Art von Hand eintragen.</span>
               </p>
             )}
             <div className="space-y-3">

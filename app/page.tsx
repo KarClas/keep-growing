@@ -4,7 +4,8 @@ import { aktuelleSitzung } from '@/lib/session';
 import { pflanzenFuerGarten, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, ernteListeFuerNutzer } from '@/lib/db/abfragen';
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { EngelWolke } from '@/components/EngelWolke';
-import { ernteSymbol } from '@/lib/garten/symbole';
+import { ernteKategorie } from '@/lib/garten/symbole';
+import { ErnteSymbol, IconKeimling } from '@/components/Symbole';
 
 export default async function Home() {
   const sitzung = await aktuelleSitzung();
@@ -16,17 +17,19 @@ export default async function Home() {
   const verstorben = pflanzen.filter((p) => p.lebenszustand === 'verstorben');
   const ernten = ernteListeFuerNutzer(nutzerId);
 
-  const ernteSymboleGesehen = new Map<string, string>();
+  const ernteSymboleGesehen = new Map<string, ReturnType<typeof ernteKategorie>>();
   for (const e of ernten) {
     if (!ernteSymboleGesehen.has(e.pflanzeId)) {
-      ernteSymboleGesehen.set(e.pflanzeId, ernteSymbol(e.pflanzeName, e.pflanzeArt));
+      ernteSymboleGesehen.set(e.pflanzeId, ernteKategorie(e.pflanzeName, e.pflanzeArt));
     }
   }
 
   return (
     <div className="space-y-8 pb-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-emerald-800">🌱 Mein Garten</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-emerald-800">
+          <IconKeimling className="h-7 w-7" /> Mein Garten
+        </h1>
         <Link href="/start" className="text-sm text-stone-500 underline">
           Nutzer wechseln
         </Link>
@@ -68,9 +71,9 @@ export default async function Home() {
         {ernteSymboleGesehen.size === 0 ? (
           <p className="text-sm text-stone-500">Noch nichts geerntet.</p>
         ) : (
-          <div className="flex flex-wrap gap-3 text-3xl">
-            {[...ernteSymboleGesehen.values()].map((symbol, i) => (
-              <span key={i}>{symbol}</span>
+          <div className="flex flex-wrap gap-3 text-emerald-700">
+            {[...ernteSymboleGesehen.entries()].map(([pflanzeId, kategorie]) => (
+              <ErnteSymbol key={pflanzeId} kategorie={kategorie} className="h-8 w-8" />
             ))}
           </div>
         )}
