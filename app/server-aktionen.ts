@@ -121,7 +121,9 @@ export async function pflanzeAusScannerAction(formData: FormData) {
       art: textFeld(formData, 'art'),
       erde: optionalesTextFeld(formData, 'erde'),
       licht: optionalesTextFeld(formData, 'licht'),
+      giessIntervallTage: optionaleZahl(formData, 'giessIntervallTage') ?? undefined,
       fotoUrl,
+      hinweis: optionalesTextFeld(formData, 'hinweis'),
     },
     {
       name: textFeld(formData, 'name'),

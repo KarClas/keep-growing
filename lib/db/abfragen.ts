@@ -220,6 +220,8 @@ export interface ErkennungsErgebnis {
   duengerIntervallTage?: number | null;
   duengerTyp?: string | null;
   fotoUrl?: string | null;
+  /** Satz zu Begleitpflanzen/Bestandteilen aus der Foto-Erkennung (ergänzt die Notiz, Regel: nur ergänzen). */
+  hinweis?: string | null;
 }
 
 export interface ErkennungsRueckfragen {
@@ -234,7 +236,12 @@ export function pflanzeAusErkennungAnlegen(
   erkennung: ErkennungsErgebnis,
   rueckfragen: ErkennungsRueckfragen,
 ): Pflanze {
-  const notiz = rueckfragen.aktuelleGroesse ? `Größe beim Anlegen: ${rueckfragen.aktuelleGroesse}` : '';
+  const notiz = [
+    erkennung.hinweis ? `Aus der Foto-Erkennung: ${erkennung.hinweis}` : null,
+    rueckfragen.aktuelleGroesse ? `Größe beim Anlegen: ${rueckfragen.aktuelleGroesse}` : null,
+  ]
+    .filter(Boolean)
+    .join(' · ');
   return pflanzeAnlegen(gartenId, nutzerId, {
     name: rueckfragen.name,
     art: erkennung.art,
