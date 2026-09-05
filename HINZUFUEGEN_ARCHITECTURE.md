@@ -140,12 +140,9 @@ Die Seite ist unter `app/hinzufuegen/page.tsx` (und Alias `app/hinzufuegen/schri
    - **Erde (Erdemischung) (`erde`)**:
      - Vorbefüllt mit dem Erdenvorschlag. War der API-Wert `"N/A"`, bleibt das Feld leer.
    - **Licht (`licht`)**:
-     - Checklisten-Feld mit zwei Optionen: **`Sonne`** und **`Schatten`**.
-     - Wird anhand der Ausgabe von `plant-details-api` (`Licht: "sun" | "shadow" | "any"`) automatisch vorausgewählt:
-       - `"sun"`: Nur **`Sonne`** ist aktiviert.
-       - `"shadow"`: Nur **`Schatten`** ist aktiviert.
-       - `"any"`: Sowohl **`Sonne`** als auch **`Schatten`** sind aktiviert.
-     - Nutzer:in kann die Häkchen nach Wunsch frei anpassen (eine Option oder beide).
+     - Deterministisches Textfeld mit genau 3 Optionen: `Sonne`, `Schatten`, `Sonne oder Schatten`.
+     - Vorbefüllt durch deterministisches Parsing des API-Outputs (`sun` ──► `Sonne`, `shadow` ──► `Schatten`, `any` ──► `Sonne oder Schatten`, Default bei fehlender Angabe/`N/A`: `Sonne oder Schatten`).
+     - Bietet die 3 Optionen zudem über `<datalist>` zur direkten Auswahl/Vervollständigung an.
    - **Notiz (`notiz`)**:
      - Freitextfeld für individuelle Notizen der Nutzer:in, optional wie bisher.
 

@@ -9,43 +9,57 @@ export interface PflanzenErkennungsErgebnis {
   perenual_id?: number;
 }
 
-export interface LichtAuswahl {
-  sonne: boolean;
-  schatten: boolean;
-}
+export type LichtOption = 'Sonne' | 'Schatten' | 'Sonne oder Schatten';
+
+export const LICHT_OPTIONEN: readonly LichtOption[] = [
+  'Sonne',
+  'Schatten',
+  'Sonne oder Schatten',
+] as const;
 
 /**
  * Parst das Licht-Feld aus der get-plant-details API (feature/get-plant-details-api):
- * Format: "sun", "shadow", "any" oder "N/A"
- * - "sun" -> Sonne aktiv
- * - "shadow" -> Schatten aktiv
- * - "any" -> Sonne UND Schatten aktiv
+ * Format der API: "sun", "shadow", "any" oder "N/A"
+ *
+ * Deterministische Abbildung auf die drei geforderten Optionen:
+ * - "sun" -> "Sonne"
+ * - "shadow" -> "Schatten"
+ * - "any" -> "Sonne oder Schatten"
+ * - "N/A" / nicht vorhanden -> "Sonne oder Schatten"
  */
-export function parseLichtAusgabe(lichtWert?: string | null): LichtAuswahl {
-  if (!lichtWert) return { sonne: true, schatten: false };
+export function parseLichtAusgabe(lichtWert?: string | null): LichtOption {
+  if (!lichtWert) return 'Sonne oder Schatten';
   const val = lichtWert.trim().toLowerCase();
-  if (val === 'shadow' || val === 'schatten' || val === 'shade') {
-    return { sonne: false, schatten: true };
-  }
-  if (val === 'any' || val === 'all' || val === 'both' || val === 'beides') {
-    return { sonne: true, schatten: true };
-  }
+
   if (val === 'sun' || val === 'sonne') {
-    return { sonne: true, schatten: false };
+    return 'Sonne';
   }
+  if (val === 'shadow' || val === 'schatten' || val === 'shade') {
+    return 'Schatten';
+  }
+  if (
+    val === 'any' ||
+    val === 'all' ||
+    val === 'both' ||
+    val === 'sonne oder schatten' ||
+    val === 'sonne/schatten'
+  ) {
+    return 'Sonne oder Schatten';
+  }
+
   const hasSun = val.includes('sun') || val.includes('sonne');
   const hasShade = val.includes('shad') || val.includes('schatt');
   if (hasSun && hasShade) {
-    return { sonne: true, schatten: true };
+    return 'Sonne oder Schatten';
   }
   if (hasShade) {
-    return { sonne: false, schatten: true };
+    return 'Schatten';
   }
   if (hasSun) {
-    return { sonne: true, schatten: false };
+    return 'Sonne';
   }
-  // Entweder oder beide müssen markiert sein: Fallback auf Sonne
-  return { sonne: true, schatten: false };
+
+  return 'Sonne oder Schatten';
 }
 
 /**
@@ -58,8 +72,8 @@ export const ENJOY_05_PLANT_DATA: PflanzenErkennungsErgebnis = {
   identified_name: 'Rosa chinensis',
   Giessrhythmus: 'Bedarfsgerecht bei angetrockneter Erdoberfläche gießen (ca. alle 7–10 Tage)',
   Duengenrhytmus: 'Alle 2–4 Wochen von Frühjahr bis Spätsommer mit handelsüblichem Flüssigdünger',
-  Standort: 'outside',
-  Licht: 'sun',
+  Standort: 'N/A',
+  Licht: 'N/A',
   Erde: 'N/A',
 };
 
