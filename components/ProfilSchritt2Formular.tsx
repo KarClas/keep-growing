@@ -206,10 +206,10 @@ export function ProfilSchritt2Formular({
           />
         </label>
 
-        {/* c.6: Licht — Zentrierte Zeile über die gesamte Breite ohne Bubble */}
-        <div className="space-y-1.5 py-1">
+        {/* c.6: Licht — Zeile über die gesamte Linienbreite ohne Bubble */}
+        <div className="w-full space-y-1.5 py-1">
           <span
-            className="block text-center text-sm font-medium transition-colors"
+            className="block text-sm font-medium transition-colors"
             style={
               mode === 'beides'
                 ? {
@@ -226,48 +226,88 @@ export function ProfilSchritt2Formular({
             Licht
           </span>
 
-          <div className="grid w-full grid-cols-2 items-center">
-            {/* Sonne: Linke Spalte, zentriert in linker Hälfte */}
-            <div className="flex justify-center">
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="licht"
-                  value="Sonne"
-                  checked={sonneChecked}
-                  onChange={(e) => setSonneChecked(e.target.checked)}
-                  className="h-4 w-4 rounded border-stone-400 text-emerald-600 focus:ring-emerald-500"
-                />
-                <span
-                  className={`text-sm font-medium transition-colors ${
-                    mode === 'schatten' ? 'text-stone-300' : 'text-stone-800'
-                  }`}
-                >
-                  Sonne
-                </span>
-              </label>
-            </div>
+          <div className="flex w-full items-center justify-between">
+            {/* Sonne: Linksbündig */}
+            <label className="group flex cursor-pointer items-center gap-2.5 select-none">
+              <input
+                type="checkbox"
+                name="licht"
+                value="Sonne"
+                checked={sonneChecked}
+                onChange={(e) => setSonneChecked(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`flex h-5 w-5 items-center justify-center rounded-lg border-2 transition-all ${
+                  sonneChecked
+                    ? 'border-emerald-600 bg-transparent'
+                    : mode === 'schatten'
+                      ? 'border-stone-600 bg-transparent group-hover:border-stone-500'
+                      : 'border-stone-400 bg-transparent group-hover:border-stone-500'
+                }`}
+              >
+                {sonneChecked && (
+                  <svg
+                    className="h-3.5 w-3.5 text-emerald-600 stroke-[3]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+              <span
+                className={`text-sm font-medium transition-colors ${
+                  mode === 'schatten' ? 'text-stone-300' : 'text-stone-800'
+                }`}
+              >
+                Sonne
+              </span>
+            </label>
 
-            {/* Schatten: Rechte Spalte, zentriert in rechter Hälfte */}
-            <div className="flex justify-center">
-              <label className="flex cursor-pointer items-center gap-2">
-                <input
-                  type="checkbox"
-                  name="licht"
-                  value="Schatten"
-                  checked={schattenChecked}
-                  onChange={(e) => setSchattenChecked(e.target.checked)}
-                  className="h-4 w-4 rounded border-stone-400 text-emerald-600 focus:ring-emerald-500"
-                />
-                <span
-                  className={`text-sm font-medium transition-colors ${
-                    mode === 'sonne' ? 'text-stone-800' : 'text-stone-200'
-                  }`}
-                >
-                  Schatten
-                </span>
-              </label>
-            </div>
+            {/* Schatten: Rechtsbündig */}
+            <label className="group flex cursor-pointer items-center gap-2.5 select-none">
+              <input
+                type="checkbox"
+                name="licht"
+                value="Schatten"
+                checked={schattenChecked}
+                onChange={(e) => setSchattenChecked(e.target.checked)}
+                className="sr-only"
+              />
+              <div
+                className={`flex h-5 w-5 items-center justify-center rounded-lg border-2 transition-all ${
+                  schattenChecked
+                    ? 'border-emerald-600 bg-transparent'
+                    : mode === 'schatten'
+                      ? 'border-stone-600 bg-transparent group-hover:border-stone-500'
+                      : 'border-stone-400 bg-transparent group-hover:border-stone-500'
+                }`}
+              >
+                {schattenChecked && (
+                  <svg
+                    className="h-3.5 w-3.5 text-emerald-600 stroke-[3]"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  >
+                    <polyline points="20 6 9 17 4 12" />
+                  </svg>
+                )}
+              </div>
+              <span
+                className={`text-sm font-medium transition-colors ${
+                  mode === 'sonne' ? 'text-stone-800' : 'text-stone-200'
+                }`}
+              >
+                Schatten
+              </span>
+            </label>
           </div>
         </div>
 
