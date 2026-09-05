@@ -1,6 +1,11 @@
 import type { Pflegestimmung } from '@/lib/garten/berechnung';
-import { bestimmeFamilie, bestimmeAkzentfarbe } from '@/lib/garten/pflanzenfamilie';
-import { PflanzenZeichnung } from './PflanzenZeichnung';
+import {
+  bestimmeFamilie,
+  pflanzenSilhouette,
+  ORIGINAL_MITTE,
+  ORIGINAL_ERDE,
+  type DarstellungsParameter,
+} from '@/lib/garten/pflanzenzeichnung';
 
 const POT_FARBE = '#c97b52';
 const POT_FARBE_DUNKEL = '#a85f3c';
@@ -8,6 +13,24 @@ const LINIE_FARBE = '#3a2418';
 const AUGE_GLANZ_FARBE = '#fefaf3';
 const WANGE_FARBE = '#e98a9a';
 const SCHWEISS_FARBE = '#6fa8dc';
+
+// Der Topf sitzt unverändert bei RAND=132. Der Himmel darüber ist größer als
+// die ursprüngliche 0..200-Leinwand (siehe VIEWBOX), damit hoch wachsende
+// Formen (Drachenbaum, Nadel, Monstera) bei voller Wuchsstufe nicht oben
+// abgeschnitten werden.
+//
+// MASSSTAB ist bewusst kein einfaches Verhältnis (z. B. Wuchsraum/Erdlinie),
+// sondern ein von Hand geprüfter, fester Wert: Er muss gleichzeitig in der
+// Höhe (Himmel) UND in der Breite (viewBox bleibt 160 breit, Busch-Fächer
+// reicht am weitesten seitlich raus) hineinpassen. 1.95 ist der größte Wert,
+// bei dem keine der Silhouetten bei voller Wuchsstufe über den Rand hinausragt.
+const MITTE = 80;
+const RAND = 132;
+const HIMMEL = 60; // zusätzlicher Platz oberhalb von y=0
+const VIEWBOX = `0 ${-HIMMEL} 160 ${200 + HIMMEL}`;
+const MASSSTAB = 1.95;
+const VERSCHIEBUNG_X = MITTE - ORIGINAL_MITTE * MASSSTAB;
+const VERSCHIEBUNG_Y = RAND - ORIGINAL_ERDE * MASSSTAB;
 
 const STIMMUNG_BESCHREIBUNG: Record<Pflegestimmung, string> = {
   sehr_gluecklich: 'sehr glücklich',
@@ -132,22 +155,26 @@ function Gesicht({ stimmung }: { stimmung: Pflegestimmung }) {
 }
 
 export function TopfMitGesicht({
+  id,
   wuchsstufe,
   stimmung,
   name,
   art,
+  darstellung,
 }: {
+  id: string;
   wuchsstufe: number;
   stimmung: Pflegestimmung;
   name?: string;
   art?: string | null;
+  darstellung?: DarstellungsParameter;
 }) {
-  const familie = bestimmeFamilie(name ?? '', art ?? null);
-  const akzentfarbe = bestimmeAkzentfarbe(name ?? '', art ?? null);
+  const familie = bestimmeFamilie(id, name ?? '', art ?? null);
+  const pflanzeSvg = pflanzenSilhouette(id, familie, wuchsstufe, darstellung ?? {});
 
   return (
     <svg
-      viewBox="0 0 160 200"
+      viewBox={VIEWBOX}
       width="100%"
       height="100%"
       role="img"
@@ -157,8 +184,8 @@ export function TopfMitGesicht({
           : `Pflegestimmung: ${STIMMUNG_BESCHREIBUNG[stimmung]}`
       }
     >
-      <g>
-        <PflanzenZeichnung familie={familie} wuchsstufe={wuchsstufe} akzentfarbe={akzentfarbe} />
+      <g transform={`translate(${VERSCHIEBUNG_X.toFixed(2)},${VERSCHIEBUNG_Y.toFixed(2)}) scale(${MASSSTAB.toFixed(3)})`}>
+        <g dangerouslySetInnerHTML={{ __html: pflanzeSvg }} />
       </g>
 
       <path d="M35 132 H125 L112 190 H48 Z" fill={POT_FARBE} stroke={POT_FARBE_DUNKEL} strokeWidth={2} />

@@ -230,13 +230,36 @@ test('Pflegestimmung: kein Düngeplan (null) darf nicht fälschlich als überfä
   assert.equal(stimmung, 'zufrieden');
 });
 
-test('Wuchsstufe: steigt mit jeder Aktion, deckelt bei MAX_WUCHSSTUFE', () => {
-  assert.equal(berechneWuchsstufe(0), 0);
-  assert.equal(berechneWuchsstufe(1), 1);
-  assert.equal(berechneWuchsstufe(MAX_WUCHSSTUFE), MAX_WUCHSSTUFE);
-  assert.equal(berechneWuchsstufe(MAX_WUCHSSTUFE + 10), MAX_WUCHSSTUFE);
+test('Wuchsstufe: noch nichts getan -> 0', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 0, duengen: 0, ernten: 0 }), 0);
+});
+
+test('Wuchsstufe: unter 5 Gießen bringt noch kein neues Blatt', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 4, duengen: 0, ernten: 0 }), 0);
+});
+
+test('Wuchsstufe: genau 5 Gießen -> eine Stufe', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 5, duengen: 0, ernten: 0 }), 1);
+});
+
+test('Wuchsstufe: Gießen und Düngen zählen getrennt, nicht gemeinsam gegen die 5er-Schwelle', () => {
+  // 3 Gießen + 3 Düngen macht zusammen 6 Aktionen, aber keine der beiden
+  // Sorten erreicht für sich allein 5 — also noch keine neue Stufe.
+  assert.equal(berechneWuchsstufe({ giessen: 3, duengen: 3, ernten: 0 }), 0);
+});
+
+test('Wuchsstufe: 5 Gießen und 5 Düngen -> zwei Stufen', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 5, duengen: 5, ernten: 0 }), 2);
+});
+
+test('Wuchsstufe: eine Ernte zählt sofort, ohne 5er-Schwelle', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 0, duengen: 0, ernten: 1 }), 1);
+});
+
+test('Wuchsstufe: deckelt bei MAX_WUCHSSTUFE, auch bei viel mehr Aktionen', () => {
+  assert.equal(berechneWuchsstufe({ giessen: 500, duengen: 500, ernten: 500 }), MAX_WUCHSSTUFE);
 });
 
 test('Wuchsstufe: negative Eingabe ist ein Programmfehler, keine stille 0', () => {
-  assert.throws(() => berechneWuchsstufe(-1));
+  assert.throws(() => berechneWuchsstufe({ giessen: -1, duengen: 0, ernten: 0 }));
 });

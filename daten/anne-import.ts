@@ -1,73 +1,93 @@
 /**
- * Einmaliger Import von Annes bestehenden Pflanzendaten aus
- * "Annes Pflanzenparadies" (dem Vorgängerprojekt) in keep-growing.
+ * Einmaliger Import von Annes bestehenden Pflanzendaten direkt aus der
+ * laufenden Postgres-Datenbank von "Annes Pflanzenparadies" (Vorgängerprojekt).
  *
- * Quelle (nur lesend, wird nie verändert):
- *   /Users/flowmate/Annes Pflanzenparadies/daten/pflanzen.json
- *   /Users/flowmate/Annes Pflanzenparadies/daten/sicherung-2026-09-04T2011.json
+ * Nur lesend (SELECT), nichts an der Quelle wird verändert oder geschrieben.
+ * Verbindung ist bewusst fest verdrahtet — dieses Skript läuft genau einmal
+ * auf diesem Rechner (siehe DATEN.md: "Einmaliger, sorgfältiger Vorgang").
  *
- * Pfade sind bewusst fest verdrahtet — dieses Skript läuft genau einmal auf
- * diesem Rechner, siehe DATEN.md ("Einmaliger, sorgfältiger Vorgang, keine
- * laufende Synchronisation").
- *
- * Ehrlichkeit statt Erfindung: Die Quelle kennt für Gießen/Düngen nur einen
- * laufenden Zähler plus letzten Zeitpunkt, keine Einzeltermine (siehe deren
- * eigene DATEN.md: "nur Summen geführt, keine Einzeltermine"). Statt das zu
- * verwerfen oder frei erfundene Einzeltermine einzusetzen, wird genau EIN
- * echter Aktivitäts-Eintrag mit dem letzten bekannten Datum angelegt, und der
- * Rest der historischen Handlungen fließt als ehrlicher Sockel
- * (`wuchsstufe_sockel`) in die Wuchsstufe ein — analog zum "Sockel + Anzahl
- * echter Ereignisse"-Ansatz, den das Referenzprojekt für genau dieses Problem
- * beschreibt. Ernten haben dagegen echte Einzeltermine und werden 1:1
- * übernommen, inklusive ursprünglicher ID (vermeidet Dubletten bei einem
- * späteren Abgleich).
+ * Frühere Fassung dieses Skripts las nur die JSON-Sicherung
+ * (daten/sicherung-*.json) mit aggregierten Zählern ohne Einzeltermine. Die
+ * Live-Datenbank führt seit dem 27.7.2026 aber echte Einzeltermine in der
+ * Tabelle `aktivitaeten` — die werden jetzt 1:1 mit echtem Zeitpunkt
+ * übernommen (keine Rekonstruktion mehr nötig). Nur für die Zeit VOR dem
+ * 27.7. gibt es ausschließlich Summen (Tabelle `basis_pflege`, aus der
+ * Artefakt-Zeit) — dafür bleibt der ehrliche Sockel-Ansatz
+ * (`sockel_giessen`/`sockel_duengen`) bestehen, jetzt aber nur noch für
+ * diese kurze Vorlaufzeit statt für fast die gesamte Historie.
  *
  * Ausführen mit: node --experimental-strip-types daten/anne-import.ts
  */
-import fs from 'node:fs';
-import { randomUUID } from 'node:crypto';
+import { execFileSync } from 'node:child_process';
 import { db } from '../lib/db/index.ts';
 import { nutzerListe, nutzerAnlegen, gartenAnlegen, type DrinnenDraussen } from '../lib/db/abfragen.ts';
+import type { DarstellungsParameter } from '../lib/garten/pflanzenzeichnung.ts';
 
-const QUELLE_PFLANZEN = '/Users/flowmate/Annes Pflanzenparadies/daten/pflanzen.json';
-const QUELLE_SICHERUNG = '/Users/flowmate/Annes Pflanzenparadies/daten/sicherung-2026-09-04T2011.json';
+const POSTGRES_URL = 'postgres://flowmate@localhost:5432/pflanzenparadies';
 const NUTZER_NAME = 'Anne';
 const GARTEN_NAME = 'Balkon';
 
-interface QuellPflanze {
+interface PgPflanze {
   id: string;
   name: string;
   standort: 'drinnen' | 'draussen';
   kategorie: string;
-  duengen: 'ja' | 'nein';
-  duenger?: string;
-  duenge_intervall_tage?: number;
-  giess_intervall_tage: number;
-  licht?: string;
-  erde?: string;
-  notizen?: string;
+  duengen: 'ja' | 'kaum' | 'selten' | 'nein' | null;
+  duenger: string | null;
+  duenge_intervall_tage: number | null;
+  giess_intervall_tage: number | null;
+  licht: string | null;
+  erde: string | null;
+  notizen: string | null;
+  darstellung: Record<string, number | string | boolean> | null;
+  aktiv: boolean;
 }
 
-interface QuellAktivitaet {
+interface PgBasisPflege {
+  pflanze_id: string;
   n_gegossen: number;
-  gegossen: string;
-  n_geduengt?: number;
-  geduengt?: string;
+  n_geduengt: number;
 }
 
-interface QuellErnte {
-  eid: number;
-  pflanzeId: string;
+interface PgAktivitaet {
+  id: number;
+  pflanze_id: string;
+  art: 'gegossen' | 'geduengt';
+  zeitpunkt: string;
+  notiz: string | null;
+}
+
+interface PgErnte {
+  id: number;
+  pflanze_id: string;
   datum: string;
-  menge: string;
-  notiz: string;
+  menge: string | null;
+  notiz: string | null;
 }
 
-function ladeJson<T>(pfad: string): T {
-  if (!fs.existsSync(pfad)) {
-    throw new Error(`Quelldatei fehlt: ${pfad}`);
-  }
-  return JSON.parse(fs.readFileSync(pfad, 'utf-8')) as T;
+function pgAbfrage<T>(sql: string): T[] {
+  const ausgabe = execFileSync(
+    'psql',
+    [POSTGRES_URL, '-t', '-A', '-c', `SELECT COALESCE(json_agg(row_to_json(t)), '[]') FROM (${sql}) t;`],
+    { encoding: 'utf-8', maxBuffer: 20 * 1024 * 1024 },
+  );
+  return JSON.parse(ausgabe.trim()) as T[];
+}
+
+function darstellungUebersetzen(roh: Record<string, any>): DarstellungsParameter {
+  return {
+    mindeststufe: roh.mindeststufe,
+    wuchshoehe: roh.wuchshoehe,
+    dichte: roh.dichte,
+    blattBonus: roh.blatt_bonus,
+    triebKuerzen: roh.trieb_kuerzen,
+    sonderfrucht: roh.sonderfrucht,
+    bluetenGroesse: roh.bluete_groesse,
+    blueht: roh.blueht,
+    verzweigt: roh.verzweigt,
+    pflanzenImTopf: roh.pflanzen_im_topf,
+    topfMit: roh.topf_mit,
+  };
 }
 
 function importieren() {
@@ -78,14 +98,12 @@ function importieren() {
     );
   }
 
-  const pflanzenDaten = ladeJson<{ pflanzen: QuellPflanze[] }>(QUELLE_PFLANZEN);
-  const sicherung = ladeJson<{
-    gesichert: string;
-    daten: { 'garten:aktivitaet': Record<string, QuellAktivitaet>; 'garten:ernte': QuellErnte[] };
-  }>(QUELLE_SICHERUNG);
+  const pflanzenQuelle = pgAbfrage<PgPflanze>('SELECT * FROM pflanzen');
+  const basisPflege = pgAbfrage<PgBasisPflege>('SELECT * FROM basis_pflege');
+  const aktivitaeten = pgAbfrage<PgAktivitaet>('SELECT * FROM aktivitaeten ORDER BY zeitpunkt ASC');
+  const ernten = pgAbfrage<PgErnte>('SELECT * FROM ernten ORDER BY datum ASC');
 
-  const aktivitaetProPflanze = sicherung.daten['garten:aktivitaet'];
-  const ernten = sicherung.daten['garten:ernte'];
+  const sockelNachPflanze = new Map(basisPflege.map((b) => [b.pflanze_id, b]));
 
   const nutzer = nutzerAnlegen(NUTZER_NAME);
   const garten = gartenAnlegen(nutzer.id, GARTEN_NAME);
@@ -93,10 +111,10 @@ function importieren() {
   const insertPflanze = db.prepare(`
     INSERT INTO pflanze
       (id, garten_id, name, art, erde, licht, drinnen_draussen, giess_intervall_tage,
-       duenger_intervall_tage, duenger_typ, notiz, wuchsstufe_sockel)
+       duenger_intervall_tage, duenger_typ, notiz, lebenszustand, sockel_giessen, sockel_duengen, darstellung)
     VALUES
       (@id, @gartenId, @name, @art, @erde, @licht, @drinnenDraussen, @giessIntervallTage,
-       @duengerIntervallTage, @duengerTyp, @notiz, @wuchsstufeSockel)
+       @duengerIntervallTage, @duengerTyp, @notiz, @lebenszustand, @sockelGiessen, @sockelDuengen, @darstellung)
   `);
 
   const insertAktivitaet = db.prepare(`
@@ -104,17 +122,11 @@ function importieren() {
     VALUES (@id, @pflanzeId, @typ, @menge, @notiz, @datum)
   `);
 
-  let importierteGiessMarkierungen = 0;
-  let importierteDuengeMarkierungen = 0;
-
-  for (const p of pflanzenDaten.pflanzen) {
-    const akt = aktivitaetProPflanze[p.id];
-    if (!akt) {
-      throw new Error(`Keine Aktivitäts-Daten für Pflanze "${p.id}" in der Sicherung gefunden.`);
-    }
-
-    const geduengtVorhanden = akt.n_geduengt !== undefined && akt.geduengt !== undefined;
-    const sockel = Math.max(0, akt.n_gegossen - 1) + Math.max(0, (akt.n_geduengt ?? 0) - (geduengtVorhanden ? 1 : 0));
+  for (const p of pflanzenQuelle) {
+    const sockel = sockelNachPflanze.get(p.id);
+    // "kaum"/"selten" heißt seltener düngen, nicht gar nicht — nur "nein"
+    // (und fehlende Angabe) bedeutet wirklich kein Düngeplan.
+    const hatDuengeplan = p.duengen !== null && p.duengen !== 'nein';
 
     insertPflanze.run({
       id: p.id,
@@ -124,54 +136,46 @@ function importieren() {
       erde: p.erde ?? null,
       licht: p.licht ?? null,
       drinnenDraussen: p.standort as DrinnenDraussen,
-      giessIntervallTage: p.giess_intervall_tage,
-      duengerIntervallTage: p.duengen === 'ja' ? (p.duenge_intervall_tage ?? null) : null,
-      duengerTyp: p.duengen === 'ja' ? (p.duenger ?? null) : null,
+      giessIntervallTage: p.giess_intervall_tage ?? 7,
+      duengerIntervallTage: hatDuengeplan ? (p.duenge_intervall_tage ?? null) : null,
+      duengerTyp: hatDuengeplan ? (p.duenger ?? null) : null,
       notiz: p.notizen ?? '',
-      wuchsstufeSockel: sockel,
+      lebenszustand: p.aktiv ? 'lebend' : 'verstorben',
+      sockelGiessen: sockel?.n_gegossen ?? 0,
+      sockelDuengen: sockel?.n_geduengt ?? 0,
+      darstellung: JSON.stringify(darstellungUebersetzen(p.darstellung ?? {})),
     });
+  }
 
+  for (const a of aktivitaeten) {
     insertAktivitaet.run({
-      id: randomUUID(),
-      pflanzeId: p.id,
-      typ: 'giessen',
+      id: `pgparadies-akt-${a.id}`,
+      pflanzeId: a.pflanze_id,
+      typ: a.art === 'gegossen' ? 'giessen' : 'duengen',
       menge: null,
-      notiz: 'Übernommen aus altem Stand (letzter bekannter Zeitpunkt, keine Einzeltermine verfügbar).',
-      datum: akt.gegossen,
+      notiz: a.notiz,
+      datum: a.zeitpunkt,
     });
-    importierteGiessMarkierungen++;
-
-    if (geduengtVorhanden) {
-      insertAktivitaet.run({
-        id: randomUUID(),
-        pflanzeId: p.id,
-        typ: 'duengen',
-        menge: null,
-        notiz: 'Übernommen aus altem Stand (letzter bekannter Zeitpunkt, keine Einzeltermine verfügbar).',
-        datum: akt.geduengt,
-      });
-      importierteDuengeMarkierungen++;
-    }
   }
 
   for (const e of ernten) {
     insertAktivitaet.run({
-      id: String(e.eid),
-      pflanzeId: e.pflanzeId,
+      id: String(e.id),
+      pflanzeId: e.pflanze_id,
       typ: 'ernten',
-      menge: e.menge ?? null,
-      notiz: e.notiz ?? null,
+      menge: e.menge,
+      notiz: e.notiz,
       datum: e.datum,
     });
   }
 
-  console.log(`Import fertig (Stand der Quelle: ${sicherung.gesichert}).`);
+  console.log('Import fertig — direkt aus der Live-Datenbank von Annes Pflanzenparadies gelesen.');
   console.log(`Nutzer: ${nutzer.name} (${nutzer.id})`);
   console.log(`Garten: ${garten.name} (${garten.id})`);
-  console.log(`Pflanzen importiert: ${pflanzenDaten.pflanzen.length}`);
-  console.log(`Gieß-Markierungen (letzter bekannter Termin): ${importierteGiessMarkierungen}`);
-  console.log(`Dünge-Markierungen (letzter bekannter Termin): ${importierteDuengeMarkierungen}`);
-  console.log(`Ernten importiert (mit echten Einzeldaten): ${ernten.length}`);
+  console.log(`Pflanzen importiert: ${pflanzenQuelle.length}`);
+  console.log(`Einzelne Gieß-/Düngeeinträge mit echtem Zeitpunkt: ${aktivitaeten.length}`);
+  console.log(`Ernten importiert: ${ernten.length}`);
+  console.log(`Historischer Sockel (vor Beginn der Einzelprotokollierung am 27.7.2026) für ${basisPflege.length} Pflanzen übernommen.`);
 }
 
 importieren();

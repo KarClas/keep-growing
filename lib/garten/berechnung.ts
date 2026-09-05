@@ -65,9 +65,27 @@ export function berechnePflegestimmung(input: {
 
 export const MAX_WUCHSSTUFE = 5;
 
-export function berechneWuchsstufe(anzahlPflegeAktionen: number): number {
-  if (anzahlPflegeAktionen < 0) {
+/**
+ * Gießen und Düngen sind häufige Routine-Handlungen — erst fünf davon lassen
+ * ein neues Blatt wachsen, sonst wäre eine Pflanze nach wenigen Tagen bereits
+ * ausgewachsen. Eine Ernte ist dagegen schon selten genug, um sofort zu
+ * zählen (wie bisher).
+ */
+export const AKTIONEN_PRO_STUFE = 5;
+
+export interface Pflegeaktionen {
+  giessen: number;
+  duengen: number;
+  ernten: number;
+}
+
+export function berechneWuchsstufe(aktionen: Pflegeaktionen): number {
+  if (aktionen.giessen < 0 || aktionen.duengen < 0 || aktionen.ernten < 0) {
     throw new Error('Anzahl Pflegeaktionen kann nicht negativ sein.');
   }
-  return Math.min(anzahlPflegeAktionen, MAX_WUCHSSTUFE);
+  const stufen =
+    Math.floor(aktionen.giessen / AKTIONEN_PRO_STUFE) +
+    Math.floor(aktionen.duengen / AKTIONEN_PRO_STUFE) +
+    aktionen.ernten;
+  return Math.min(stufen, MAX_WUCHSSTUFE);
 }

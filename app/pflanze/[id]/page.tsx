@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { aktiveNutzerId } from '@/lib/session';
+import { aktuellerNutzer } from '@/lib/session';
 import { pflanzeMitId, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, aktivitaetenFuerPflanze } from '@/lib/db/abfragen';
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { aktivitaetAction, alsVerstorbenAction } from '@/app/server-aktionen';
@@ -13,7 +13,7 @@ const AKTIVITAET_LABEL: Record<string, string> = {
 
 export default async function PflanzenDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const nutzerId = await aktiveNutzerId();
+  const nutzerId = await aktuellerNutzer();
   if (!nutzerId) redirect('/start');
 
   const pflanze = pflanzeMitId(id, nutzerId);
@@ -27,8 +27,15 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
         ← Zurück
       </Link>
 
-      <div className="mx-auto h-48 w-48">
-        <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={pflanze.name} art={pflanze.art} />
+      <div className="mx-auto w-40 aspect-[8/13]">
+        <TopfMitGesicht
+          id={pflanze.id}
+          wuchsstufe={wuchsstufe}
+          stimmung={stimmung}
+          name={pflanze.name}
+          art={pflanze.art}
+          darstellung={pflanze.darstellung}
+        />
       </div>
 
       <h1 className="text-center text-2xl font-bold">{pflanze.name}</h1>

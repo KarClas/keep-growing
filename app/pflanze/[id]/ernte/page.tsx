@@ -1,12 +1,12 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { aktiveNutzerId } from '@/lib/session';
+import { aktuellerNutzer } from '@/lib/session';
 import { pflanzeMitId } from '@/lib/db/abfragen';
 import { ernteEintragenAction } from '@/app/server-aktionen';
 
 export default async function ErnteEintragen({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const nutzerId = await aktiveNutzerId();
+  const nutzerId = await aktuellerNutzer();
   if (!nutzerId) redirect('/start');
 
   const pflanze = pflanzeMitId(id, nutzerId);

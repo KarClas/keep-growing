@@ -1,15 +1,15 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { aktiveNutzerId, aktiveGartenId } from '@/lib/session';
+import { aktuelleSitzung } from '@/lib/session';
 import { pflanzenFuerGarten, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, ernteListeFuerNutzer } from '@/lib/db/abfragen';
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { EngelWolke } from '@/components/EngelWolke';
 import { ernteSymbol } from '@/lib/garten/symbole';
 
 export default async function Home() {
-  const nutzerId = await aktiveNutzerId();
-  const gartenId = await aktiveGartenId();
-  if (!nutzerId || !gartenId) redirect('/start');
+  const sitzung = await aktuelleSitzung();
+  if (!sitzung) redirect('/start');
+  const { nutzerId, gartenId } = sitzung;
 
   const pflanzen = pflanzenFuerGarten(gartenId, nutzerId);
   const lebend = pflanzen.filter((p) => p.lebenszustand === 'lebend');
@@ -39,14 +39,21 @@ export default async function Home() {
             Noch keine Pflanze da. Über „Hinzufügen&quot; die erste anlegen.
           </p>
         ) : (
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             {lebend.map((p) => {
               const stimmung = pflegestimmungFuerPflanze(p);
               const wuchsstufe = wuchsstufeFuerPflanze(p);
               return (
-                <Link key={p.id} href={`/pflanze/${p.id}`} className="rounded-2xl bg-white p-2 shadow-sm">
-                  <div className="aspect-square">
-                    <TopfMitGesicht wuchsstufe={wuchsstufe} stimmung={stimmung} name={p.name} art={p.art} />
+                <Link key={p.id} href={`/pflanze/${p.id}`} className="active:opacity-70">
+                  <div className="aspect-[8/13]">
+                    <TopfMitGesicht
+                      id={p.id}
+                      wuchsstufe={wuchsstufe}
+                      stimmung={stimmung}
+                      name={p.name}
+                      art={p.art}
+                      darstellung={p.darstellung}
+                    />
                   </div>
                   <p className="mt-1 truncate text-center text-sm font-medium">{p.name}</p>
                 </Link>
@@ -72,9 +79,9 @@ export default async function Home() {
       {verstorben.length > 0 && (
         <section>
           <h2 className="mb-3 text-lg font-semibold text-stone-500">In liebevoller Erinnerung</h2>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-3 gap-3">
             {verstorben.map((p) => (
-              <div key={p.id} className="rounded-2xl bg-white p-2 shadow-sm">
+              <div key={p.id}>
                 <div className="aspect-square">
                   <EngelWolke name={p.name} />
                 </div>

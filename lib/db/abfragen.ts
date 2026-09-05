@@ -1,6 +1,7 @@
 import { randomUUID } from 'node:crypto';
 import { db } from './index.ts';
 import { berechnePflegestimmung, berechneWuchsstufe, type Pflegestimmung } from '../garten/berechnung.ts';
+import type { DarstellungsParameter } from '../garten/pflanzenzeichnung.ts';
 
 export class KeinZugriff extends Error {
   constructor(meldung = 'Kein Zugriff auf fremde Daten.') {
@@ -38,7 +39,9 @@ export interface Pflanze {
   notiz: string;
   lebenszustand: Lebenszustand;
   fotoUrl: string | null;
-  wuchsstufeSockel: number;
+  sockelGiessen: number;
+  sockelDuengen: number;
+  darstellung: DarstellungsParameter;
   erstelltAm: string;
 }
 
@@ -74,7 +77,9 @@ function zeileZuPflanze(zeile: any): Pflanze {
     notiz: zeile.notiz,
     lebenszustand: zeile.lebenszustand,
     fotoUrl: zeile.foto_url,
-    wuchsstufeSockel: zeile.wuchsstufe_sockel,
+    sockelGiessen: zeile.sockel_giessen,
+    sockelDuengen: zeile.sockel_duengen,
+    darstellung: zeile.darstellung ? JSON.parse(zeile.darstellung) : {},
     erstelltAm: zeile.erstellt_am,
   };
 }
@@ -179,7 +184,9 @@ export interface NeuePflanzeDaten {
   duengerTyp?: string | null;
   notiz?: string;
   fotoUrl?: string | null;
-  wuchsstufeSockel?: number;
+  sockelGiessen?: number;
+  sockelDuengen?: number;
+  darstellung?: DarstellungsParameter;
 }
 
 export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePflanzeDaten): Pflanze {
@@ -187,8 +194,8 @@ export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePf
   const id = randomUUID();
   db.prepare(
     `INSERT INTO pflanze
-      (id, garten_id, name, art, erde, licht, drinnen_draussen, giess_intervall_tage, duenger_intervall_tage, duenger_typ, notiz, foto_url, wuchsstufe_sockel)
-     VALUES (@id, @gartenId, @name, @art, @erde, @licht, @drinnenDraussen, @giessIntervallTage, @duengerIntervallTage, @duengerTyp, @notiz, @fotoUrl, @wuchsstufeSockel)`,
+      (id, garten_id, name, art, erde, licht, drinnen_draussen, giess_intervall_tage, duenger_intervall_tage, duenger_typ, notiz, foto_url, sockel_giessen, sockel_duengen, darstellung)
+     VALUES (@id, @gartenId, @name, @art, @erde, @licht, @drinnenDraussen, @giessIntervallTage, @duengerIntervallTage, @duengerTyp, @notiz, @fotoUrl, @sockelGiessen, @sockelDuengen, @darstellung)`,
   ).run({
     id,
     gartenId,
@@ -202,7 +209,9 @@ export function pflanzeAnlegen(gartenId: string, nutzerId: string, daten: NeuePf
     duengerTyp: daten.duengerTyp ?? null,
     notiz: daten.notiz ?? '',
     fotoUrl: daten.fotoUrl ?? null,
-    wuchsstufeSockel: daten.wuchsstufeSockel ?? 0,
+    sockelGiessen: daten.sockelGiessen ?? 0,
+    sockelDuengen: daten.sockelDuengen ?? 0,
+    darstellung: daten.darstellung ? JSON.stringify(daten.darstellung) : null,
   });
   return pflanzeMitId(id, nutzerId);
 }
@@ -262,17 +271,19 @@ function letzteAktivitaet(pflanzeId: string, typ: AktivitaetTyp): string | null 
   return zeile?.datum ?? null;
 }
 
-function anzahlPflegeaktionen(pflanzeId: string): number {
+function anzahlAktivitaetNachTyp(pflanzeId: string, typ: AktivitaetTyp): number {
   const zeile = db
-    .prepare(
-      "SELECT COUNT(*) AS anzahl FROM aktivitaet WHERE pflanze_id = ? AND typ IN ('giessen', 'duengen', 'ernten')",
-    )
-    .get(pflanzeId) as { anzahl: number };
+    .prepare('SELECT COUNT(*) AS anzahl FROM aktivitaet WHERE pflanze_id = ? AND typ = ?')
+    .get(pflanzeId, typ) as { anzahl: number };
   return zeile.anzahl;
 }
 
 export function wuchsstufeFuerPflanze(pflanze: Pflanze): number {
-  return berechneWuchsstufe(pflanze.wuchsstufeSockel + anzahlPflegeaktionen(pflanze.id));
+  return berechneWuchsstufe({
+    giessen: pflanze.sockelGiessen + anzahlAktivitaetNachTyp(pflanze.id, 'giessen'),
+    duengen: pflanze.sockelDuengen + anzahlAktivitaetNachTyp(pflanze.id, 'duengen'),
+    ernten: anzahlAktivitaetNachTyp(pflanze.id, 'ernten'),
+  });
 }
 
 export function pflegestimmungFuerPflanze(pflanze: Pflanze, heute: Date = new Date()): Pflegestimmung {
