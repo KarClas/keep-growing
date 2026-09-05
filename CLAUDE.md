@@ -87,6 +87,7 @@ Hackathon-Umfangs.
 | Sichtbarkeit | Privat by default, kein öffentliches Teilen in v1 |
 | Repo | `keep-growing` (dieses) |
 | Login (Ziel, ab Go-Live) | Auth.js Credentials-Provider (E-Mail/Passwort), Google optional später |
+| Bedienung | Mobile-first — am Handy entworfen, Desktop ist die Zugabe (H9) |
 | Stack | Next.js/PostgreSQL(Neon)/Drizzle/Auth.js/Vercel, anbieterunabhängig gebaut (siehe `STACK.md`) |
 
 ---

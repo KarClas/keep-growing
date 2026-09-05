@@ -104,6 +104,9 @@ Siehe ADR-013 und den überarbeiteten `MVP.md`-Entwurf unten.
 - **H8 (neu):** Keine Bindung an einen Anbieter — neutraler Datenbanktreiber
   (`postgres.js`, nicht Neon-spezifisch), `output: 'standalone'`, damit ein
   Wechsel von Vercel/Neon jederzeit ein Handgriff bleibt, keine Neuarchitektur.
+- **H9 (neu):** Mobile-first — die Nutzerin benutzt die Anwendung hauptsächlich
+  am Handy. Layout, Tippflächen und Bedienung werden zuerst fürs Handy
+  entworfen, Desktop ist die Zugabe (ADR-018).
 
 **Soft Constraints:**
 - **S1:** MVP-Umfang für diese Session: Konten + mehrere Gärten + Kern-Tracking
@@ -295,6 +298,18 @@ bestehenden Pflanzen-Trackern genannt.
 nur als Stilhinweis in `STACK.md`. **Folge:** Design-Entwürfe (vom Team
 angekündigt) werden gegen dieses Kriterium geprüft, nicht nur gegen
 Funktionalität.
+
+**ADR-018 — Mobile-first (neu, vom Nutzer präzisiert)**
+Nutzerangabe: Die Anwendung wird hauptsächlich am Handy benutzt, nicht am
+Computer.
+**Entscheidung:** Layout und Bedienung werden vorrangig fürs Handy entworfen
+(H9), Desktop ist die Zugabe, nicht umgekehrt. Konkret, angelehnt an bereits
+im Referenzprojekt geprüfte Kriterien: kein seitliches Scrollen, Tippflächen
+groß genug für Daumenbedienung, Kamera direkt erreichbar, einspaltiges
+Layout als Grundlage.
+**Folge:** `MVP.md`-Abnahmekriterien ergänzt. Bei der Wahl von UI-Bausteinen
+(Gießplan-Liste, Aktionen-Leiste) wird zuerst am Handy-Bildschirm gedacht,
+Desktop-Ansicht folgt daraus, nicht umgekehrt.
 
 **ADR-012 — Design: leichtes Utility-CSS statt eigenem Stylesheet (neu)**
 Optionen: (a) eigenes CSS wie im Referenzprojekt, (b) Utility-Framework

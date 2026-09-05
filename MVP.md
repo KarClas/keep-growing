@@ -56,6 +56,11 @@ Nachprüfbar, nicht gefühlt:
    benutzt, beschreibt das Gießen/Düngen/Ernten unaufgefordert als
    „niedlich" oder „macht Spaß" — und erkennt eine überfällige Pflanze am
    traurigen Gesicht, ohne eine Erklärung zu brauchen.
+9. **Handy-Probe (ADR-018, H9):** Kein seitliches Scrollen auf dem
+   Handybildschirm, jede Tippfläche (Häkchen im Gießplan, Aktions-Knöpfe)
+   ist bequem mit dem Daumen bedienbar, die Kamera ist beim Hinzufügen direkt
+   erreichbar. Am Computer benutzbar, aber am Handy entworfen — nicht
+   umgekehrt.
 
 ---
 
@@ -150,6 +155,7 @@ Laptop, klar benannt statt improvisiert vorgetäuscht.
 
 | Frage | Wer entscheidet | Stand |
 |---|---|---|
+| Wie wird die App beim Pitch aufs Handy geholt — rein lokal, kurzzeitiger Tunnel, oder echte Live-Schaltung? | Team | offen, bewusst — Optionen mit Vor-/Nachteilen liegen bereit, Entscheidung folgt später |
 | Google als zusätzlicher Login-Anbieter | Team | Stretch-Goal, kein Muss (siehe Plan, „Offene Annahmen") |
 | Annes Garten-Wissen (`wissen/`) übernehmen | Team | Nur bei Bedarf für konkrete Pflegelogik, als Quelle zitiert |
 | Umfang der Töpfe-Gesichter-Berechnung | Claude Code (technisch) | Regelbasiert, kein KI-Aufruf — siehe Plan, „Offene Annahmen" |
