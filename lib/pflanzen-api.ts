@@ -9,21 +9,58 @@ export interface PflanzenErkennungsErgebnis {
   perenual_id?: number;
 }
 
+export interface LichtAuswahl {
+  sonne: boolean;
+  schatten: boolean;
+}
+
+/**
+ * Parst das Licht-Feld aus der get-plant-details API (feature/get-plant-details-api):
+ * Format: "sun", "shadow", "any" oder "N/A"
+ * - "sun" -> Sonne aktiv
+ * - "shadow" -> Schatten aktiv
+ * - "any" -> Sonne UND Schatten aktiv
+ */
+export function parseLichtAusgabe(lichtWert?: string | null): LichtAuswahl {
+  if (!lichtWert) return { sonne: true, schatten: false };
+  const val = lichtWert.trim().toLowerCase();
+  if (val === 'shadow' || val === 'schatten' || val === 'shade') {
+    return { sonne: false, schatten: true };
+  }
+  if (val === 'any' || val === 'all' || val === 'both' || val === 'beides') {
+    return { sonne: true, schatten: true };
+  }
+  if (val === 'sun' || val === 'sonne') {
+    return { sonne: true, schatten: false };
+  }
+  const hasSun = val.includes('sun') || val.includes('sonne');
+  const hasShade = val.includes('shad') || val.includes('schatt');
+  if (hasSun && hasShade) {
+    return { sonne: true, schatten: true };
+  }
+  if (hasShade) {
+    return { sonne: false, schatten: true };
+  }
+  if (hasSun) {
+    return { sonne: true, schatten: false };
+  }
+  // Entweder oder beide müssen markiert sein: Fallback auf Sonne
+  return { sonne: true, schatten: false };
+}
+
 /**
  * Standard-Eingabedaten ermittelt aus enjoy_05.jpg:
- * 1. id-plant-api (Port 5005) -> ["Rose", "Floribunda Rose", "Shrub Rose", "Hybrid Tea Rose", "Climbing Rose"]
- * 2. plant-details-api (Port 5006) mit "Rose" -> liefert die folgenden Pflegedaten:
+ * 1. id-plant-api (Port 5005) -> ["Rosa chinensis", "Rosa × hybrida", "Rosa gallica", "Rosa × damascena", "Rosa moschata"]
+ * 2. plant-details-api (Port 5006) mit "Rosa chinensis" -> liefert die folgenden Pflegedaten:
  */
 export const ENJOY_05_PLANT_DATA: PflanzenErkennungsErgebnis = {
-  raw_name: 'Rose',
-  identified_name: "Mocha Rose Big Leaf Maple (Acer macrophyllum 'Mocha Rose')",
-  Giessrhythmus:
-    'The Mocha Rose Big Leaf Maple should be watered deeply once or twice a week, depending on the weather and the amount of sunlight it is receiving.',
+  raw_name: 'Rosa chinensis',
+  identified_name: 'Rosa chinensis',
+  Giessrhythmus: 'Bedarfsgerecht bei angetrockneter Erdoberfläche gießen (ca. alle 7–10 Tage)',
   Duengenrhytmus: 'Alle 2–4 Wochen von Frühjahr bis Spätsommer mit handelsüblichem Flüssigdünger',
-  Standort: 'anywhere',
-  Licht: 'any',
+  Standort: 'outside',
+  Licht: 'sun',
   Erde: 'N/A',
-  perenual_id: 24,
 };
 
 export async function holeDetailsFuerPflanze(pflanzenName: string): Promise<PflanzenErkennungsErgebnis> {

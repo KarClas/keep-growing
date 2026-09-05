@@ -68,11 +68,11 @@ Die Erkennung basiert auf zwei eigenständigen Python-HTTP-Diensten, die nachein
 #### Ausgabeformat (JSON Array):
 ```json
 [
-  "Rose",
-  "Floribunda Rose",
-  "Shrub Rose",
-  "Hybrid Tea Rose",
-  "Climbing Rose"
+  "Rosa chinensis",
+  "Rosa × hybrida",
+  "Rosa gallica",
+  "Rosa × damascena",
+  "Rosa moschata"
 ]
 ```
 
@@ -81,27 +81,27 @@ Die Erkennung basiert auf zwei eigenständigen Python-HTTP-Diensten, die nachein
 ### API 2: Pflanze ──► Pflegedaten (`plant-details-api`)
 - **Dienst**: `plant-details-api/server.py`
 - **Port**: `5006`
-- **Endpunkt**: `POST http://127.0.0.1:5006/get-plant-details` (oder `GET /get-plant-details?name=Rose`)
-- **Funktion**: Nimmt den Namen des obersten Treffers aus API 1 (z. B. `"Rose"`), fragt die Perenual-Datenbank ab und liefert konkrete Pflegeparameter mit Fallbacks.
+- **Endpunkt**: `POST http://127.0.0.1:5006/get-plant-details` (oder `GET /get-plant-details?name=Rosa%20chinensis`)
+- **Funktion**: Nimmt den Namen des obersten Treffers aus API 1 (z. B. `"Rosa chinensis"`), fragt die Perenual-Datenbank ab und liefert konkrete Pflegeparameter mit Fallbacks.
 
 #### Eingabeformat (JSON):
 ```json
 {
-  "name": "Rose"
+  "name": "Rosa chinensis"
 }
 ```
 
 #### Ausgabeformat (JSON):
 ```json
 {
-  "raw_name": "Rose",
-  "identified_name": "Mocha Rose Big Leaf Maple (Acer macrophyllum 'Mocha Rose')",
-  "Giessrhythmus": "The Mocha Rose Big Leaf Maple should be watered deeply once or twice a week, depending on the weather and the amount of sunlight it is receiving.",
+  "raw_name": "Rosa chinensis",
+  "identified_name": "Rosa chinensis",
+  "Giessrhythmus": "Bedarfsgerecht bei angetrockneter Erdoberfläche gießen (ca. alle 7–10 Tage)",
   "Duengenrhytmus": "Alle 2–4 Wochen von Frühjahr bis Spätsommer mit handelsüblichem Flüssigdünger",
-  "Standort": "anywhere",
-  "Licht": "any",
+  "Standort": "N/A",
+  "Licht": "N/A",
   "Erde": "N/A",
-  "perenual_id": 24
+  "perenual_id": null
 }
 ```
 
@@ -140,7 +140,12 @@ Die Seite ist unter `app/hinzufuegen/page.tsx` (und Alias `app/hinzufuegen/schri
    - **Erde (Erdemischung) (`erde`)**:
      - Vorbefüllt mit dem Erdenvorschlag. War der API-Wert `"N/A"`, bleibt das Feld leer.
    - **Licht (`licht`)**:
-     - Vorbefüllt mit der Lichtanforderung (`Licht`). War der API-Wert `"N/A"`, bleibt das Feld leer.
+     - Checklisten-Feld mit zwei Optionen: **`Sonne`** und **`Schatten`**.
+     - Wird anhand der Ausgabe von `plant-details-api` (`Licht: "sun" | "shadow" | "any"`) automatisch vorausgewählt:
+       - `"sun"`: Nur **`Sonne`** ist aktiviert.
+       - `"shadow"`: Nur **`Schatten`** ist aktiviert.
+       - `"any"`: Sowohl **`Sonne`** als auch **`Schatten`** sind aktiviert.
+     - Nutzer:in kann die Häkchen nach Wunsch frei anpassen (eine Option oder beide).
    - **Notiz (`notiz`)**:
      - Freitextfeld für individuelle Notizen der Nutzer:in, optional wie bisher.
 

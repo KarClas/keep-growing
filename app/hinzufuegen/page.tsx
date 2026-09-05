@@ -1,6 +1,11 @@
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { profilSchritt2AnlegenAction } from '@/app/server-aktionen';
-import { ENJOY_05_PLANT_DATA, type PflanzenErkennungsErgebnis } from '@/lib/pflanzen-api';
+import {
+  ENJOY_05_PLANT_DATA,
+  holeDetailsFuerPflanze,
+  parseLichtAusgabe,
+  type PflanzenErkennungsErgebnis,
+} from '@/lib/pflanzen-api';
 
 interface Props {
   searchParams?: Promise<{
@@ -35,13 +40,20 @@ function feldWertBereinigen(wert?: string | null): string {
 
 export default async function ProfilSchritt2Seite({ searchParams }: Props) {
   const params = searchParams ? await searchParams : {};
-  const daten: PflanzenErkennungsErgebnis = ENJOY_05_PLANT_DATA;
+  let daten: PflanzenErkennungsErgebnis = ENJOY_05_PLANT_DATA;
+  if (params.art && params.art !== daten.raw_name && params.art !== daten.identified_name) {
+    try {
+      daten = await holeDetailsFuerPflanze(params.art);
+    } catch {
+      // Fallback
+    }
+  }
 
   const artVorgabe = feldWertBereinigen(params.art ?? daten.identified_name ?? daten.raw_name);
   const giessVorgabe = feldWertBereinigen(params.giessrhythmus ?? params.giessenrhythmus ?? daten.Giessrhythmus);
   const duengenVorgabe = feldWertBereinigen(params.duengenrhythmus ?? daten.Duengenrhytmus);
   const erdeVorgabe = feldWertBereinigen(params.erde ?? daten.Erde);
-  const lichtVorgabe = feldWertBereinigen(params.licht ?? daten.Licht);
+  const lichtAuswahl = parseLichtAusgabe(params.licht ?? daten.Licht);
   const notizVorgabe = feldWertBereinigen(params.notiz ?? '');
 
   const hinweisName = `(Dein Wahl oder Mein ${artVorgabe || '<Art des Pflanzes>'})`;
@@ -119,16 +131,32 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
           />
         </label>
 
-        {/* c.6: Licht */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Licht</span>
-          <input
-            type="text"
-            name="licht"
-            defaultValue={lichtVorgabe}
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
-          />
-        </label>
+        {/* c.6: Licht (Checkliste mit zwei Optionen: Sonne, Schatten) */}
+        <fieldset className="space-y-1.5">
+          <legend className="block text-sm font-medium text-stone-700">Licht</legend>
+          <div className="flex items-center gap-6 rounded-xl border border-stone-300 bg-white px-3 py-2.5">
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                name="licht"
+                value="Sonne"
+                defaultChecked={lichtAuswahl.sonne}
+                className="h-5 w-5 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span className="text-sm font-medium text-stone-800">Sonne</span>
+            </label>
+            <label className="flex cursor-pointer items-center gap-2">
+              <input
+                type="checkbox"
+                name="licht"
+                value="Schatten"
+                defaultChecked={lichtAuswahl.schatten}
+                className="h-5 w-5 rounded border-stone-300 text-emerald-600 focus:ring-emerald-500"
+              />
+              <span className="text-sm font-medium text-stone-800">Schatten</span>
+            </label>
+          </div>
+        </fieldset>
 
         {/* c.7: Notiz */}
         <label className="block">

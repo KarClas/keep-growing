@@ -182,7 +182,14 @@ export async function profilSchritt2AnlegenAction(formData: FormData) {
   );
   const duengenrhythmus = sanitisieren(optionalesTextFeld(formData, 'duengenrhythmus'));
   const erde = sanitisieren(optionalesTextFeld(formData, 'erde'));
-  const licht = sanitisieren(optionalesTextFeld(formData, 'licht'));
+  const lichtWerte = formData
+    .getAll('licht')
+    .map((w) => sanitisieren(String(w).trim()))
+    .filter(Boolean);
+  const licht =
+    lichtWerte.length > 0
+      ? lichtWerte.join(', ')
+      : sanitisieren(optionalesTextFeld(formData, 'licht'));
   const nutzerNotiz = sanitisieren(optionalesTextFeld(formData, 'notiz'));
 
   let giessTage = 7;
