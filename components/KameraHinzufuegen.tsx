@@ -316,6 +316,13 @@ export function KameraHinzufuegen() {
         </ul>
       )}
 
+      {/* Solange die Erkennung läuft: Ladebildschirm statt leerer Felder */}
+      {!geprueft ? (
+        <div className="flex flex-col items-center gap-3 rounded-2xl bg-white p-6 shadow-sm">
+          <span className="h-8 w-8 animate-spin rounded-full border-4 border-stone-200 border-t-emerald-700" aria-hidden />
+          <p className="text-sm text-stone-500">Pflanze wird erkannt…</p>
+        </div>
+      ) : (
       <form action={absenden} className="space-y-4">
         {/* erkannt? → Vorschlag mit Pflege-Punkten */}
         {vorschlag ? (
@@ -481,6 +488,7 @@ export function KameraHinzufuegen() {
           {laeuft ? 'Wird gespeichert…' : 'Pflanze anlegen'}
         </button>
       </form>
+      )}
 
       {dateiEingang}
     </div>
