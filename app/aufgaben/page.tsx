@@ -78,7 +78,7 @@ function PlanListe({
   );
 }
 
-export default async function AktionenSeite() {
+export default async function AufgabenSeite() {
   const sitzung = await aktuelleSitzung();
   if (!sitzung) redirect('/start');
   const { nutzerId, gartenId } = sitzung;
@@ -102,7 +102,7 @@ export default async function AktionenSeite() {
 
   return (
     <div className="space-y-10 pb-6">
-      <h1 className="text-2xl font-bold">✅ Aktionen</h1>
+      <h1 className="text-2xl font-bold">✅ Aufgaben</h1>
 
       {pflanzen.length === 0 ? (
         <p className="rounded-xl border border-dashed border-stone-300 p-6 text-center text-sm text-stone-500">

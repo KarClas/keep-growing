@@ -136,7 +136,7 @@ export function KameraHinzufuegen() {
       try {
         const form = new FormData();
         form.set('foto', new File([blob], 'foto.jpg', { type: blob.type || 'image/jpeg' }));
-        const antwort = await fetch('/aktionen/erkennen', { method: 'POST', body: form });
+        const antwort = await fetch('/aufgaben/erkennen', { method: 'POST', body: form });
         const ergebnis = (await antwort.json()) as { vorschlag?: FotoVorschlag | null; fehler?: string };
         if (!antwort.ok) {
           //REGELN: Fehler sichtbar — nicht als „keine Pflanze“ ausgeben.

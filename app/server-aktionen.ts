@@ -145,7 +145,7 @@ export async function aktivitaetAction(formData: FormData) {
   aktivitaetHinzufuegen(pflanzeId, nutzerId, typ, { menge, notiz });
   revalidatePath(`/pflanze/${pflanzeId}`);
   revalidatePath('/');
-  revalidatePath('/aktionen');
+  revalidatePath('/aufgaben');
 }
 
 export async function ernteEintragenAction(formData: FormData) {

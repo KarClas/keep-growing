@@ -22,7 +22,7 @@ function IconHeim({ aktiv }: { aktiv: boolean }) {
   );
 }
 
-function IconAktionen({ aktiv }: { aktiv: boolean }) {
+function IconAufgaben({ aktiv }: { aktiv: boolean }) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -58,7 +58,7 @@ function IconPlus({ aktiv }: { aktiv: boolean }) {
 
 const ZIELE: { href: string; label: string; icon: (props: { aktiv: boolean }) => ReactNode }[] = [
   { href: '/', label: 'Home', icon: IconHeim },
-  { href: '/aktionen', label: 'Aktionen', icon: IconAktionen },
+  { href: '/aufgaben', label: 'Aufgaben', icon: IconAufgaben },
   { href: '/hinzufuegen', label: 'Hinzufügen', icon: IconPlus },
 ];
 
