@@ -40,6 +40,9 @@ db.exec(`
     notiz TEXT NOT NULL DEFAULT '',
     lebenszustand TEXT NOT NULL DEFAULT 'lebend' CHECK (lebenszustand IN ('lebend', 'verstorben')),
     foto_url TEXT,
+    sockel_giessen INTEGER NOT NULL DEFAULT 0,
+    sockel_duengen INTEGER NOT NULL DEFAULT 0,
+    darstellung TEXT,
     erstellt_am TEXT NOT NULL DEFAULT (datetime('now'))
   );
   CREATE INDEX IF NOT EXISTS idx_pflanze_garten ON pflanze(garten_id);
@@ -55,3 +58,17 @@ db.exec(`
   );
   CREATE INDEX IF NOT EXISTS idx_aktivitaet_pflanze ON aktivitaet(pflanze_id, typ);
 `);
+
+// Leichtgewichtige Nachrüstung für Datenbanken, die vor diesen Spalten
+// angelegt wurden (SQLite kennt kein "ADD COLUMN IF NOT EXISTS").
+const pflanzeSpalten = db.prepare('PRAGMA table_info(pflanze)').all() as { name: string }[];
+const spaltenNamen = new Set(pflanzeSpalten.map((spalte) => spalte.name));
+if (!spaltenNamen.has('sockel_giessen')) {
+  db.exec('ALTER TABLE pflanze ADD COLUMN sockel_giessen INTEGER NOT NULL DEFAULT 0');
+}
+if (!spaltenNamen.has('sockel_duengen')) {
+  db.exec('ALTER TABLE pflanze ADD COLUMN sockel_duengen INTEGER NOT NULL DEFAULT 0');
+}
+if (!spaltenNamen.has('darstellung')) {
+  db.exec('ALTER TABLE pflanze ADD COLUMN darstellung TEXT');
+}

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
-import { aktiveNutzerId, aktiveGartenId } from '@/lib/session';
+import { aktuelleSitzung } from '@/lib/session';
 import { pflanzenFuerGarten, naechsteFaelligkeitGiessen, naechsteFaelligkeitDuengen, type Pflanze } from '@/lib/db/abfragen';
 import { aktivitaetAction } from '@/app/server-aktionen';
 
@@ -79,9 +79,9 @@ function PlanListe({
 }
 
 export default async function AktionenSeite() {
-  const nutzerId = await aktiveNutzerId();
-  const gartenId = await aktiveGartenId();
-  if (!nutzerId || !gartenId) redirect('/start');
+  const sitzung = await aktuelleSitzung();
+  if (!sitzung) redirect('/start');
+  const { nutzerId, gartenId } = sitzung;
 
   const pflanzen = pflanzenFuerGarten(gartenId, nutzerId).filter((p) => p.lebenszustand === 'lebend');
 
