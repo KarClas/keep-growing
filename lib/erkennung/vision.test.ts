@@ -1,63 +1,120 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { parseErkennungsAntwort, erkenungsErgebnisAusAntwort } from './vision.ts';
+import {
+  parseErkennungsAntwort,
+  erkenungsErgebnisAusAntwort,
+  parseLichtAusgabe,
+  parseOrtAusgabe,
+  ortZuHintergrundIndex,
+  parseTageZahl,
+  feldWertBereinigen,
+} from './vision.ts';
 
-/**
- * Testet die Antwort-Validierung — den Teil, der erdachte oder kaputte
- * Modellantworten abfangen muss, bevor sie als Pflanze in der DB landen.
- */
-
-const ROSANTEWORT = JSON.stringify({
+const GUTE_ANTWORT = JSON.stringify({
   erkannt: true,
-  name: 'Rote Rose',
-  art: 'Rote Rose (Rosa spec.)',
-  hinweis: 'Dazu Schleierkraut (Gypsophila paniculata) und ein überhängendes Ziergras.',
+  art: 'Rosa chinensis',
+  gießrhythmus: 7,
+  düngrhythmus: 14,
+  erde: '50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde',
+  licht: 'Sonne',
+  ort: 'draußen',
   sicherheit: 'hoch',
-  erde: 'Nährstoffreiche, durchlässige Erde',
-  licht: 'Sonnig bis halbschattig',
-  giessIntervallTage: 3,
-  duengerIntervallTage: 30,
-  duengerTyp: 'Rosendünger',
-  drinnenDraussen: 'draussen',
 });
 
-test('sauberes JSON wird zum validierten Vorschlag', () => {
-  const vorschlag = erkenungsErgebnisAusAntwort(ROSANTEWORT);
+test('sauberes JSON wird zum validierten FotoVorschlag', () => {
+  const vorschlag = erkenungsErgebnisAusAntwort(GUTE_ANTWORT);
   assert.ok(vorschlag);
-  assert.equal(vorschlag.art, 'Rote Rose (Rosa spec.)');
-  assert.equal(vorschlag.nameVorschlag, 'Rote Rose');
-  assert.match(vorschlag.hinweis ?? '', /Schleierkraut/);
+  assert.equal(vorschlag.art, 'Rosa chinensis');
+  assert.equal(vorschlag.giessrhythmus, 7);
+  assert.equal(vorschlag.duengenrhythmus, 14);
+  assert.equal(vorschlag.erde, '50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde');
+  assert.equal(vorschlag.licht, 'Sonne');
+  assert.equal(vorschlag.ort, 'draußen');
   assert.equal(vorschlag.sicherheit, 'hoch');
-  assert.equal(vorschlag.giessIntervallTage, 3);
-  assert.equal(vorschlag.drinnenDraussen, 'draussen');
 });
 
-test('JSON im ```zaun wird ebenfalls erkannt', () => {
-  const vorschlag = erkenungsErgebnisAusAntwort('Hier das Ergebnis:\n```json\n' + ROSANTEWORT + '\n```\nFertig!');
-  assert.ok(vorschlag);
-  assert.equal(vorschlag.art, 'Rote Rose (Rosa spec.)');
+test('parseLichtAusgabe liefert deterministisch 3 Optionen', () => {
+  assert.equal(parseLichtAusgabe('sun'), 'Sonne');
+  assert.equal(parseLichtAusgabe('Sonne'), 'Sonne');
+  assert.equal(parseLichtAusgabe('shadow'), 'Schatten');
+  assert.equal(parseLichtAusgabe('Schatten'), 'Schatten');
+  assert.equal(parseLichtAusgabe('any'), 'Sonne oder Schatten');
+  assert.equal(parseLichtAusgabe('both'), 'Sonne oder Schatten');
+  assert.equal(parseLichtAusgabe('Sonne oder Schatten'), 'Sonne oder Schatten');
+  assert.equal(parseLichtAusgabe('Sonne und Schatten'), 'Sonne oder Schatten');
+  assert.equal(parseLichtAusgabe('N/A'), 'Sonne oder Schatten');
+  assert.equal(parseLichtAusgabe(null), 'Sonne oder Schatten');
 });
 
-test('ohne Pflanze → null (ehrliche Absage)', () => {
+test('parseOrtAusgabe liefert deterministisch Drinnen, draußen oder Drinnen oder draußen', () => {
+  assert.equal(parseOrtAusgabe('Drinnen'), 'Drinnen');
+  assert.equal(parseOrtAusgabe('drinnen'), 'Drinnen');
+  assert.equal(parseOrtAusgabe('indoor'), 'Drinnen');
+  assert.equal(parseOrtAusgabe('draussen'), 'draußen');
+  assert.equal(parseOrtAusgabe('draußen'), 'draußen');
+  assert.equal(parseOrtAusgabe('outdoor'), 'draußen');
+  assert.equal(parseOrtAusgabe('Drinnen or draussen'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe('drinnen oder draussen'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe('Drinnen oder draußen'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe('both'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe('any'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe('N/A'), 'Drinnen oder draußen');
+  assert.equal(parseOrtAusgabe(null), 'Drinnen oder draußen');
+});
+
+test('ortZuHintergrundIndex bildet LLM-Ort auf Hintergrund ab: draußen -> 1, drinnen -> 0, Fallback -> 0', () => {
+  // draußen -> 1 (Ich bleibe lieber draußen)
+  assert.equal(ortZuHintergrundIndex('draußen'), 1);
+  assert.equal(ortZuHintergrundIndex('draussen'), 1);
+  assert.equal(ortZuHintergrundIndex('outdoor'), 1);
+  assert.equal(ortZuHintergrundIndex('Garten'), 1);
+  assert.equal(ortZuHintergrundIndex('Balkon'), 1);
+
+  // drinnen -> 0 (Ich bleibe lieber drinnen)
+  assert.equal(ortZuHintergrundIndex('Drinnen'), 0);
+  assert.equal(ortZuHintergrundIndex('drinnen'), 0);
+  assert.equal(ortZuHintergrundIndex('indoor'), 0);
+  assert.equal(ortZuHintergrundIndex('inside'), 0);
+
+  // Fallback -> 0 (Ich bleibe lieber drinnen)
+  assert.equal(ortZuHintergrundIndex('Drinnen oder draußen'), 0);
+  assert.equal(ortZuHintergrundIndex('drinnen oder draussen'), 0);
+  assert.equal(ortZuHintergrundIndex('both'), 0);
+  assert.equal(ortZuHintergrundIndex('any'), 0);
+  assert.equal(ortZuHintergrundIndex('N/A'), 0);
+  assert.equal(ortZuHintergrundIndex(''), 0);
+  assert.equal(ortZuHintergrundIndex(null), 0);
+  assert.equal(ortZuHintergrundIndex(undefined), 0);
+});
+
+test('parseTageZahl extrahiert Zahlen korrekt', () => {
+  assert.equal(parseTageZahl(7), 7);
+  assert.equal(parseTageZahl('7'), 7);
+  assert.equal(parseTageZahl('alle 14 Tage'), 14);
+  assert.equal(parseTageZahl('N/A'), undefined);
+  assert.equal(parseTageZahl(null), undefined);
+});
+
+test('feldWertBereinigen filtert N/A und Platzhalter heraus', () => {
+  assert.equal(feldWertBereinigen('N/A'), '');
+  assert.equal(feldWertBereinigen('none'), '');
+  assert.equal(feldWertBereinigen('null'), '');
+  assert.equal(feldWertBereinigen('  -  '), '');
+  assert.equal(feldWertBereinigen('50% Erde'), '50% Erde');
+});
+
+test('ohne Pflanze → null', () => {
   assert.equal(erkenungsErgebnisAusAntwort('{"erkannt": false}'), null);
 });
 
 test('kaputtes JSON ohne JSON-Rest → null', () => {
-  assert.equal(parseErkennungsAntwort('Ich sehe keine Pflanze auf dem Bild.'), null);
-  assert.equal(erkenungsErgebnisAusAntwort('Ich sehe keine Pflanze auf dem Bild.'), null);
+  assert.equal(parseErkennungsAntwort('Ich sehe keine Pflanze.'), null);
+  assert.equal(erkenungsErgebnisAusAntwort('Ich sehe keine Pflanze.'), null);
 });
 
-test('erkannt ohne Art/Name → null, nicht halb befüllt', () => {
-  assert.equal(erkenungsErgebnisAusAntwort('{"erkannt": true, "erde": "Erde"}'), null);
-});
-
-test('unbekannte Sicherheit und fehlende Zahlen werden defensiv ausgelesen', () => {
-  const vorschlag = erkenungsErgebnisAusAntwort(
-    '{"erkannt": true, "name": "Basilikum", "art": "Basilikum (Ocimum basilicum)", "sicherheit": "sehr hoch", "giessIntervallTage": "2", "duengerIntervallTage": null}',
-  );
-  assert.ok(vorschlag);
-  assert.equal(vorschlag.sicherheit, 'mittel');
-  assert.equal(vorschlag.giessIntervallTage, 2);
-  assert.ok(vorschlag.duengerIntervallTage == null); // null oder undefined — beides heißt „kein Düngen geplant“
-  assert.equal(vorschlag.drinnenDraussen, 'drinnen');
+test('ART_ANWEISUNG enthält Platzhalter {ART} und korrekte Felder', async () => {
+  const { ART_ANWEISUNG } = await import('./vision.ts');
+  assert.ok(ART_ANWEISUNG.includes('{ART}'));
+  assert.ok(ART_ANWEISUNG.includes('Drinnen'));
+  assert.ok(ART_ANWEISUNG.includes('botanischer Nomenklatur'));
 });

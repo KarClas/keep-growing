@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { revalidatePath } from 'next/cache';
 import {
+  nutzerListe,
   nutzerAnlegen,
   gaertenFuerNutzer,
   gartenAnlegen,
@@ -15,6 +16,13 @@ import {
 } from '@/lib/db/abfragen';
 import { nutzerWaehlen, gartenWaehlen, aktiveNutzerId, aktiveGartenId, abmelden } from '@/lib/session';
 import { fotoSpeichern } from '@/lib/fotos';
+import {
+  parseLichtAusgabe,
+  parseOrtAusgabe,
+  parseTageZahl,
+  feldWertBereinigen,
+  artDetailsErmitteln,
+} from '@/lib/erkennung/vision';
 
 function textFeld(formData: FormData, feld: string): string {
   const wert = formData.get(feld);
@@ -135,6 +143,73 @@ export async function pflanzeAusScannerAction(formData: FormData) {
   redirect(`/pflanze/${pflanze.id}`);
 }
 
+export async function profilSchritt2AnlegenAction(formData: FormData) {
+  let nutzerId = await aktiveNutzerId();
+  if (!nutzerId) {
+    const alleNutzer = nutzerListe();
+    if (alleNutzer.length > 0) {
+      nutzerId = alleNutzer[0].id;
+      await nutzerWaehlen(nutzerId);
+    } else {
+      const n = nutzerAnlegen('Anne');
+      nutzerId = n.id;
+      await nutzerWaehlen(nutzerId);
+    }
+  }
+
+  let gartenId = await aktiveGartenId();
+  if (!gartenId) {
+    const gaerten = gaertenFuerNutzer(nutzerId);
+    if (gaerten.length > 0) {
+      gartenId = gaerten[0].id;
+      await gartenWaehlen(gartenId);
+    } else {
+      const g = gartenAnlegen(nutzerId, 'Mein Garten');
+      gartenId = g.id;
+      await gartenWaehlen(gartenId);
+    }
+  }
+
+  const art = feldWertBereinigen(textFeld(formData, 'art'));
+  const name = feldWertBereinigen(textFeld(formData, 'name')) || 'Meine Schatzi';
+
+  const giessTage =
+    parseTageZahl(formData.get('giessrhythmus')) ??
+    parseTageZahl(formData.get('gießrhythmus')) ??
+    parseTageZahl(formData.get('giessenrhythmus')) ??
+    7;
+  const duengerTage =
+    parseTageZahl(formData.get('duengenrhythmus')) ??
+    parseTageZahl(formData.get('düngrhythmus')) ??
+    parseTageZahl(formData.get('duengrhythmus')) ??
+    28;
+  const erde = feldWertBereinigen(optionalesTextFeld(formData, 'erde'));
+  const licht = parseLichtAusgabe(optionalesTextFeld(formData, 'licht'));
+  const ort = parseOrtAusgabe(optionalesTextFeld(formData, 'ort'));
+  const nutzerNotiz = feldWertBereinigen(optionalesTextFeld(formData, 'notiz'));
+  const fotoUrl = feldWertBereinigen(optionalesTextFeld(formData, 'fotoUrl'));
+
+  const drinnenDraussen: DrinnenDraussen = ort === 'draußen' ? 'draussen' : 'drinnen';
+  const notiz = nutzerNotiz;
+
+  const pflanze = pflanzeAnlegen(gartenId, nutzerId, {
+    name,
+    art: art || null,
+    erde: erde || null,
+    licht: licht || null,
+    drinnenDraussen,
+    giessIntervallTage: giessTage,
+    duengerIntervallTage: duengerTage,
+    notiz,
+    fotoUrl: fotoUrl || null,
+  });
+
+  revalidatePath('/');
+  revalidatePath('/hinzufuegen');
+  revalidatePath('/hinzufuegen/schritt-2');
+  redirect(`/pflanze/${pflanze.id}`);
+}
+
 export async function aktivitaetAction(formData: FormData) {
   const nutzerId = angemeldetenNutzer(await aktiveNutzerId());
   const pflanzeId = textFeld(formData, 'pflanzeId');
@@ -165,4 +240,9 @@ export async function alsVerstorbenAction(formData: FormData) {
   const pflanzeId = textFeld(formData, 'pflanzeId');
   pflanzeAlsVerstorbenMarkieren(pflanzeId, nutzerId);
   redirect('/');
+}
+
+export async function artDetailsAction(art: string) {
+  if (!art || art.trim() === '') return null;
+  return await artDetailsErmitteln(art);
 }
