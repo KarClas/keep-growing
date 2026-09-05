@@ -234,7 +234,7 @@ export function KameraHinzufuegen() {
         </button>
 
         {/* Sucher-Fenster */}
-        <div className="relative h-[45vh] overflow-hidden rounded-3xl bg-stone-900">
+        <div className="relative h-[58vh] overflow-hidden rounded-3xl bg-stone-900">
           {kameraFehler ? (
             <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-stone-400">
               <span className="text-4xl">📷</span>
@@ -274,7 +274,7 @@ export function KameraHinzufuegen() {
         </div>
 
         {/* Runder Auslöser darunter, mittig (Skizze) */}
-        <div className="flex justify-center py-4">
+        <div className="flex justify-center py-2">
           <button
             type="button"
             onClick={aufnehmen}

@@ -15,7 +15,8 @@ const ANWEISUNG = `Du bist die Pflanzen-Erkennung der App "keep-growing".
 Analysiere das Foto. Nenne die HAUPT-PFLANZE (das eigentliche Motiv) mit deutschem
 Namen und botanischem Namen in einer Zeile, z. B. "Rote Rose (Rosa spec.)".
 Nenne Begleitpflanzen (Füll Blüten, Gräser) NUR im Feld "hinweis".
-Antworte ausschließlich mit einem JSON-Objekt, ohne Markdown, genau dieser Felder:
+Antworte ausschließlich mit einem JSON-Objekt, ohne Markdown, genau dieser Felder.
+Halte alle Felder kurz (hinweis/erde/licht je höchstens 12 Wörter):
 {
   "erkannt": true oder false,
   "name": "kurzer deutscher Name der Hauptpflanze",
@@ -105,7 +106,10 @@ export async function fotoErkennen(bild: Buffer, mime: string): Promise<FotoVors
         },
       ],
       temperature: 0.1,
-      max_tokens: 500,
+      max_tokens: 900,
+      // Der Endpoint kann erzwingen, dass der Modelltext immer gültiges JSON ist
+      // (kein abgeschnittener Markdown-Text mehr, der die Validierung kippt).
+      response_format: { type: 'json_object' },
     }),
     cache: 'no-store',
     signal: AbortSignal.timeout(90_000),
