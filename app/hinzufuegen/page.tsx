@@ -68,7 +68,7 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
       {/* 3.b Vorschau-Bild (Boilerplate Icon, keine Korrekturmöglichkeit) */}
       <div className="flex justify-center">
         <div className="flex h-44 w-44 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 shadow-sm">
-          <TopfMitGesicht wuchsstufe={2} stimmung="zufrieden" name={artVorgabe || 'Pflanze'} />
+          <TopfMitGesicht id="vorschau" wuchsstufe={2} stimmung="zufrieden" name={artVorgabe || 'Pflanze'} art={artVorgabe} />
         </div>
       </div>
 
