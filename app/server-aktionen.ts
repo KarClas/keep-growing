@@ -231,7 +231,11 @@ export async function ernteEintragenAction(formData: FormData) {
   const notiz = optionalesTextFeld(formData, 'notiz');
   const datumEingabe = optionalesTextFeld(formData, 'datum');
   const datum = datumEingabe ? new Date(datumEingabe).toISOString() : undefined;
-  const zurueck = optionalesTextFeld(formData, 'zurueck') ?? `/pflanze/${pflanzeId}`;
+  const zurueckEingabe = optionalesTextFeld(formData, 'zurueck');
+  const zurueck =
+    zurueckEingabe && zurueckEingabe.startsWith('/') && !zurueckEingabe.startsWith('//')
+      ? zurueckEingabe
+      : `/pflanze/${pflanzeId}`;
 
   aktivitaetHinzufuegen(pflanzeId, nutzerId, 'ernten', { menge, notiz, datum });
   revalidatePath('/');
