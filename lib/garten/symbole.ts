@@ -24,3 +24,11 @@ export function ernteSymbol(pflanzeName: string, art: string | null): string {
   }
   return '🌱';
 }
+
+const ESSBARE_ARTEN = ['gemüse', 'obst', 'kraut', 'salat'];
+
+export function istEssbar(art: string | null): boolean {
+  if (!art) return false;
+  const text = art.toLowerCase();
+  return ESSBARE_ARTEN.some((essbareArt) => text.includes(essbareArt));
+}

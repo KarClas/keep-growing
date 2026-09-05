@@ -7,7 +7,7 @@ import {
   ernteListeFuerNutzer,
   type Pflanze,
 } from '@/lib/db/abfragen';
-import { ernteSymbol } from '@/lib/garten/symbole';
+import { ernteSymbol, istEssbar } from '@/lib/garten/symbole';
 import { aktivitaetAction, ernteEintragenAction, ernteLoeschenAction } from '@/app/server-aktionen';
 import { IconTropfen, IconBlatt, IconKorb, IconErledigt, IconX } from '@/components/Symbole';
 
@@ -91,6 +91,7 @@ export default async function AufgabenSeite() {
   const { nutzerId, gartenId } = sitzung;
 
   const pflanzen = pflanzenFuerGarten(gartenId, nutzerId).filter((p) => p.lebenszustand === 'lebend');
+  const essbarePflanzen = pflanzen.filter((p) => istEssbar(p.art));
 
   const heute = new Date();
   const morgen = new Date(heute.getTime() + 24 * 60 * 60 * 1000);
@@ -135,8 +136,8 @@ export default async function AufgabenSeite() {
       <section>
         <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><IconKorb className="h-5 w-5" /> Erntetagebuch</h2>
 
-        {pflanzen.length === 0 ? (
-          <p className="text-sm text-stone-500">Noch keine Pflanze da.</p>
+        {essbarePflanzen.length === 0 ? (
+          <p className="text-sm text-stone-500">Noch keine essbare Pflanze da.</p>
         ) : (
           <form action={ernteEintragenAction} className="mb-4 space-y-3 rounded-xl bg-white p-3 shadow-sm">
             <input type="hidden" name="zurueck" value="/aufgaben" />
@@ -147,7 +148,7 @@ export default async function AufgabenSeite() {
                 required
                 className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
               >
-                {pflanzen.map((p) => (
+                {essbarePflanzen.map((p) => (
                   <option key={p.id} value={p.id}>
                     {p.name}
                   </option>
