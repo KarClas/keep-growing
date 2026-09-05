@@ -56,8 +56,6 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
   const lichtVorgabe = parseLichtAusgabe(params.licht ?? daten.Licht);
   const notizVorgabe = feldWertBereinigen(params.notiz ?? '');
 
-  const hinweisName = `(Dein Wahl oder Mein ${artVorgabe || '<Art des Pflanzes>'})`;
-
   return (
     <div className="space-y-6 pb-10">
       {/* 3.a Titel */}
@@ -74,16 +72,16 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
 
       {/* 3.c Felder prüfen und ggf. bearbeiten */}
       <form action={profilSchritt2AnlegenAction} className="space-y-4">
-        {/* c.1: Name (standardmäßig leer, kleine graue Notiz in Klammern) */}
+        {/* c.1: Name (Pflichtfeld mit Ghost-Text "Meine Schatzi") */}
         <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">
-            Name <span className="text-xs font-normal text-stone-400">{hinweisName}</span>
-          </span>
+          <span className="mb-1 block text-sm font-medium text-stone-700">Name *</span>
           <input
             type="text"
             name="name"
+            required
             defaultValue=""
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+            placeholder="Meine Schatzi"
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-emerald-600 focus:outline-none"
           />
         </label>
 

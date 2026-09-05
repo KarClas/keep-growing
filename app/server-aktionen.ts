@@ -171,11 +171,7 @@ export async function profilSchritt2AnlegenAction(formData: FormData) {
   }
 
   const art = sanitisieren(optionalesTextFeld(formData, 'art'));
-  const roherName = formData.get('name');
-  let name = typeof roherName === 'string' ? roherName.trim() : '';
-  if (!name) {
-    name = art ? `Mein ${art}` : 'Meine Pflanze';
-  }
+  const name = sanitisieren(textFeld(formData, 'name')) || 'Meine Schatzi';
 
   const giessrhythmus = sanitisieren(
     optionalesTextFeld(formData, 'giessrhythmus') ??

@@ -127,10 +127,9 @@ Die Seite ist unter `app/hinzufuegen/page.tsx` (und Alias `app/hinzufuegen/schri
 
 3. **Formularfelder**:
    - **Name (`name`)**:
-     - Standardmäßig **leer** (`value=""`).
-     - Enthält am Label einen kleineren grauen Hinweis in Klammern:
-       `(Dein Wahl oder Mein <Art des Pflanzes>)`
-     - Bleibt das Feld beim Absenden unberührt, vergibt die Server-Aktion automatisch den Namen `Mein <Art des Pflanzes>`.
+     - Pflichtfeld (`required`, Label: `Name *`).
+     - Standardmäßig leer mit dem Ghost-Text / Platzhalter `"Meine Schatzi"`, der beim Tippen sofort verschwindet und Platz für die Eingabe macht.
+     - Pflichtangabe auch serverseitig in der Server-Aktion.
    - **Art (`art`)**:
      - Vorbefüllt mit dem Wert `identified_name` (oder `raw_name`) aus den Eingabedaten. Editierbar.
    - **Gießrhythmus (`giessrhythmus`)**:
