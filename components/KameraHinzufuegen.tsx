@@ -107,7 +107,7 @@ export function KameraHinzufuegen() {
       try {
         const form = new FormData();
         form.set('foto', new File([blob], 'foto.jpg', { type: blob.type || 'image/jpeg' }));
-        const antwort = await fetch('/aktionen/erkennen', { method: 'POST', body: form });
+        const antwort = await fetch('/aufgaben/erkennen', { method: 'POST', body: form });
         const ergebnis = (await antwort.json()) as {
           vorschlag?: FotoVorschlag | null;
           fotoUrl?: string | null;
@@ -198,7 +198,7 @@ export function KameraHinzufuegen() {
       </button>
 
       {/* Sucher-Fenster */}
-      <div className="relative h-[58vh] overflow-hidden rounded-3xl bg-stone-900">
+      <div className="relative h-[58vh] overflow-hidden rounded-3xl bg-stone-900" style={{ height: '58vh' }}>
         {kameraFehler ? (
           <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-stone-400">
             <span className="text-4xl">📷</span>

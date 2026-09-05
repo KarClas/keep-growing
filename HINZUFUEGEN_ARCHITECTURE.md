@@ -23,7 +23,7 @@ Der Erfassungsprozess gliedert sich in zwei Phasen:
 
 ### Schritt 1: Fotoaufnahme & Erkennung (`/hinzufuegen`)
 - **Komponente**: `app/hinzufuegen/page.tsx` rendert `KameraHinzufuegen` als primären Zustand.
-- **Funktion**: Der Nutzer nimmt ein Foto über den Kamerasucher auf (oder wählt eine Bilddatei). Das Foto wird an den internen Endpunkt `POST /aktionen/erkennen` gesendet und direkt über das Vision-Modell (`qwen3.8-flash-next`) analysiert.
+- **Funktion**: Der Nutzer nimmt ein Foto über den Kamerasucher auf (oder wählt eine Bilddatei). Das Foto wird an den internen Endpunkt `POST /aufgaben/erkennen` gesendet und direkt über das Vision-Modell (`qwen3.8-flash-next`) analysiert.
 - **Ergebnis**: Nach der Analyse wird das strukturierte Datenpaket an Schritt 2 weitergeleitet (`/hinzufuegen/schritt-2?art=...`).
 
 ### Schritt 2: Einstellung des Profils (`/hinzufuegen/schritt-2`)
@@ -35,7 +35,7 @@ Der Erfassungsprozess gliedert sich in zwei Phasen:
 
 ## 2. Direkte KI-Fotoanalyse
 
-Die bisherigen externen Hilfsdienste (`id-plant-api` und `plant-details-api`) wurden abgelöst. Die Erkennung erfolgt direkt über das Vision-Modell in `lib/erkennung/vision.ts` über den Endpunkt `POST /aktionen/erkennen`.
+Die bisherigen externen Hilfsdienste (`id-plant-api` und `plant-details-api`) wurden abgelöst. Die Erkennung erfolgt direkt über das Vision-Modell in `lib/erkennung/vision.ts` über den Endpunkt `POST /aufgaben/erkennen`.
 
 ### Strukturierte Modellausgabe (JSON):
 ```json

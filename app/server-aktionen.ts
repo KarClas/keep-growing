@@ -129,7 +129,9 @@ export async function pflanzeAusScannerAction(formData: FormData) {
       art: textFeld(formData, 'art'),
       erde: optionalesTextFeld(formData, 'erde'),
       licht: optionalesTextFeld(formData, 'licht'),
+      giessIntervallTage: optionaleZahl(formData, 'giessIntervallTage') ?? undefined,
       fotoUrl,
+      hinweis: optionalesTextFeld(formData, 'hinweis'),
     },
     {
       name: textFeld(formData, 'name'),
@@ -218,7 +220,7 @@ export async function aktivitaetAction(formData: FormData) {
   aktivitaetHinzufuegen(pflanzeId, nutzerId, typ, { menge, notiz });
   revalidatePath(`/pflanze/${pflanzeId}`);
   revalidatePath('/');
-  revalidatePath('/aktionen');
+  revalidatePath('/aufgaben');
 }
 
 export async function ernteEintragenAction(formData: FormData) {

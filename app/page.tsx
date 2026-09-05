@@ -5,6 +5,7 @@ import { pflanzenFuerGarten, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, e
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { EngelWolke } from '@/components/EngelWolke';
 import { ernteSymbol } from '@/lib/garten/symbole';
+import { IconKeimling } from '@/components/Symbole';
 
 export default async function Home() {
   const sitzung = await aktuelleSitzung();
@@ -26,7 +27,9 @@ export default async function Home() {
   return (
     <div className="space-y-8 pb-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-emerald-800">🌱 Mein Garten</h1>
+        <h1 className="flex items-center gap-2 text-2xl font-bold text-emerald-800">
+          <IconKeimling className="h-7 w-7" /> Mein Garten
+        </h1>
         <Link href="/start" className="text-sm text-stone-500 underline">
           Nutzer wechseln
         </Link>
@@ -68,9 +71,9 @@ export default async function Home() {
         {ernteSymboleGesehen.size === 0 ? (
           <p className="text-sm text-stone-500">Noch nichts geerntet.</p>
         ) : (
-          <div className="flex flex-wrap gap-3 text-3xl">
-            {[...ernteSymboleGesehen.values()].map((symbol, i) => (
-              <span key={i}>{symbol}</span>
+          <div className="flex flex-wrap gap-3 text-2xl">
+            {[...ernteSymboleGesehen.entries()].map(([pflanzeId, symbol]) => (
+              <span key={pflanzeId}>{symbol}</span>
             ))}
           </div>
         )}

@@ -4,11 +4,12 @@ import { aktuellerNutzer } from '@/lib/session';
 import { pflanzeMitId, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, aktivitaetenFuerPflanze } from '@/lib/db/abfragen';
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { aktivitaetAction, alsVerstorbenAction } from '@/app/server-aktionen';
+import { IconTropfen, IconBlatt, IconKorb, IconZurueck } from '@/components/Symbole';
 
 const AKTIVITAET_LABEL: Record<string, string> = {
-  giessen: '💧 Gegossen',
-  duengen: '🌿 Gedüngt',
-  ernten: '🧺 Geerntet',
+  giessen: 'Gegossen',
+  duengen: 'Gedüngt',
+  ernten: 'Geerntet',
 };
 
 export default async function PflanzenDetail({ params }: { params: Promise<{ id: string }> }) {
@@ -23,8 +24,8 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
 
   return (
     <div className="space-y-6 pb-6">
-      <Link href="/" className="text-sm text-stone-500 underline">
-        ← Zurück
+      <Link href="/" className="inline-flex items-center gap-1 text-sm text-stone-500 underline">
+        <IconZurueck className="h-4 w-4" /> Zurück
       </Link>
 
       <div className="mx-auto w-40 aspect-[8/13]">
@@ -45,22 +46,22 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
           <form action={aktivitaetAction}>
             <input type="hidden" name="pflanzeId" value={pflanze.id} />
             <input type="hidden" name="typ" value="giessen" />
-            <button type="submit" className="w-full rounded-xl bg-sky-600 px-2 py-3 text-sm font-medium text-white">
-              💧 Gießen
+            <button type="submit" className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-sky-600 px-2 py-3 text-sm font-medium text-white">
+              <IconTropfen className="h-4 w-4" /> Gießen
             </button>
           </form>
           <form action={aktivitaetAction}>
             <input type="hidden" name="pflanzeId" value={pflanze.id} />
             <input type="hidden" name="typ" value="duengen" />
-            <button type="submit" className="w-full rounded-xl bg-amber-600 px-2 py-3 text-sm font-medium text-white">
-              🌿 Düngen
+            <button type="submit" className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-amber-600 px-2 py-3 text-sm font-medium text-white">
+              <IconBlatt className="h-4 w-4" /> Düngen
             </button>
           </form>
           <Link
             href={`/pflanze/${pflanze.id}/ernte`}
-            className="flex w-full items-center justify-center rounded-xl bg-rose-600 px-2 py-3 text-center text-sm font-medium text-white"
+            className="flex w-full items-center justify-center gap-1.5 rounded-xl bg-rose-600 px-2 py-3 text-center text-sm font-medium text-white"
           >
-            🧺 Ernten
+            <IconKorb className="h-4 w-4" /> Ernten
           </Link>
         </div>
       ) : (

@@ -3,6 +3,7 @@ import { redirect } from 'next/navigation';
 import { aktuelleSitzung } from '@/lib/session';
 import { pflanzenFuerGarten, naechsteFaelligkeitGiessen, naechsteFaelligkeitDuengen, type Pflanze } from '@/lib/db/abfragen';
 import { aktivitaetAction } from '@/app/server-aktionen';
+import { IconTropfen, IconBlatt, IconKorb, IconErledigt } from '@/components/Symbole';
 
 function tagSchluessel(datum: Date): string {
   return datum.toISOString().slice(0, 10);
@@ -21,7 +22,7 @@ function PlanListe({
   typ,
   zusatz,
 }: {
-  titel: string;
+  titel: React.ReactNode;
   eintraege: { pflanze: Pflanze; gruppe: 'heute' | 'morgen' | 'spaeter' }[];
   typ: 'giessen' | 'duengen';
   zusatz?: (pflanze: Pflanze) => string | null;
@@ -38,8 +39,8 @@ function PlanListe({
       <form action={aktivitaetAction}>
         <input type="hidden" name="pflanzeId" value={pflanze.id} />
         <input type="hidden" name="typ" value={typ} />
-        <button type="submit" className="rounded-full border border-emerald-600 px-3 py-1 text-sm text-emerald-700">
-          ✓ erledigt
+        <button type="submit" className="flex items-center gap-1.5 rounded-full border border-emerald-600 px-3 py-1 text-sm text-emerald-700">
+          <IconErledigt className="h-4 w-4" /> erledigt
         </button>
       </form>
     </li>
@@ -78,7 +79,7 @@ function PlanListe({
   );
 }
 
-export default async function AktionenSeite() {
+export default async function AufgabenSeite() {
   const sitzung = await aktuelleSitzung();
   if (!sitzung) redirect('/start');
   const { nutzerId, gartenId } = sitzung;
@@ -102,7 +103,9 @@ export default async function AktionenSeite() {
 
   return (
     <div className="space-y-10 pb-6">
-      <h1 className="text-2xl font-bold">✅ Aktionen</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold">
+        <IconErledigt className="h-7 w-7 text-emerald-700" /> Aufgaben
+      </h1>
 
       {pflanzen.length === 0 ? (
         <p className="rounded-xl border border-dashed border-stone-300 p-6 text-center text-sm text-stone-500">
@@ -110,9 +113,9 @@ export default async function AktionenSeite() {
         </p>
       ) : (
         <>
-          <PlanListe titel="💧 Gießrunde" eintraege={giessplan} typ="giessen" />
+          <PlanListe titel={<><IconTropfen className="h-5 w-5 text-sky-600" /> Gießrunde</>} eintraege={giessplan} typ="giessen" />
           <PlanListe
-            titel="🌿 Düngerunde"
+            titel={<><IconBlatt className="h-5 w-5 text-emerald-700" /> Düngerunde</>}
             eintraege={duengeplan}
             typ="duengen"
             zusatz={(p) => p.duengerTyp}
@@ -121,7 +124,7 @@ export default async function AktionenSeite() {
       )}
 
       <section>
-        <h2 className="mb-3 text-lg font-semibold">🧺 Ernte eintragen</h2>
+        <h2 className="mb-3 flex items-center gap-2 text-lg font-semibold"><IconKorb className="h-5 w-5" /> Ernte eintragen</h2>
         {pflanzen.length === 0 ? (
           <p className="text-sm text-stone-500">Noch keine Pflanze da.</p>
         ) : (

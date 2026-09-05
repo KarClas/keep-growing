@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
 
   const formular = await request.formData().catch(() => null);
   const foto = formular?.get('foto');
-  if (!(foto instanceof File) || foto.size === 0) {
+  if (!(foto instanceof Blob) || foto.size === 0) {
     return NextResponse.json({ fehler: 'Kein Foto übermittelt.' }, { status: 400 });
   }
 
@@ -35,6 +35,7 @@ export async function POST(request: NextRequest) {
     const vorschlag = await fotoErkennen(puffer, mime);
     return NextResponse.json({ vorschlag, fotoUrl });
   } catch (fehler) {
+    //REGELN: Fehler sichtbar machen, nicht schlucken.
     const grund = fehler instanceof Error ? fehler.message : String(fehler);
     return NextResponse.json({ fehler: `Foto-Erkennung fehlgeschlagen: ${grund}` }, { status: 502 });
   }

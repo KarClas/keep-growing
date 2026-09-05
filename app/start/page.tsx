@@ -1,3 +1,4 @@
+import { IconKeimling } from '@/components/Symbole';
 import Link from 'next/link';
 import { nutzerListe, gaertenFuerNutzer } from '@/lib/db/abfragen';
 import { aktiveNutzerId, aktiveGartenId } from '@/lib/session';
@@ -13,7 +14,9 @@ export default async function StartSeite() {
 
   return (
     <div className="space-y-8 pb-10">
-      <h1 className="text-2xl font-bold text-emerald-800">🌱 keep-growing</h1>
+      <h1 className="flex items-center gap-2 text-2xl font-bold text-emerald-800">
+          <IconKeimling className="h-7 w-7" /> keep-growing
+        </h1>
 
       <section>
         <h2 className="mb-2 text-lg font-semibold">Wer bist du?</h2>
@@ -88,7 +91,7 @@ export default async function StartSeite() {
 
       {aktiverNutzer && aktiverGarten && (
         <Link href="/" className="block rounded-xl bg-emerald-700 px-4 py-3 text-center font-semibold text-white">
-          Weiter zu meinem Garten →
+          Weiter zu meinem Garten
         </Link>
       )}
     </div>
