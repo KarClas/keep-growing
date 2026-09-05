@@ -142,7 +142,7 @@ Die Seite ist unter `app/hinzufuegen/page.tsx` (und Alias `app/hinzufuegen/schri
    - **Licht (`licht`)**:
      - Deterministisches Textfeld mit genau 3 Optionen: `Sonne`, `Schatten`, `Sonne oder Schatten`.
      - Vorbefüllt durch deterministisches Parsing des API-Outputs (`sun` ──► `Sonne`, `shadow` ──► `Schatten`, `any` ──► `Sonne oder Schatten`, Default bei fehlender Angabe/`N/A`: `Sonne oder Schatten`).
-     - Bietet die 3 Optionen zudem über `<datalist>` zur direkten Auswahl/Vervollständigung an.
+     - Standard-Textfeld ohne Browser-Vorschläge (`autoComplete="off"`).
    - **Notiz (`notiz`)**:
      - Freitextfeld für individuelle Notizen der Nutzer:in, optional wie bisher.
 

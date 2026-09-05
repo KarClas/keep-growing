@@ -4,7 +4,6 @@ import {
   ENJOY_05_PLANT_DATA,
   holeDetailsFuerPflanze,
   parseLichtAusgabe,
-  LICHT_OPTIONEN,
   type PflanzenErkennungsErgebnis,
 } from '@/lib/pflanzen-api';
 
@@ -138,16 +137,11 @@ export default async function ProfilSchritt2Seite({ searchParams }: Props) {
           <input
             type="text"
             name="licht"
-            list="licht-optionen"
+            autoComplete="off"
             defaultValue={lichtVorgabe}
             placeholder="Sonne, Schatten oder Sonne oder Schatten"
             className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
           />
-          <datalist id="licht-optionen">
-            {LICHT_OPTIONEN.map((opt) => (
-              <option key={opt} value={opt} />
-            ))}
-          </datalist>
         </label>
 
         {/* c.7: Notiz */}
