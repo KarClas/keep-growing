@@ -12,6 +12,17 @@ Vorgaben, aus denen die Entscheidungen folgen:
 - **30 Stunden Zeit**, Team aus drei nicht sehr technischen Personen
 - **MVP ist lokal-fertig, nicht live-fertig** (ADR-013) — Cloud/Deployment ist
   ein eigener, späterer Schritt
+- **Möglichst wenige Abhängigkeiten, self-contained über GitHub teilbar** —
+  `git clone` + `npm install` + `npm run dev` muss reichen. Kein externer
+  Dienst, kein Konto, keine `.env`-Konfiguration nötig, um die MVP-Phase
+  lokal laufen zu lassen (verschärfte Lesart von H8).
+
+**Was das schon erfüllt, ohne dass sich etwas ändern muss:** SQLite ist eine
+Datei, kein Server; Fotos liegen lokal in einem Ordner; die Anmeldung ist ein
+lokaler Test-Nutzer-Wechsler statt eines echten Anbieters; die Anwendung ist
+ein einzelner Next.js-Prozess (`output: 'standalone'`), der mit
+`node server.js` läuft. Für die MVP-Phase kommt niemand mit einem Cloud-Konto
+oder einer Infrastruktur-Entscheidung in Berührung.
 
 ---
 
@@ -22,8 +33,8 @@ Vorgaben, aus denen die Entscheidungen folgen:
 | Gerüst | **Next.js** (App Router), **TypeScript**, `output: 'standalone'` | Erprobter Stack aus dem Referenzprojekt; `standalone` macht die Anwendung von Anfang an mit `node server.js` betreibbar, nicht nur bei Vercel. |
 | Gestaltung | **Utility-CSS-Framework** (z. B. Tailwind) | Abweichung vom Referenzprojekt: dort schützte das Framework-Verbot eine bereits existierende Handarbeit. keep-growing hat kein vorhandenes Artefakt — hier zählt Geschwindigkeit für drei Personen in 30 Stunden (ADR-012). |
 | Zeichnungen/Berechnung | **Eigene Module** in `lib/garten/` | Reine Berechnung ohne Zustand, wie im Referenzprojekt — überlebt jeden Umzug. |
-| Datenbank | **PostgreSQL**, lokal für die MVP-Phase, **Neon** als Startpunkt für den Go-Live-Schritt | Gleiche Technologie lokal wie in der Cloud — ein Wechsel ist eine geänderte `DATABASE_URL`, kein Umbau. |
-| Datenzugriff | **Drizzle** + Treiber **postgres.js** | Neutraler Treiber statt Neons proprietärem Client — jedes PostgreSQL tut es (H8). |
+| Datenbank | **SQLite** (Datei), lokal für die MVP-Phase; Cloud-Pendant für den Go-Live-Schritt noch offen (Empfehlung: **Turso**/libSQL — siehe „Wo die Ausgänge liegen") | Kein Datenbank-Server zum Einrichten — eine Datei reicht, am einfachsten für drei nicht sehr technische Personen in 30 Stunden. Ersetzt die ursprüngliche Postgres/Neon-Entscheidung aus dem Interview. |
+| Datenzugriff | **better-sqlite3** direkt, rohes SQL über vorbereitete Anweisungen (`prepare`) | Eine Abhängigkeit weniger als mit einem ORM. Team-Entscheidung: Minimalität wichtiger als der Tippfehler-Schutz eines Schema-Layers — dafür braucht jede Abfrage mit Nutzer-/Garten-Bezug die geteilte Hilfsfunktion aus `lib/db/` (siehe `REGELN.md` Abschnitt 5), nicht eigenes SQL pro Stelle. |
 | Anmeldung (Go-Live, nicht MVP) | **Auth.js**, Credentials-Provider (E-Mail/Passwort) | Referenzprojekt hat sich bewusst gegen jede Fremdanmeldung entschieden, um nicht an einen Anbieter gebunden zu sein (ADR-007). Google optional später, kein Muss. |
 | Fotos | **Datei-/Blob-Speicher**, referenziert per URL in der Datenbank | Bytes-in-der-Datenbank ist laut Referenzprojekt bei vielen Nutzer:innen die falsche Wahl (ADR-011). Lokal (MVP) eine einfache Ablage, ab Go-Live Vercel Blob — dieselbe Schnittstelle. |
 | Verkleinern | **Im Browser**, vor dem Hochladen | Wie im Referenzprojekt — kein Bildwerkzeug auf dem Server nötig. |
@@ -38,7 +49,6 @@ Vorgaben, aus denen die Entscheidungen folgen:
 |---|---|
 | Bytes-in-der-Datenbank für Fotos | Richtig für eine Nutzerin, falsch bei vielen (ADR-011). |
 | Eigenes CSS ohne Framework | Umgekehrte Begründung zum Referenzprojekt: hier gibt es nichts Vorhandenes zu schützen, aber Zeitdruck (ADR-012). |
-| Supabase-eigene Bibliotheken/Extras | Genau die Bindung, die H8 vermeiden soll — reines PostgreSQL wäre in Ordnung, die Extras nicht. |
 | Separater Scanner-Dienst mit eigenem API-Vertrag | Mehr Setup-Aufwand als Nutzen in 30 Stunden (ADR-005). |
 | Erinnerungen/Benachrichtigungen | Kein Nutzerwunsch geäußert; Default aus dem Referenzprojekt übernommen, bis widersprochen. |
 
@@ -46,11 +56,11 @@ Vorgaben, aus denen die Entscheidungen folgen:
 
 ## Wo die Ausgänge liegen
 
-Damit die Wahl von Neon/Vercel eine Startposition bleibt, keine Festlegung:
+Damit die Wahl von Hoster und Cloud-Datenbank eine Startposition bleibt, keine Festlegung:
 
 | Wechsel | Aufwand | Was zu tun ist |
 |---|---|---|
 | Anderer Hoster | gering | `DATABASE_URL` und Auth-Geheimnis woanders eintragen. Der Bau läuft dank `standalone` ohne Next.js-spezifisches Vercel-Werkzeug. |
-| Andere Datenbank | gering | Export/Import — es ist normales PostgreSQL über einen neutralen Treiber. |
+| Andere Datenbank | gering | SQLite-Dateien sind portabel, kein Server-Umzug nötig. Für den Go-Live-Schritt empfohlen: **Turso** (libSQL, SQLite-kompatibel, passt zu Vercel) — offen für das Team. |
 | Anderer Datei-/Blob-Speicher | eine Datei | Nur die Stelle, die Foto-URLs erzeugt/liest, ändert sich. Der Rest der Anwendung kennt nur die Adresse — analog zu `/bild/<id>` im Referenzprojekt. |
 | Google/weitere Login-Anbieter dazu | gering | Auth.js unterstützt mehrere Provider gleichzeitig; die Credentials-Grundlage bleibt unverändert. |

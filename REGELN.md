@@ -115,6 +115,10 @@ nicht. Hier ist sie zentral:
   vorhanden" aussieht).
 - **Berechnungsregel-Tests** (Abschnitt 4) schließen mindestens einen Fall
   „fremder Garten, eigene Anfrage" ein.
+- **Ohne ORM (`STACK.md`) gibt es keinen Schema-Layer, der einen fehlenden
+  Filter automatisch verhindert.** Jede Abfrage mit Nutzer-/Garten-Bezug läuft
+  über eine gemeinsame Hilfsfunktion in `lib/db/`, die die ID-Filterung
+  erzwingt — kein rohes SQL mit `WHERE` von Hand an einzelnen Stellen im Code.
 
 ---
 

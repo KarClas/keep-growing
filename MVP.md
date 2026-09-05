@@ -71,8 +71,15 @@ dauerhaft) — unabhängig davon zeigt das Gesicht auf ihrem **Topf** den
 tagesaktuellen Pflegezustand (zufrieden bis sehr traurig, je nachdem ob etwas
 überfällig ist). Zwei getrennte Werte, siehe ADR-016 im Plan.
 
-1. **Gießplan** — zeigt, welche Pflanzen heute fällig sind, einzeln abhakbar.
-2. **Düngeplan** — gleiches Prinzip, eigener Rhythmus je Pflanze.
+1. **Gießplan** — nach Tag gruppiert (mindestens Heute und Morgen sichtbar),
+   zeigt was noch offen ist, einzeln abhakbar.
+2. **Düngeplan** — gleicher Aufbau (Heute/Morgen, abhakbar), zusätzlich steht
+   bei jeder Pflanze, welcher Dünger benutzt werden soll.
+
+**Beschriftung bewusst nicht „To Do":** klingt nach Pflicht, widerspricht dem
+Gefühl, das die App vermitteln soll (ADR-017). Vorschlag: „Gießrunde" /
+„Düngerunde" — schon im Referenzprojekt so benannt. Endgültige Formulierung
+ist Sache des Teams.
 3. **Erntetagebuch** — Pflanze wählen, Menge, Notiz, eintragen.
 4. **Hinzufügen** — manuell (Name eingeben) oder per Scanner (Foto → Art +
    Pflegevorschlag, Rückfragen zu drinnen/draußen und aktueller Größe).
@@ -84,9 +91,9 @@ tagesaktuellen Pflegezustand (zufrieden bis sehr traurig, je nachdem ob etwas
 | | |
 |---|---|
 | Konten/Gärten | Mehrere Nutzer:innen, je mit einem oder mehreren Gärten |
-| Pflanzenverwaltung | Pflanzen anlegen, Pflegedaten, Detailseite (Erde, Licht, Gießrhythmus, Dünger) |
-| Gieß- und Düngeplan | Nach Datum, heute fällige einzeln abhakbar |
-| Erntetagebuch | Menge + Notiz je Pflanze, Ernte-Vitrine als Symbol-Übersicht |
+| Pflanzenverwaltung | Pflanzen anlegen, Pflegedaten, Detailseite (Erde, Licht, Gießen, Dünger, Art, Notiz) |
+| Gieß- und Düngeplan | Nach Tag gruppiert (Heute/Morgen), offene Punkte einzeln abhakbar; im Düngeplan steht zusätzlich der jeweils passende Dünger |
+| Erntetagebuch | Eintrag mit Datum, Pflanze, Menge, Notiz; Liste chronologisch, neueste zuerst — wie im Referenzprojekt. Ernte-Vitrine als Symbol-Übersicht |
 | Wachstums-Tracking | Wuchsstufe steigt mit jeder der drei Kern-Aktionen; Verlauf über die Zeit |
 | Töpfe mit Gesichtern | Regelbasierte Pflegestimmung aus Zeit-seit-Pflege vs. Bedarf, unabhängig von der Wuchsstufe |
 | In liebevoller Erinnerung | Gestorbene Pflanzen als eigener Bereich unterhalb der Pflanzenliste — Engel mit Heiligenschein auf einer Wolke, glücklich dargestellt (ADR-014) |
@@ -103,9 +110,15 @@ tagesaktuellen Pflegezustand (zufrieden bis sehr traurig, je nachdem ob etwas
 
 Untere Navigationsleiste, drei Ziele:
 
-1. **Home** (links): Pflanzen-Topf-Galerie oben (alle Pflanzen, Gesichter
-   sichtbar) → Ernte-Vitrine → alphabetische Pflanzenliste (Tippen → Detail:
-   Erde, Licht/Schatten, Gießrhythmus, Dünger) → In-Loving-Memory-Bereich.
+1. **Home** (links), drei Abschnitte untereinander, laut Skizze des Teams:
+   - **Topf-Galerie** oben — alle Pflanzen, jede mit eigener Zeichnung und
+     Gesicht auf dem Topf. Antippen öffnet die Detailseite der Pflanze:
+     Name, Erde, Licht, Gießen, Dünger, Art, Notiz — plus dieselbe
+     Pflanzen-in-Topf-Zeichnung wie in der Galerie. Keine separate
+     alphabetische Liste — die Galerie selbst ist der Einstieg.
+   - **Ernte-Vitrine** darunter — kleine Symbole (z. B. Tomate, Blatt) je
+     nachdem, was schon geerntet wurde.
+   - **In liebevoller Erinnerung** ganz unten — verstorbene Pflanzen.
 2. **Aktionen** (mitte): Gießplan, Düngeplan, Ernte eintragen.
 3. **Hinzufügen** (rechts): manuell (Name) oder Scanner (Foto → KI-Vorschlag
    → Rückfragen drinnen/draußen, Größe → anlegen).
@@ -117,7 +130,7 @@ Untere Navigationsleiste, drei Ziele:
 | Nicht im MVP | Warum, und wann dann |
 |---|---|
 | Echte Passwort-Anmeldung (Auth.js Credentials) | Erst nötig, sobald die Anwendung netzerreichbar wird — erster Schritt der Go-Live-Phase. |
-| Cloud-Datenbank (Neon), tatsächliches Deployment | Bewusst getrennt von „fertigbauen und lokal prüfen" (ADR-013). |
+| Cloud-Datenbank (Go-Live, Anbieter offen — Empfehlung: Turso), tatsächliches Deployment | Bewusst getrennt von „fertigbauen und lokal prüfen" (ADR-013). |
 | Scanner — KI-Erkennung selbst | Baut das übrige Team (B1, ADR-015). |
 | Community-/Teilen-Funktionen | Privat by default; nicht für den Pitch geplant. |
 | Erinnerungen/Benachrichtigungen | Kein Nutzerwunsch geäußert. |
@@ -129,7 +142,7 @@ Untere Navigationsleiste, drei Ziele:
 Eigener, nachgelagerter Schritt, damit ein Deployment- oder
 Anmeldungs-Problem nicht den Kern-Feature-Bau blockiert:
 
-1. `DATABASE_URL` auf Neon umstellen, Daten einmalig umziehen.
+1. `DATABASE_URL` auf eine Cloud-SQLite-Datenbank (Empfehlung: Turso) umstellen, Daten einmalig umziehen.
 2. Auth.js Credentials-Provider scharfschalten, lokalen Test-Nutzer-Wechsler
    ablösen.
 3. Auf Vercel deployen, Foto-Ablage auf Vercel Blob umstellen.
@@ -145,7 +158,7 @@ Laptop, klar benannt statt improvisiert vorgetäuscht.
 | Risiko | Wie wir damit umgehen |
 |---|---|
 | Mandantentrennung hat eine Lücke | Eigener Testfall „fremder Garten, eigene Anfrage" für jede Berechnungsregel (siehe `REGELN.md` Abschnitt 5). |
-| Neon/Vercel/Auth.js machen im Go-Live-Schritt Ärger | MVP ist bereits lokal vollständig vorführbar — der Pitch hängt nicht am Gelingen des Go-Live-Schritts. |
+| Cloud-Datenbank/Vercel/Auth.js machen im Go-Live-Schritt Ärger | MVP ist bereits lokal vollständig vorführbar — der Pitch hängt nicht am Gelingen des Go-Live-Schritts. |
 | Annes importierte Daten gehen beim Import verloren oder verfälscht | `DATEN.md`, einmaliger Import mit sichtbarem Abbruch bei zweitem Lauf, keine Löschung bestehender Gärten. |
 | Scanner-Team liefert nicht rechtzeitig | Schnittstelle (`pflanzeAusErkennungAnlegen`) ist unabhängig nutzbar — die App funktioniert auch ohne den Scanner vollständig. |
 
@@ -159,3 +172,4 @@ Laptop, klar benannt statt improvisiert vorgetäuscht.
 | Google als zusätzlicher Login-Anbieter | Team | Stretch-Goal, kein Muss (siehe Plan, „Offene Annahmen") |
 | Annes Garten-Wissen (`wissen/`) übernehmen | Team | Nur bei Bedarf für konkrete Pflegelogik, als Quelle zitiert |
 | Umfang der Töpfe-Gesichter-Berechnung | Claude Code (technisch) | Regelbasiert, kein KI-Aufruf — siehe Plan, „Offene Annahmen" |
+| Cloud-Pendant zu SQLite für den Go-Live-Schritt | Team | offen — Empfehlung: Turso (libSQL, SQLite-kompatibel, passt zu Vercel) |
