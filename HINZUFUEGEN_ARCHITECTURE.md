@@ -67,28 +67,29 @@ Die Seite ist unter `app/hinzufuegen/schritt-2/page.tsx` implementiert.
 1. **Seitentitel**:
    - Text: `Einstellung des Profils` (zentriert, `text-2xl font-bold`).
 
-2. **Pflanzen-Vorschau links & Licht-Symbol rechts oben**:
-   - **Linksbündige Profil-Vorschau** mit dynamischem Hintergrund („Ich bleibe lieber drinnen“ & „Ich bleibe lieber draußen“):
+2. **Pflanzen-Vorschau (mittig zentriert)**:
+   - **Mittig zentrierter Profil-Bilderrahmen** (`h-44 w-44`) mit dynamischem Hintergrund („Ich bleibe lieber drinnen“ & „Ich bleibe lieber draußen“):
      - Feststehendes Symbol der App (`TopfMitGesicht`), Zustand: zufrieden, Wuchsstufe: 2.
      - Vektor-Hintergründe: „Ich bleibe lieber drinnen“ vs. „Ich bleibe lieber draußen“.
      - Pfeile links und rechts: Wechseln den Hintergrund mit Wisch-Animation und Touch-Unterstützung.
      - Ersetzt das bisherige `Ort`-Feld vollständig.
-   - **Licht-Symbol oben rechts**:
-     - Ersetzt das bisherige sichtbare `Licht`-Textfeld vollständig.
-     - Drei grafische Sonnen-Symbole im App-Stil (warm, ohne reinweiß):
-       1. **Helle Sonne** (nur Umriss): `Sonne`
-       2. **Dunkle Sonne** (voll gefüllt): `Schatten`
-       3. **Halb dunkle, halb helle Sonne** (rechte Hälfte gefüllt): `Sonne oder Schatten` / `Sonne und Schatten` (Fallback: halb/halb).
-     - Entspricht der KI-Erkennung und lässt sich durch Antippen zyklisch durchschalten (`Sonne` ──► `Schatten` ──► `Sonne oder Schatten`).
-     - Wird als verstecktes Formularfeld (`<input type="hidden" name="licht" ... />`) an das Backend übertragen.
 
 3. **Formularfelder**:
-   - **Name (`name`)**:
+   - **Name (`name`) mit Licht-Symbol rechts daneben**:
      - Pflichtfeld (`required`, Label: `Name *`).
      - Standardmäßig immer leer (`defaultValue=""`), zeigt ausschließlich das Ghost-Template / Platzhalter `"Meine Schatzi"`.
+     - **Licht-Symbol rechts daneben**:
+       - Ersetzt das bisherige sichtbare Textfeld vollständig und sitzt rechts neben dem Eingabefeld `Name`.
+       - Nimmt exakt denselben Platz ein wie der Reload-Button bei Art (`42x42px` mit bündigem Formular-Abschluss).
+       - Drei grafische Sonnen-Symbole im App-Stil (warm, ohne reinweiß):
+         1. **Helle Sonne** (nur Umriss): `Sonne`
+         2. **Dunkle Sonne** (voll gefüllt): `Schatten`
+         3. **Halb dunkle, halb helle Sonne** (rechte Hälfte gefüllt): `Sonne oder Schatten` / `Sonne und Schatten` (Fallback: halb/halb).
+       - Entspricht der KI-Erkennung und lässt sich durch Antippen zyklisch durchschalten (`Sonne` ──► `Schatten` ──► `Sonne oder Schatten`).
+       - Wird als verstecktes Formularfeld (`<input type="hidden" name="licht" ... />`) an das Backend übertragen.
    - **Art (`art`)**:
      - Vorbefüllt mit dem wissenschaftlichen Artnamen streng nach botanischer Nomenklatur (`art`, z. B. `"Rosa chinensis"`). Editierbar.
-     - **Reload-Button daneben**: Bleibt gesperrt / ausgegraut, solange der Art-Wert unverändert ist. Wird freigeschaltet, sobald der Wert geändert wird (auch bei manueller Neueingabe). Beim Klick ruft das Modell mit dem Text-Prompt (`ART_ANWEISUNG`) die Pflegeparameter für die neue Art ab und überschreibt die übrigen Felder in-place (inkl. Hintergrundauswahl und Licht-Symbol).
+     - **Reload-Button daneben**: Bleibt gesperrt / ausgegraut, solange der Art-Wert unverändert ist. Wird freigeschaltet, sobald der Wert geändert wird (auch bei manueller Neueingabe). Beim Klick ruft das Modell mit dem Text-Prompt (`ART_ANWEISUNG`) die Pflegeparameter für die neue Art ab und überschreibt die übrigen Felder in-place (inkl. Hintergrundauswahl und Licht-Symbol). Name und Notiz bleiben unverändert.
    - **Gießrhythmus (`giessrhythmus`) & Düngrhythmus (`duengenrhythmus`)**:
      - Platzsparend nebeneinander in einer Zeile angeordnet (jeweils halbe Breite).
      - Zahlenfelder (`input type="number" min={1}`) mit nachgestellter Maßeinheit `"Tagen"`.
