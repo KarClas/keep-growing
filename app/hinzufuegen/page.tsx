@@ -1,25 +1,137 @@
-import Link from 'next/link';
+import { TopfMitGesicht } from '@/components/TopfMitGesicht';
+import { profilSchritt2AnlegenAction } from '@/app/server-aktionen';
+import { ENJOY_05_PLANT_DATA, type PflanzenErkennungsErgebnis } from '@/lib/pflanzen-api';
 
-export default function Hinzufuegen() {
+interface Props {
+  searchParams?: Promise<{
+    name?: string;
+    art?: string;
+    giessrhythmus?: string;
+    giessenrhythmus?: string;
+    duengenrhythmus?: string;
+    erde?: string;
+    licht?: string;
+    notiz?: string;
+  }>;
+}
+
+export default async function ProfilSchritt2Seite({ searchParams }: Props) {
+  const params = searchParams ? await searchParams : {};
+  const daten: PflanzenErkennungsErgebnis = ENJOY_05_PLANT_DATA;
+
+  const artVorgabe = params.art ?? daten.identified_name ?? daten.raw_name;
+  const nameVorgabe = params.name ?? (artVorgabe ? `Meine ${artVorgabe}` : 'Meine Pflanze');
+  const giessVorgabe = params.giessrhythmus ?? params.giessenrhythmus ?? daten.Giessrhythmus;
+  const duengenVorgabe = params.duengenrhythmus ?? daten.Duengenrhytmus;
+  const erdeVorgabe = params.erde ?? daten.Erde;
+  const lichtVorgabe = params.licht ?? daten.Licht;
+  const notizVorgabe = params.notiz ?? '';
+
   return (
-    <div className="space-y-4 pb-6">
-      <h1 className="text-2xl font-bold">➕ Pflanze hinzufügen</h1>
+    <div className="space-y-6 pb-10">
+      {/* 3.a Titel */}
+      <h1 className="text-center text-2xl font-bold text-stone-900">
+        Einstellung des Profils
+      </h1>
 
-      <Link
-        href="/pflanze/neu"
-        className="block rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
-      >
-        <p className="text-lg font-semibold">✍️ Von Hand eintragen</p>
-        <p className="mt-1 text-sm text-stone-500">Name und Pflegedaten selbst eingeben.</p>
-      </Link>
+      {/* 3.b Vorschau-Bild (Boilerplate Icon, keine Korrekturmöglichkeit) */}
+      <div className="flex justify-center">
+        <div className="flex h-44 w-44 items-center justify-center rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4 shadow-sm">
+          <TopfMitGesicht wuchsstufe={2} stimmung="zufrieden" name={nameVorgabe} />
+        </div>
+      </div>
 
-      <Link
-        href="/pflanze/scanner"
-        className="block rounded-2xl border border-stone-200 bg-white p-5 shadow-sm"
-      >
-        <p className="text-lg font-semibold">📷 Per Foto erkennen</p>
-        <p className="mt-1 text-sm text-stone-500">Foto machen, Art und Pflege vorschlagen lassen.</p>
-      </Link>
+      {/* 3.c Felder prüfen und ggf. bearbeiten */}
+      <form action={profilSchritt2AnlegenAction} className="space-y-4">
+        {/* c.1: Name */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Name</span>
+          <input
+            type="text"
+            name="name"
+            defaultValue={nameVorgabe}
+            placeholder={`Meie ${artVorgabe}`}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.2: Art */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Art</span>
+          <input
+            type="text"
+            name="art"
+            defaultValue={artVorgabe}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.3: Giessenrhythmus */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Giessenrhythmus</span>
+          <textarea
+            name="giessrhythmus"
+            rows={3}
+            defaultValue={giessVorgabe}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.4: Duengenrhythmus */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Duengenrhythmus</span>
+          <textarea
+            name="duengenrhythmus"
+            rows={2}
+            defaultValue={duengenVorgabe}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.5: Erde (Erdemischung) */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Erde (Erdemischung)</span>
+          <input
+            type="text"
+            name="erde"
+            defaultValue={erdeVorgabe}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.6: Licht */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Licht</span>
+          <input
+            type="text"
+            name="licht"
+            defaultValue={lichtVorgabe}
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* c.7: Notiz */}
+        <label className="block">
+          <span className="mb-1 block text-sm font-medium text-stone-700">Notiz</span>
+          <textarea
+            name="notiz"
+            rows={3}
+            defaultValue={notizVorgabe}
+            placeholder="Freie Notiz..."
+            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
+          />
+        </label>
+
+        {/* Am Ende steht: Das Profil Anlegen */}
+        <div className="pt-2">
+          <button
+            type="submit"
+            className="w-full rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white shadow-sm transition active:bg-emerald-800"
+          >
+            Das Profil Anlegen
+          </button>
+        </div>
+      </form>
     </div>
   );
 }
