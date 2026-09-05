@@ -4,8 +4,8 @@ import { aktuelleSitzung } from '@/lib/session';
 import { pflanzenFuerGarten, pflegestimmungFuerPflanze, wuchsstufeFuerPflanze, ernteListeFuerNutzer } from '@/lib/db/abfragen';
 import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { EngelWolke } from '@/components/EngelWolke';
-import { ernteKategorie } from '@/lib/garten/symbole';
-import { ErnteSymbol, IconKeimling } from '@/components/Symbole';
+import { ernteSymbol } from '@/lib/garten/symbole';
+import { IconKeimling } from '@/components/Symbole';
 
 export default async function Home() {
   const sitzung = await aktuelleSitzung();
@@ -17,10 +17,10 @@ export default async function Home() {
   const verstorben = pflanzen.filter((p) => p.lebenszustand === 'verstorben');
   const ernten = ernteListeFuerNutzer(nutzerId);
 
-  const ernteSymboleGesehen = new Map<string, ReturnType<typeof ernteKategorie>>();
+  const ernteSymboleGesehen = new Map<string, string>();
   for (const e of ernten) {
     if (!ernteSymboleGesehen.has(e.pflanzeId)) {
-      ernteSymboleGesehen.set(e.pflanzeId, ernteKategorie(e.pflanzeName, e.pflanzeArt));
+      ernteSymboleGesehen.set(e.pflanzeId, ernteSymbol(e.pflanzeName, e.pflanzeArt));
     }
   }
 
@@ -71,9 +71,9 @@ export default async function Home() {
         {ernteSymboleGesehen.size === 0 ? (
           <p className="text-sm text-stone-500">Noch nichts geerntet.</p>
         ) : (
-          <div className="flex flex-wrap gap-3 text-emerald-700">
-            {[...ernteSymboleGesehen.entries()].map(([pflanzeId, kategorie]) => (
-              <ErnteSymbol key={pflanzeId} kategorie={kategorie} className="h-8 w-8" />
+          <div className="flex flex-wrap gap-3 text-2xl">
+            {[...ernteSymboleGesehen.entries()].map(([pflanzeId, symbol]) => (
+              <span key={pflanzeId}>{symbol}</span>
             ))}
           </div>
         )}

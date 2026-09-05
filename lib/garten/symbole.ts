@@ -1,29 +1,22 @@
-/**
- * Ernte-Symbole als Kategorie, nicht als Emoji-Zeichen — der Rendering-Code
- * (components/Symbole.tsx, ErnteSymbol) wählt daraus ein Linien-SVG.
- */
-
-export type ErnteKategorie = 'frucht' | 'kraut' | 'blume' | 'keimling';
-
-const KATEGORIE_NACH_STICHWORT: Array<[string, ErnteKategorie]> = [
-  ['tomate', 'frucht'],
-  ['erdbeere', 'frucht'],
-  ['paprika', 'frucht'],
-  ['chili', 'frucht'],
-  ['gurke', 'frucht'],
-  ['zitrone', 'frucht'],
-  ['apfel', 'frucht'],
-  ['kraut', 'kraut'],
-  ['basilikum', 'kraut'],
-  ['minze', 'kraut'],
-  ['salat', 'kraut'],
-  ['blume', 'blume'],
+const SYMBOL_NACH_STICHWORT: Array<[string, string]> = [
+  ['tomate', '🍅'],
+  ['erdbeere', '🍓'],
+  ['paprika', '🫑'],
+  ['chili', '🌶️'],
+  ['gurke', '🥒'],
+  ['kraut', '🌿'],
+  ['basilikum', '🌿'],
+  ['minze', '🌿'],
+  ['salat', '🥬'],
+  ['zitrone', '🍋'],
+  ['apfel', '🍎'],
+  ['blume', '🌸'],
 ];
 
-export function ernteKategorie(pflanzeName: string, art: string | null): ErnteKategorie {
+export function ernteSymbol(pflanzeName: string, art: string | null): string {
   const text = `${pflanzeName} ${art ?? ''}`.toLowerCase();
-  for (const [stichwort, kategorie] of KATEGORIE_NACH_STICHWORT) {
-    if (text.includes(stichwort)) return kategorie;
+  for (const [stichwort, symbol] of SYMBOL_NACH_STICHWORT) {
+    if (text.includes(stichwort)) return symbol;
   }
-  return 'keimling';
+  return '🌱';
 }
