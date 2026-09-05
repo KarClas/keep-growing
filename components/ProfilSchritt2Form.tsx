@@ -120,97 +120,83 @@ export function ProfilSchritt2Form({
         Einstellung des Profils
       </h1>
 
-      {/* 3.b Vorschau-Bereich: Profil-Bilderrahmen zentriert zwischen linkem Rand und Licht-Symbol */}
-      <div className="flex items-start">
-        {/* Mittig zentrierter Bereich zwischen linkem Rand und Licht-Symbol */}
-        <div className="flex flex-1 flex-col items-center justify-center">
-          <div className="flex items-center justify-center gap-3">
-            {/* Linker Pfeil */}
-            <button
-              type="button"
-              onClick={vorherigerHintergrund}
-              aria-label="Vorheriger Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
-              title="Hintergrund wechseln"
-              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
-              </svg>
-            </button>
+      {/* 3.b Vorschau-Bereich: Profil-Bilderrahmen zentriert */}
+      <div className="flex flex-col items-center justify-center">
+        <div className="flex items-center justify-center gap-3">
+          {/* Linker Pfeil */}
+          <button
+            type="button"
+            onClick={vorherigerHintergrund}
+            aria-label="Vorheriger Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
+            title="Hintergrund wechseln"
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
+            </svg>
+          </button>
 
-            {/* Profil-Bilderrahmen (h-44 w-44) */}
+          {/* Profil-Bilderrahmen (h-44 w-44) */}
+          <div
+            className="relative h-44 w-44 select-none overflow-hidden rounded-2xl border border-stone-300/80 shadow-sm"
+            onTouchStart={handleTouchStart}
+            onTouchEnd={handleTouchEnd}
+          >
+            {/* Gleitende Hintergrund-Ebene mit weicher Wisch-Animation */}
             <div
-              className="relative h-44 w-44 select-none overflow-hidden rounded-2xl border border-stone-300/80 shadow-sm"
-              onTouchStart={handleTouchStart}
-              onTouchEnd={handleTouchEnd}
+              className="absolute inset-0 flex h-full w-full transition-transform duration-500 ease-out"
+              style={{ transform: `translateX(-${hintergrundIndex * 100}%)` }}
             >
-              {/* Gleitende Hintergrund-Ebene mit weicher Wisch-Animation */}
-              <div
-                className="absolute inset-0 flex h-full w-full transition-transform duration-500 ease-out"
-                style={{ transform: `translateX(-${hintergrundIndex * 100}%)` }}
-              >
-                <div className="h-full w-full shrink-0">
-                  <LittleHomeBackground />
-                </div>
-                <div className="h-full w-full shrink-0">
-                  <LittleGardenBackground />
-                </div>
+              <div className="h-full w-full shrink-0">
+                <LittleHomeBackground />
               </div>
-
-              {/* Vordergrund: TopfMitGesicht sitzt stabil auf dem Boden */}
-              <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-2">
-                <TopfMitGesicht
-                  id="vorschau"
-                  wuchsstufe={2}
-                  stimmung="zufrieden"
-                  name={art || 'Pflanze'}
-                  art={art}
-                />
+              <div className="h-full w-full shrink-0">
+                <LittleGardenBackground />
               </div>
             </div>
 
-            {/* Rechter Pfeil */}
-            <button
-              type="button"
-              onClick={naechsterHintergrund}
-              aria-label="Nächster Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
-              title="Hintergrund wechseln"
-              className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
-            >
-              <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
-              </svg>
-            </button>
+            {/* Vordergrund: TopfMitGesicht sitzt stabil auf dem Boden */}
+            <div className="pointer-events-none absolute inset-0 flex items-center justify-center p-2">
+              <TopfMitGesicht
+                id="vorschau"
+                wuchsstufe={2}
+                stimmung="zufrieden"
+                name={art || 'Pflanze'}
+                art={art}
+              />
+            </div>
           </div>
 
-          {/* Dezente Umschaltanzeige */}
-          <div className="mt-2.5 flex items-center gap-1.5">
-            <span
-              className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
-                hintergrundIndex === 0 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
-              }`}
-            />
-            <span
-              className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
-                hintergrundIndex === 1 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
-              }`}
-            />
-            <span className="ml-1 text-[11px] font-medium text-stone-500">
-              {hintergrundIndex === 0 ? 'Ich bleibe lieber drinnen' : 'Ich bleibe lieber draußen'}
-            </span>
-          </div>
+          {/* Rechter Pfeil */}
+          <button
+            type="button"
+            onClick={naechsterHintergrund}
+            aria-label="Nächster Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
+            title="Hintergrund wechseln"
+            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
+          >
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
+            </svg>
+          </button>
         </div>
 
-        {/* Rechte Seite oben: Licht-Symbol ohne Bubble und ohne Text, fällt natürlich über den Hintergrund */}
-        <button
-          type="button"
-          onClick={naechstesLicht}
-          title={`Lichtbedarf: ${licht}`}
-          aria-label={`Lichtbedarf: ${licht}`}
-          className="shrink-0 cursor-pointer text-stone-800 transition hover:opacity-80 active:scale-95 pt-1 pr-1"
-        >
-          <LichtSymbol licht={licht} className="h-12 w-12" />
-        </button>
+        {/* Dezente Umschaltanzeige */}
+        <div className="mt-2.5 flex items-center gap-1.5">
+          <span
+            className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
+              hintergrundIndex === 0 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
+            }`}
+          />
+          <span
+            className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
+              hintergrundIndex === 1 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
+            }`}
+          />
+          <span className="ml-1 text-[11px] font-medium text-stone-500">
+            {hintergrundIndex === 0 ? 'Ich bleibe lieber drinnen' : 'Ich bleibe lieber draußen'}
+          </span>
+        </div>
       </div>
 
       {/* 3.c Felder prüfen und editieren (nur der Endzustand wird gespeichert) */}
@@ -228,18 +214,29 @@ export function ProfilSchritt2Form({
           value={licht}
         />
 
-        {/* c.1: Name (Pflichtfeld mit Ghost-Text "Meine Schatzi", immer initial leer) */}
+        {/* c.1: Name (Pflichtfeld mit Ghost-Text "Meine Schatzi", immer initial leer) mit Licht-Symbol rechts */}
         <label className="block">
           <span className="mb-1 block text-sm font-medium text-stone-700">Name *</span>
-          <input
-            type="text"
-            name="name"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Meine Schatzi"
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-emerald-600 focus:outline-none"
-          />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              name="name"
+              required
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              placeholder="Meine Schatzi"
+              className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-emerald-600 focus:outline-none"
+            />
+            <button
+              type="button"
+              onClick={naechstesLicht}
+              title={`Lichtbedarf: ${licht}`}
+              aria-label={`Lichtbedarf: ${licht}`}
+              className="flex h-[42px] w-[42px] shrink-0 cursor-pointer items-center justify-center text-stone-800 transition hover:opacity-80 active:scale-95"
+            >
+              <LichtSymbol licht={licht} className="h-9 w-9" />
+            </button>
+          </div>
         </label>
 
         {/* c.2: Art (Pflichtfeld) mit Reload-Button daneben */}
