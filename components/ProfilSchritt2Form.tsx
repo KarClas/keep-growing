@@ -6,6 +6,9 @@ import { LittleHomeBackground, LittleGardenBackground } from '@/components/Profi
 import { LichtSymbol } from '@/components/LichtSymbol';
 import { profilSchritt2AnlegenAction, artDetailsAction } from '@/app/server-aktionen';
 import { ortZuHintergrundIndex } from '@/lib/erkennung/vision';
+import { Knopf } from '@/components/bausatz/Knopf';
+import { Feld, Eingabe, Textbereich } from '@/components/bausatz/Feld';
+import { IconNeu } from '@/components/Symbole';
 
 interface Props {
   initialArt: string;
@@ -116,7 +119,7 @@ export function ProfilSchritt2Form({
   return (
     <div className="space-y-6 pb-10">
       {/* 3.a Titel */}
-      <h1 className="text-center text-2xl font-bold text-stone-900">
+      <h1 className="text-center font-anzeige text-3xl font-medium leading-none tracking-tight text-moos-dunkel">
         Einstellung des Profils
       </h1>
 
@@ -124,27 +127,27 @@ export function ProfilSchritt2Form({
       <div className="flex flex-col items-center justify-center">
         <div className="flex items-center justify-center gap-3">
           {/* Linker Pfeil */}
-          <button
-            type="button"
+          <Knopf
+            variante="sekundaer"
             onClick={vorherigerHintergrund}
             aria-label="Vorheriger Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
             title="Hintergrund wechseln"
-            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
+            className="h-11 w-11 px-0!"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M15 19l-7-7 7-7" />
             </svg>
-          </button>
+          </Knopf>
 
           {/* Profil-Bilderrahmen (h-44 w-44) */}
           <div
-            className="relative h-44 w-44 select-none overflow-hidden rounded-2xl border border-stone-300/80 shadow-sm"
+            className="relative h-44 w-44 select-none overflow-hidden rounded-3xl border-4 border-papier-hell shadow-schweben"
             onTouchStart={handleTouchStart}
             onTouchEnd={handleTouchEnd}
           >
             {/* Gleitende Hintergrund-Ebene mit weicher Wisch-Animation */}
             <div
-              className="absolute inset-0 flex h-full w-full transition-transform duration-500 ease-out"
+              className="absolute inset-0 flex h-full w-full transition-transform duration-500 ease-out motion-reduce:transition-none"
               style={{ transform: `translateX(-${hintergrundIndex * 100}%)` }}
             >
               <div className="h-full w-full shrink-0">
@@ -168,32 +171,32 @@ export function ProfilSchritt2Form({
           </div>
 
           {/* Rechter Pfeil */}
-          <button
-            type="button"
+          <Knopf
+            variante="sekundaer"
             onClick={naechsterHintergrund}
             aria-label="Nächster Hintergrund (Ich bleibe lieber drinnen / Ich bleibe lieber draußen)"
             title="Hintergrund wechseln"
-            className="flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-full border border-stone-300 text-stone-600 shadow-sm transition hover:bg-stone-200/60 active:scale-95"
+            className="h-11 w-11 px-0!"
           >
-            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M9 5l7 7-7 7" />
             </svg>
-          </button>
+          </Knopf>
         </div>
 
         {/* Dezente Umschaltanzeige */}
         <div className="mt-2.5 flex items-center gap-1.5">
           <span
             className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
-              hintergrundIndex === 0 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
+              hintergrundIndex === 0 ? 'w-4 bg-moos' : 'w-1.5 bg-kante-dunkel'
             }`}
           />
           <span
             className={`inline-block h-1.5 rounded-full transition-all duration-300 ${
-              hintergrundIndex === 1 ? 'w-4 bg-emerald-700' : 'w-1.5 bg-stone-300'
+              hintergrundIndex === 1 ? 'w-4 bg-moos' : 'w-1.5 bg-kante-dunkel'
             }`}
           />
-          <span className="ml-1 text-[11px] font-medium text-stone-500">
+          <span className="ml-1 text-[11px] font-semibold text-tinte-gedaempft">
             {hintergrundIndex === 0 ? 'Ich bleibe lieber drinnen' : 'Ich bleibe lieber draußen'}
           </span>
         </div>
@@ -215,153 +218,103 @@ export function ProfilSchritt2Form({
         />
 
         {/* c.1: Name (Pflichtfeld mit Ghost-Text "Meine Schatzi", immer initial leer) mit Licht-Symbol rechts */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Name *</span>
+        <Feld label="Name *">
           <div className="flex gap-2">
-            <input
+            <Eingabe
               type="text"
               name="name"
               required
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Meine Schatzi"
-              className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 placeholder:text-stone-400 focus:border-emerald-600 focus:outline-none"
             />
             <button
               type="button"
               onClick={naechstesLicht}
               title={`Lichtbedarf: ${licht}`}
               aria-label={`Lichtbedarf: ${licht}`}
-              className="flex h-[42px] w-[42px] shrink-0 cursor-pointer items-center justify-center text-stone-800 transition hover:opacity-80 active:scale-95"
+              className="flex h-12 w-12 shrink-0 cursor-pointer items-center justify-center rounded-2xl text-moos-dunkel transition hover:opacity-80 active:scale-95"
             >
               <LichtSymbol licht={licht} className="h-9 w-9" />
             </button>
           </div>
-        </label>
+        </Feld>
 
         {/* c.2: Art (Pflichtfeld) mit Reload-Button daneben */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Art *</span>
+        <Feld label="Art *" fehler={detailsFehler}>
           <div className="flex gap-2">
-            <input
+            <Eingabe
               type="text"
               name="art"
               required
               value={art}
               onChange={(e) => setArt(e.target.value)}
               placeholder="z. B. Monstera deliciosa"
-              className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
             />
-            <button
-              type="button"
+            <Knopf
+              variante="primaer"
               onClick={artDetailsNeuLaden}
               disabled={!istArtVeraendert || laedtDetails}
-              title={
-                istArtVeraendert
-                  ? 'Pflegedaten für diese Art neu abfragen'
-                  : 'Art ändern, um neue Daten abzurufen'
-              }
+              wartend={laedtDetails}
+              title={istArtVeraendert ? 'Pflegedaten für diese Art neu abfragen' : 'Art ändern, um neue Daten abzurufen'}
               aria-label="Pflegedaten neu laden"
-              className={`flex h-[42px] w-[42px] shrink-0 items-center justify-center rounded-xl border transition ${
-                !istArtVeraendert || laedtDetails
-                  ? 'cursor-not-allowed border-stone-200 bg-stone-100 text-stone-400 opacity-50'
-                  : 'cursor-pointer border-emerald-700 bg-emerald-700 text-white shadow-sm hover:bg-emerald-800 active:bg-emerald-900'
-              }`}
+              className="h-12 w-12 shrink-0 rounded-2xl px-0!"
             >
-              <svg
-                className={`h-5 w-5 ${laedtDetails ? 'animate-spin' : ''}`}
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  strokeWidth={2}
-                  d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"
-                />
-              </svg>
-            </button>
+              {!laedtDetails && <IconNeu className="h-5 w-5" />}
+            </Knopf>
           </div>
-          {detailsFehler && (
-            <p className="mt-1.5 text-xs text-amber-700">⚠️ {detailsFehler}</p>
-          )}
-        </label>
+        </Feld>
 
         {/* c.3 & c.4: Gießrhythmus und Düngrhythmus in einer Zeile nebeneinander */}
         <div className="grid grid-cols-2 gap-3">
-          {/* Gießrhythmus (halbe Breite) */}
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-stone-700">Gießrhythmus</span>
-            <div className="relative flex items-center rounded-xl border border-stone-300 focus-within:border-emerald-600">
-              <input
+          <Feld label="Gießrhythmus">
+            <div className="relative">
+              <Eingabe
                 type="number"
                 min={1}
                 name="giessrhythmus"
                 value={giessrhythmus}
                 onChange={(e) => setGiessrhythmus(e.target.value)}
                 placeholder="7"
-                className="w-full rounded-xl bg-transparent py-2.5 pl-3 pr-16 text-stone-900 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                inputMode="numeric"
+                className="pr-16 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
-              <span className="pointer-events-none absolute right-3 text-sm font-normal text-stone-400">
-                Tagen
-              </span>
+              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-tinte-gedaempft">Tagen</span>
             </div>
-          </label>
+          </Feld>
 
-          {/* Düngrhythmus (halbe Breite) */}
-          <label className="block">
-            <span className="mb-1 block text-sm font-medium text-stone-700">Düngrhythmus</span>
-            <div className="relative flex items-center rounded-xl border border-stone-300 focus-within:border-emerald-600">
-              <input
+          <Feld label="Düngrhythmus">
+            <div className="relative">
+              <Eingabe
                 type="number"
                 min={1}
                 name="duengenrhythmus"
                 value={duengenrhythmus}
                 onChange={(e) => setDuengenrhythmus(e.target.value)}
                 placeholder="28"
-                className="w-full rounded-xl bg-transparent py-2.5 pl-3 pr-16 text-stone-900 focus:outline-none [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
+                inputMode="numeric"
+                className="pr-16 [appearance:textfield] [&::-webkit-inner-spin-button]:appearance-none [&::-webkit-outer-spin-button]:appearance-none"
               />
-              <span className="pointer-events-none absolute right-3 text-sm font-normal text-stone-400">
-                Tagen
-              </span>
+              <span className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-sm text-tinte-gedaempft">Tagen</span>
             </div>
-          </label>
+          </Feld>
         </div>
 
         {/* c.5: Erde (Erdmischung) */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Erde (Erdmischung)</span>
-          <input
-            type="text"
-            name="erde"
-            value={erde}
-            onChange={(e) => setErde(e.target.value)}
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
-          />
-        </label>
+        <Feld label="Erde (Erdmischung)">
+          <Eingabe type="text" name="erde" value={erde} onChange={(e) => setErde(e.target.value)} />
+        </Feld>
 
         {/* c.8: Notiz (immer initial leer, nur durch den Nutzer editierbar) */}
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium text-stone-700">Notiz</span>
-          <textarea
-            name="notiz"
-            rows={3}
-            value={notiz}
-            onChange={(e) => setNotiz(e.target.value)}
-            placeholder="Freie Notiz..."
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5 text-stone-900 focus:border-emerald-600 focus:outline-none"
-          />
-        </label>
+        <Feld label="Notiz">
+          <Textbereich name="notiz" rows={3} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder="Freie Notiz..." />
+        </Feld>
 
         {/* Am Ende steht: Das Profil anlegen */}
         <div className="pt-2">
-          <button
-            type="submit"
-            className="w-full rounded-xl bg-emerald-700 px-4 py-3 text-base font-semibold text-white shadow-sm transition active:bg-emerald-800"
-          >
+          <Knopf type="submit" variante="primaer" className="w-full">
             Das Profil anlegen
-          </button>
+          </Knopf>
         </div>
       </form>
     </div>
