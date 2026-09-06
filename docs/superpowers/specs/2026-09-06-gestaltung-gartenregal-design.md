@@ -40,7 +40,7 @@ Rangfolge: **entscheidend** (muss sofort ins Auge fallen) · **unterstützend**
 | Rang | Inhalt |
 |---|---|
 | entscheidend | Die Töpfe mit ihren Gesichtern, dreierweise auf Holzbrettern. Darüber ein Hinweis-Pille „2 Töpfe warten heute auf Wasser", die direkt zu **Aufgaben** führt. |
-| unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Symbolen). |
+| unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Emoji-Symbolen, Überschrift etwas größer als andere Abschnittstitel). Über den Töpfen steht keine Überschrift „Meine Töpfe" mehr (Team-Entscheidung vom 6. September). |
 | Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton. |
 | entfällt | Tagesgruß. „Nutzer wechseln" (Team-Entscheidung: kein Link, kein Avatar-Knopf; die Seite `/start` bleibt per Adresse erreichbar). |
 
