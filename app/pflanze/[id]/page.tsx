@@ -37,8 +37,10 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
   const giessenFaellig = faelligkeitsgruppe(naechsteFaelligkeitGiessen(pflanze), heute) === 'heute';
   const duengenAm = naechsteFaelligkeitDuengen(pflanze);
   const duengenFaellig = duengenAm !== null && faelligkeitsgruppe(duengenAm, heute) === 'heute';
+  // Alle drei Werte gehören genau dieser Pflanze (Abfrage nach pflanze.id).
   const zuletztGegossenAm = zuletztGepflegtAm(pflanze, 'giessen');
   const zuletztGeduengtAm = zuletztGepflegtAm(pflanze, 'duengen');
+  const zuletztGeerntetAm = zuletztGepflegtAm(pflanze, 'ernten');
   const zuletztGegossen = beschreibeLetztePflege(zuletztGegossenAm, heute);
 
   const untertitel = [pflanze.art, pflanze.drinnenDraussen === 'drinnen' ? 'drinnen' : 'draußen'].filter(Boolean).join(' · ');
@@ -146,6 +148,15 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
               </dt>
               <dd className="font-semibold">{datumOderNie(zuletztGeduengtAm)}</dd>
             </div>
+            {/* Ernte nur zeigen, wenn es schon eine gab — Zierpflanzen bekommen keine „noch nie"-Zeile. */}
+            {zuletztGeerntetAm && (
+              <div className="flex items-center gap-2">
+                <dt className="flex items-center gap-1.5 text-tinte-gedaempft">
+                  <IconKorb className="h-4 w-4 text-sonne-kraeftig" /> zuletzt geerntet am
+                </dt>
+                <dd className="font-semibold">{datumOderNie(zuletztGeerntetAm)}</dd>
+              </div>
+            )}
           </dl>
         </Karte>
       </section>
