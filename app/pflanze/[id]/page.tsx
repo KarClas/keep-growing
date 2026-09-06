@@ -8,8 +8,8 @@ import {
   naechsteFaelligkeitDuengen,
   zuletztGepflegtAm,
 } from '@/lib/db/abfragen';
-import { faelligkeitsgruppe, beschreibeLetztePflege } from '@/lib/garten/faelligkeit';
-import { TopfMitGesicht, STIMMUNG_BESCHREIBUNG } from '@/components/TopfMitGesicht';
+import { faelligkeitsgruppe } from '@/lib/garten/faelligkeit';
+import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { VerstorbenMarkieren } from '@/components/VerstorbenMarkieren';
 import { aktivitaetAction } from '@/app/server-aktionen';
 import { IconTropfen, IconBlatt, IconKorb } from '@/components/Symbole';
@@ -37,18 +37,20 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
   const giessenFaellig = faelligkeitsgruppe(naechsteFaelligkeitGiessen(pflanze), heute) === 'heute';
   const duengenAm = naechsteFaelligkeitDuengen(pflanze);
   const duengenFaellig = duengenAm !== null && faelligkeitsgruppe(duengenAm, heute) === 'heute';
+  // Alle drei Werte gehören genau dieser Pflanze (Abfrage nach pflanze.id).
   const zuletztGegossenAm = zuletztGepflegtAm(pflanze, 'giessen');
   const zuletztGeduengtAm = zuletztGepflegtAm(pflanze, 'duengen');
-  const zuletztGegossen = beschreibeLetztePflege(zuletztGegossenAm, heute);
+  const zuletztGeerntetAm = zuletztGepflegtAm(pflanze, 'ernten');
 
   const untertitel = [pflanze.art, pflanze.drinnenDraussen === 'drinnen' ? 'drinnen' : 'draußen'].filter(Boolean).join(' · ');
   const lebt = pflanze.lebenszustand === 'lebend';
 
   return (
     <div className="space-y-6 pb-6">
-      <ZurueckChip href="/">Mein Garten</ZurueckChip>
+      <ZurueckChip href="/">Meine Lieblinge</ZurueckChip>
 
-      <div className="relative">
+      {/* Kein Stimmungsschild neben dem Topf (Team-Entscheidung) — das Gesicht sagt es selbst. */}
+      <div>
         <div className="mx-auto w-36 aspect-[8/13] drop-shadow-[0_8px_6px_rgba(90,60,30,0.2)]">
           <TopfMitGesicht
             id={pflanze.id}
@@ -60,14 +62,6 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
           />
         </div>
         <Regalbrett className="mx-6 -mt-1" />
-        {lebt && (
-          <Karte className="absolute right-0 top-3 px-3 py-2 text-xs leading-snug text-tinte-gedaempft">
-            <span className="block font-anzeige text-sm italic text-moos">{STIMMUNG_BESCHREIBUNG[stimmung]}</span>
-            zuletzt gegossen
-            <br />
-            {zuletztGegossen}
-          </Karte>
-        )}
       </div>
 
       <div className="text-center">
@@ -146,6 +140,15 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
               </dt>
               <dd className="font-semibold">{datumOderNie(zuletztGeduengtAm)}</dd>
             </div>
+            {/* Ernte nur zeigen, wenn es schon eine gab — Zierpflanzen bekommen keine „noch nie"-Zeile. */}
+            {zuletztGeerntetAm && (
+              <div className="flex items-center gap-2">
+                <dt className="flex items-center gap-1.5 text-tinte-gedaempft">
+                  <IconKorb className="h-4 w-4 text-sonne-kraeftig" /> zuletzt geerntet am
+                </dt>
+                <dd className="font-semibold">{datumOderNie(zuletztGeerntetAm)}</dd>
+              </div>
+            )}
           </dl>
         </Karte>
       </section>

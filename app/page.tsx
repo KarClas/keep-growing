@@ -50,7 +50,7 @@ export default async function Home() {
     <div className="space-y-8 pb-6">
       <header className="space-y-3">
         <Seitentitel>
-          Mein <em>Garten</em>
+          Meine <em>Lieblinge</em>
         </Seitentitel>
         {lebend.length > 0 && (
           <Link
@@ -67,8 +67,8 @@ export default async function Home() {
         )}
       </header>
 
+      {/* Keine Überschrift über den Töpfen (Team-Entscheidung) — die Regale erklären sich selbst. */}
       <section>
-        <Abschnittstitel>Meine Töpfe</Abschnittstitel>
         {lebend.length === 0 ? (
           <Leerzustand
             text="Hier ist noch Platz für die erste Pflanze."
@@ -114,7 +114,7 @@ export default async function Home() {
       </section>
 
       <section>
-        <Abschnittstitel>Ernte-Vitrine</Abschnittstitel>
+        <Abschnittstitel className="text-xl!">Ernte-Vitrine</Abschnittstitel>
         {ernteChronologisch.length === 0 ? (
           <p className="text-sm text-tinte-gedaempft">Noch nichts geerntet.</p>
         ) : (
@@ -136,7 +136,7 @@ export default async function Home() {
 
       {verstorben.length > 0 && (
         <section>
-          <Abschnittstitel>In liebevoller Erinnerung</Abschnittstitel>
+          <Abschnittstitel className="text-xl!">In liebevoller Erinnerung</Abschnittstitel>
           <div className="grid grid-cols-3 gap-3">
             {verstorben.map((p) => (
               <div key={p.id}>

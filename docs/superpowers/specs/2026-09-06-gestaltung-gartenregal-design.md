@@ -35,13 +35,13 @@ Erklärung.
 Rangfolge: **entscheidend** (muss sofort ins Auge fallen) · **unterstützend**
 (auf den zweiten Blick) · **Beiwerk** (klein oder weg).
 
-### Home „Mein Garten"
+### Home „Meine Lieblinge" (Überschrift, Team-Entscheidung vom 6. September; vorher „Mein Garten")
 
 | Rang | Inhalt |
 |---|---|
 | entscheidend | Die Töpfe mit ihren Gesichtern, dreierweise auf Holzbrettern. Darüber ein Hinweis-Pille „2 Töpfe warten heute auf Wasser", die direkt zu **Aufgaben** führt. |
-| unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Symbolen). |
-| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton. |
+| unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Emoji-Symbolen, Überschrift etwas größer als andere Abschnittstitel). Über den Töpfen steht keine Überschrift „Meine Töpfe" mehr (Team-Entscheidung vom 6. September). |
+| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton; Überschrift gleich groß wie „Ernte-Vitrine". |
 | entfällt | Tagesgruß. „Nutzer wechseln" (Team-Entscheidung: kein Link, kein Avatar-Knopf; die Seite `/start` bleibt per Adresse erreichbar). |
 
 Reihenfolge der Töpfe bleibt stabil (wie heute), damit Anne ihre Pflanzen
@@ -54,8 +54,8 @@ Pflanze anlegen" (führt zu Neu).
 
 | Rang | Inhalt |
 |---|---|
-| entscheidend | Großer Topf auf Brett, daneben Schild mit Stimmung („zufrieden") und „zuletzt gegossen vor 2 Tagen". Darunter Name. Darunter die drei Pflege-Knöpfe. **Der heute fällige Knopf ist hervorgehoben** (kräftigere Füllung, kleines „fällig"-Etikett) — eine Region, eine Hauptaktion. |
-| unterstützend | Untertitel nur Art · Standort. Steckbrief als Papierkarte (Erde, Licht, Gießen, Dünger, Notiz). Darunter eine Karte „Zuletzt gepflegt" mit genau zwei Zeilen: zuletzt gegossen am (Datum), zuletzt gedüngt am (Datum) — Team-Entscheidung vom 6. September, die vollständige Liste war zu lang. |
+| entscheidend | Großer Topf auf Brett (ohne Stimmungsschild — Team-Entscheidung vom 6. September, das Gesicht sagt es selbst). Darunter Name. Darunter die drei Pflege-Knöpfe. **Der heute fällige Knopf ist hervorgehoben** (kräftigere Füllung, kleines „fällig"-Etikett) — eine Region, eine Hauptaktion. |
+| unterstützend | Untertitel nur Art · Standort. Steckbrief als Papierkarte (Erde, Licht, Gießen, Dünger, Notiz). Darunter eine Karte „Zuletzt gepflegt": zuletzt gegossen am (Datum), zuletzt gedüngt am (Datum), und nur wenn es schon eine Ernte gab, zuletzt geerntet am (Datum). Alle Werte gehören genau dieser Pflanze. Team-Entscheidung vom 6. September, die vollständige Liste war zu lang. |
 | Beiwerk | „Als verstorben markieren" ganz unten als kleiner Textlink. **Neu: Rückfrage vor dem Ausführen** („Wirklich? Ja, sie ist gestorben / Abbrechen"), weil ein Fehltipp heute sofort wirkt. |
 | entfällt | „Wuchsstufe x von y". |
 
