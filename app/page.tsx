@@ -136,7 +136,7 @@ export default async function Home() {
 
       {verstorben.length > 0 && (
         <section>
-          <Abschnittstitel>In liebevoller Erinnerung</Abschnittstitel>
+          <Abschnittstitel className="text-xl!">In liebevoller Erinnerung</Abschnittstitel>
           <div className="grid grid-cols-3 gap-3">
             {verstorben.map((p) => (
               <div key={p.id}>

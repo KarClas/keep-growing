@@ -41,7 +41,7 @@ Rangfolge: **entscheidend** (muss sofort ins Auge fallen) · **unterstützend**
 |---|---|
 | entscheidend | Die Töpfe mit ihren Gesichtern, dreierweise auf Holzbrettern. Darüber ein Hinweis-Pille „2 Töpfe warten heute auf Wasser", die direkt zu **Aufgaben** führt. |
 | unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Emoji-Symbolen, Überschrift etwas größer als andere Abschnittstitel). Über den Töpfen steht keine Überschrift „Meine Töpfe" mehr (Team-Entscheidung vom 6. September). |
-| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton. |
+| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton; Überschrift gleich groß wie „Ernte-Vitrine". |
 | entfällt | Tagesgruß. „Nutzer wechseln" (Team-Entscheidung: kein Link, kein Avatar-Knopf; die Seite `/start` bleibt per Adresse erreichbar). |
 
 Reihenfolge der Töpfe bleibt stabil (wie heute), damit Anne ihre Pflanzen
