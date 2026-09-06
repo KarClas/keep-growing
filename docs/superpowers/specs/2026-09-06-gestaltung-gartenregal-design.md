@@ -55,7 +55,7 @@ Pflanze anlegen" (führt zu Neu).
 | Rang | Inhalt |
 |---|---|
 | entscheidend | Großer Topf auf Brett, daneben Schild mit Stimmung („zufrieden") und „zuletzt gegossen vor 2 Tagen". Darunter Name. Darunter die drei Pflege-Knöpfe. **Der heute fällige Knopf ist hervorgehoben** (kräftigere Füllung, kleines „fällig"-Etikett) — eine Region, eine Hauptaktion. |
-| unterstützend | Untertitel nur Art · Standort. Steckbrief als Papierkarte (Erde, Licht, Gießen, Dünger, Notiz). Verlauf als Zeitstrahl mit farbigen Punkten (blau Gießen, grün Düngen, gelb Ernte). |
+| unterstützend | Untertitel nur Art · Standort. Steckbrief als Papierkarte (Erde, Licht, Gießen, Dünger, Notiz). Darunter eine Karte „Zuletzt gepflegt" mit genau zwei Zeilen: zuletzt gegossen am (Datum), zuletzt gedüngt am (Datum) — Team-Entscheidung vom 6. September, die vollständige Liste war zu lang. |
 | Beiwerk | „Als verstorben markieren" ganz unten als kleiner Textlink. **Neu: Rückfrage vor dem Ausführen** („Wirklich? Ja, sie ist gestorben / Abbrechen"), weil ein Fehltipp heute sofort wirkt. |
 | entfällt | „Wuchsstufe x von y". |
 
