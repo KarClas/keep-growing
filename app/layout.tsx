@@ -26,10 +26,10 @@ export const metadata: Metadata = {
   description: 'Pflanzenwachstum mit Töpfen, die Gesichter zeigen.',
 };
 
+// Kein maximumScale: Nutzer:innen dürfen zoomen (Barrierefreiheit, axe „meta-viewport").
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {

@@ -29,7 +29,7 @@ export function VerstorbenMarkieren({ pflanzeId }: { pflanzeId: string }) {
         <Knopf variante="sekundaer" onClick={() => setNachfrage(false)}>
           Abbrechen
         </Knopf>
-        <Knopf type="submit" variante="sekundaer" className="border-gefahr/40 text-gefahr">
+        <Knopf type="submit" variante="sekundaer" className="border-gefahr/40! text-gefahr!">
           Ja, sie ist gestorben
         </Knopf>
       </div>

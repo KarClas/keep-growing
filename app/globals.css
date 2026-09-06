@@ -13,7 +13,8 @@
   --color-tinte: #2f2a22;
   --color-tinte-gedaempft: #6b5e45;
   --color-moos: #3f6b3a;
-  --color-moos-hell: #7a9a6c;
+  /* Nur für große Schrift (kursive Betonung) und Symbole: 3,9:1 auf Papier. */
+  --color-moos-hell: #5a7f55;
   --color-moos-dunkel: #2f5230;
   --color-moos-zart: #e9f2e3;
   --color-terrakotta: #c97b52;

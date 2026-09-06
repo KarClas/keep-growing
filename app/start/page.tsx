@@ -15,8 +15,9 @@ export default async function StartSeite() {
   const aktiverGarten = gaerten.some((g) => g.id === gartenIdAusCookie) ? gartenIdAusCookie : null;
 
   // Gewählter Eintrag: moosgrüner Rand und zarter Grünton, alles andere Papier.
+  // Die `!` sind nötig, weil die Knopf-Variante selbst Rand- und Hintergrundfarbe setzt.
   const auswahlKlassen = (gewaehlt: boolean) =>
-    `w-full justify-start! ${gewaehlt ? 'border-moos bg-moos-zart text-moos-dunkel' : ''}`;
+    `w-full justify-start! ${gewaehlt ? 'border-moos! bg-moos-zart! text-moos-dunkel!' : ''}`;
 
   return (
     <div className="space-y-8 pb-10">
