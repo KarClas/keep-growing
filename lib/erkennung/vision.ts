@@ -10,11 +10,11 @@ const MODELL = process.env.ERKENNUNG_MODELL ?? 'qwen3.8-flash-next';
 
 export const ANWEISUNG = `Du bist die Pflanzen-Erkennung der App "keep-growing".
 Analysiere das Foto der Pflanze.
-Nenne als "art" den wissenschaftlichen Artnamen STRENG nach botanischer Nomenklatur (z. B. "Rosa chinensis", "Monstera deliciosa", "Ficus lyrata"), ohne deutsche Trivialnamen.
+Nenne als "art" zuerst den gängigen deutschen Namen und in Klammern den wissenschaftlichen Artnamen nach botanischer Nomenklatur, z. B. "Rote Rose (Rosa chinensis)", "Monstera (Monstera deliciosa)", "Geigenfeige (Ficus lyrata)".
 Antworte ausschließlich mit einem JSON-Objekt, ohne Markdown, mit genau diesen Feldern:
 {
   "erkannt": true oder false,
-  "art": "Wissenschaftlicher Artname streng nach botanischer Nomenklatur",
+  "art": "Deutscher Name (wissenschaftlicher Artname), z. B. Schlafmohn (Papaver somniferum)",
   "gießrhythmus": Zahl (Tage bis zum nächsten Gießen als reine Zahl, z. B. 7),
   "düngrhythmus": Zahl (Tage bis zum nächsten Düngen als reine Zahl, z. B. 14, oder null),
   "erde": "empfohlener Anteil in der Erdemischung als Prozentangaben gefolgt von Erdetyp, z. B. 50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde",
@@ -26,12 +26,12 @@ Wenn auf dem Foto keine Pflanze zu sehen ist, antworte {"erkannt": false}.`;
 
 export const ART_ANWEISUNG = `Du bist die Pflanzen-Pflege-Auskunft der App "keep-growing".
 Der Nutzer nennt den Namen oder die Art einer Pflanze: "{ART}".
-Ermittle die genaue Pflanzenart STRENG nach botanischer Nomenklatur (wissenschaftlicher Artname, z. B. "Rosa chinensis", "Monstera deliciosa", "Ficus lyrata"), ohne deutsche Trivialnamen.
+Ermittle die genaue Pflanzenart streng nach botanischer Nomenklatur und nenne sie als deutschen Namen mit dem wissenschaftlichen Artnamen in Klammern, z. B. "Rote Rose (Rosa chinensis)", "Monstera (Monstera deliciosa)", "Geigenfeige (Ficus lyrata)".
 Gib die passenden Pflegeparameter an.
 Antworte ausschließlich mit einem JSON-Objekt, ohne Markdown, mit genau diesen Feldern:
 {
   "erkannt": true oder false,
-  "art": "Wissenschaftlicher Artname streng nach botanischer Nomenklatur",
+  "art": "Deutscher Name (wissenschaftlicher Artname), z. B. Schlafmohn (Papaver somniferum)",
   "gießrhythmus": Zahl (Tage bis zum nächsten Gießen als reine Zahl, z. B. 7),
   "düngrhythmus": Zahl (Tage bis zum nächsten Düngen als reine Zahl, z. B. 14, oder null),
   "erde": "empfohlener Anteil in der Erdemischung als Prozentangaben gefolgt von Erdetyp, z. B. 50% Typ-1-Erde, 30% Typ-2-Erde, 20% Typ-3-Erde",
