@@ -59,25 +59,26 @@ function IconPlus({ aktiv }: { aktiv: boolean }) {
 const ZIELE: { href: string; label: string; icon: (props: { aktiv: boolean }) => ReactNode }[] = [
   { href: '/', label: 'Home', icon: IconHeim },
   { href: '/aufgaben', label: 'Aufgaben', icon: IconAufgaben },
-  { href: '/hinzufuegen', label: 'Hinzufügen', icon: IconPlus },
+  { href: '/hinzufuegen', label: 'Neu', icon: IconPlus },
 ];
 
 export function UntereNavigation() {
   const pfad = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-10 border-t border-black/5 bg-white/95 pb-[env(safe-area-inset-bottom)] backdrop-blur">
-      <ul className="mx-auto flex max-w-md justify-around">
+    <nav aria-label="Hauptnavigation" className="fixed inset-x-0 bottom-0 z-10 px-4 pb-[max(env(safe-area-inset-bottom),0.75rem)]">
+      <ul className="mx-auto flex max-w-md justify-around rounded-full border border-kante bg-papier-hell/95 px-2 py-1.5 shadow-schweben backdrop-blur">
         {ZIELE.map((ziel) => {
-          const aktiv = ziel.href === '/' ? pfad === '/' : pfad.startsWith(ziel.href);
+          // Pflanzenseiten gehören zum Garten — Home bleibt dort markiert.
+          const aktiv = ziel.href === '/' ? pfad === '/' || pfad.startsWith('/pflanze') : pfad.startsWith(ziel.href);
           const Icon = ziel.icon;
           return (
             <li key={ziel.href} className="flex-1">
               <Link
                 href={ziel.href}
                 aria-current={aktiv ? 'page' : undefined}
-                className={`flex flex-col items-center gap-1 py-2.5 text-xs transition-colors ${
-                  aktiv ? 'text-emerald-700 font-semibold' : 'text-stone-400 hover:text-stone-600'
+                className={`flex min-h-12 flex-col items-center justify-center gap-0.5 rounded-full text-[11px] font-semibold transition-colors ${
+                  aktiv ? 'text-moos' : 'text-tinte-gedaempft hover:text-tinte'
                 }`}
               >
                 <Icon aktiv={aktiv} />
