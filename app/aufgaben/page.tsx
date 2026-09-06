@@ -28,6 +28,7 @@ import { Kaestchen } from '@/components/bausatz/Kaestchen';
 import { Knopf } from '@/components/bausatz/Knopf';
 import { KnopfLink } from '@/components/bausatz/KnopfLink';
 import { Feld, Eingabe, Auswahl } from '@/components/bausatz/Feld';
+import { AufgabenTabs } from '@/components/AufgabenTabs';
 
 interface PlanZeile {
   pflanze: Pflanze;
@@ -195,33 +196,52 @@ export default async function AufgabenSeite() {
           }
         />
       ) : (
-        <>
-          <Runde
-            titel="Gießen"
-            symbol={<IconTropfen className="h-4 w-4 text-wasser-kraeftig" />}
-            zeilen={giessplan}
-            typ="giessen"
-            heute={heute}
-          />
-          <Runde
-            titel="Düngen"
-            symbol={<IconBlatt className="h-4 w-4 text-moos-hell" />}
-            zeilen={duengeplan}
-            typ="duengen"
-            heute={heute}
-            zusatz={(p) => p.duengerTyp}
-          />
-        </>
+        /* Skizze-Vorgabe: oben die Bereichs-Leiste Gießen | Düngen | Ernten,
+           darunter nur der gewählte Bereich (kein Stapel mehr). */
+        <AufgabenTabs
+          inhalte={{
+            giessen: (
+              <Runde
+                titel="Gießen"
+                symbol={<IconTropfen className="h-4 w-4 text-wasser-kraeftig" />}
+                zeilen={giessplan}
+                typ="giessen"
+                heute={heute}
+              />
+            ),
+            duengen: (
+              <Runde
+                titel="Düngen"
+                symbol={<IconBlatt className="h-4 w-4 text-moos-hell" />}
+                zeilen={duengeplan}
+                typ="duengen"
+                heute={heute}
+                zusatz={(p) => p.duengerTyp}
+              />
+            ),
+            ernten: <ErnteBlock essbarePflanzen={essbarePflanzen} ernten={ernten} heuteISO={heuteISO} />,
+          }}
+        />
       )}
+    </div>
+  );
+}
 
-      <section>
-        <Abschnittstitel>
-          <IconKorb className="h-4 w-4" /> Erntetagebuch
-        </Abschnittstitel>
-
-        {essbarePflanzen.length === 0 ? (
-          <p className="text-sm text-tinte-gedaempft">Noch keine essbare Pflanze da.</p>
-        ) : (
+/* Inhalt des „Ernten“-Reiters (Skizze): Eintragen + Chronik. */
+function ErnteBlock({
+  essbarePflanzen,
+  ernten,
+  heuteISO,
+}: {
+  essbarePflanzen: Pflanze[];
+  ernten: ReturnType<typeof ernteListeFuerNutzer>;
+  heuteISO: string;
+}) {
+  return (
+    <section className="space-y-4">
+      {essbarePflanzen.length === 0 ? (
+        <p className="text-sm text-tinte-gedaempft">Noch keine essbare Pflanze da.</p>
+      ) : (
           <Karte className="mb-4 p-4">
             <form action={ernteEintragenAction} className="space-y-3">
               <input type="hidden" name="zurueck" value="/aufgaben" />
@@ -286,6 +306,5 @@ export default async function AufgabenSeite() {
           </ul>
         )}
       </section>
-    </div>
   );
 }
