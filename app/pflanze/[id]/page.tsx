@@ -8,8 +8,8 @@ import {
   naechsteFaelligkeitDuengen,
   zuletztGepflegtAm,
 } from '@/lib/db/abfragen';
-import { faelligkeitsgruppe, beschreibeLetztePflege } from '@/lib/garten/faelligkeit';
-import { TopfMitGesicht, STIMMUNG_BESCHREIBUNG } from '@/components/TopfMitGesicht';
+import { faelligkeitsgruppe } from '@/lib/garten/faelligkeit';
+import { TopfMitGesicht } from '@/components/TopfMitGesicht';
 import { VerstorbenMarkieren } from '@/components/VerstorbenMarkieren';
 import { aktivitaetAction } from '@/app/server-aktionen';
 import { IconTropfen, IconBlatt, IconKorb } from '@/components/Symbole';
@@ -41,7 +41,6 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
   const zuletztGegossenAm = zuletztGepflegtAm(pflanze, 'giessen');
   const zuletztGeduengtAm = zuletztGepflegtAm(pflanze, 'duengen');
   const zuletztGeerntetAm = zuletztGepflegtAm(pflanze, 'ernten');
-  const zuletztGegossen = beschreibeLetztePflege(zuletztGegossenAm, heute);
 
   const untertitel = [pflanze.art, pflanze.drinnenDraussen === 'drinnen' ? 'drinnen' : 'draußen'].filter(Boolean).join(' · ');
   const lebt = pflanze.lebenszustand === 'lebend';
@@ -50,7 +49,8 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
     <div className="space-y-6 pb-6">
       <ZurueckChip href="/">Mein Garten</ZurueckChip>
 
-      <div className="relative">
+      {/* Kein Stimmungsschild neben dem Topf (Team-Entscheidung) — das Gesicht sagt es selbst. */}
+      <div>
         <div className="mx-auto w-36 aspect-[8/13] drop-shadow-[0_8px_6px_rgba(90,60,30,0.2)]">
           <TopfMitGesicht
             id={pflanze.id}
@@ -62,14 +62,6 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
           />
         </div>
         <Regalbrett className="mx-6 -mt-1" />
-        {lebt && (
-          <Karte className="absolute right-0 top-3 px-3 py-2 text-xs leading-snug text-tinte-gedaempft">
-            <span className="block font-anzeige text-sm italic text-moos">{STIMMUNG_BESCHREIBUNG[stimmung]}</span>
-            zuletzt gegossen
-            <br />
-            {zuletztGegossen}
-          </Karte>
-        )}
       </div>
 
       <div className="text-center">
