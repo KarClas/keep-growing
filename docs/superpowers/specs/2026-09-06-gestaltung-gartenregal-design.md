@@ -41,8 +41,8 @@ Rangfolge: **entscheidend** (muss sofort ins Auge fallen) · **unterstützend**
 |---|---|
 | entscheidend | Die Töpfe mit ihren Gesichtern, dreierweise auf Holzbrettern. Darüber ein Hinweis-Pille „2 Töpfe warten heute auf Wasser", die direkt zu **Aufgaben** führt. |
 | unterstützend | Namen unter den Töpfen, Ernte-Vitrine (Glasbord mit Symbolen). |
-| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton. „Nutzer wechseln" wird aus der Überschrift genommen und zu einem kleinen runden Avatar-Knopf oben rechts (führt zu `/start`). |
-| entfällt | Tagesgruß. |
+| Beiwerk | „In liebevoller Erinnerung" ganz unten, ruhiger Ton. |
+| entfällt | Tagesgruß. „Nutzer wechseln" (Team-Entscheidung: kein Link, kein Avatar-Knopf; die Seite `/start` bleibt per Adresse erreichbar). |
 
 Reihenfolge der Töpfe bleibt stabil (wie heute), damit Anne ihre Pflanzen
 am Platz wiedererkennt — kein Umsortieren nach Stimmung.
@@ -71,7 +71,11 @@ Leere Gruppe: ein kurzer Satz („Nichts offen."), kein leerer Kasten.
 
 ### Formulare (Start, Neu anlegen, Profil-Schritt 2, Ernte eintragen)
 
-Ablauf und Felder bleiben, wie sie sind. Sie bekommen dieselben Bausteine
+Ablauf und Felder bleiben, wie sie sind. **Insbesondere Profil-Schritt 2 von
+Max** (Felder, Hintergrund-Wischer, Licht-Symbol, Pflegedaten-Nachladen,
+Prüf- und Speicherlogik) wird funktional unverändert übernommen — nur die
+optische Schicht (Farben, Schrift, Feld- und Knopfbausteine) kommt aus
+dieser Gestaltung. Alle Formulare bekommen dieselben Bausteine
 (Abschnitt 4): ein Feldaufbau, ein Knopfsatz, eine Karte. Drinnen/Draußen
 wird ein zweiteiliger Schalter statt zweier Radioknöpfe. Pro Formular genau
 **ein** gefüllter Hauptknopf, alles andere sekundär.
@@ -85,12 +89,11 @@ mit gefülltem Symbol. Sicherer Abstand zum Handy-Rand bleibt.
 
 ## 3. Was weg, was zusammen
 
-- **Weg:** Tagesgruß, Wuchsstufen-Zahl, „Nutzer wechseln" als Textlink in
-  der Überschrift, unterstrichene Zurück-Links in drei verschiedenen
+- **Weg:** Tagesgruß, Wuchsstufen-Zahl, „Nutzer wechseln" auf der
+  Startseite, unterstrichene Zurück-Links in drei verschiedenen
   Schreibweisen.
 - **Zusammen:** alle Zurück-Links werden ein Chip „‹ Zurück" oben links;
   alle Karten, Felder und Knöpfe kommen aus einem Bausatz (Abschnitt 4).
-- **Verschoben:** Nutzerwechsel hinter den Avatar-Knopf.
 
 ---
 
@@ -176,8 +179,8 @@ Verbindung nach außen (`STACK.md`: self-contained).
 
 Neu gegenüber dem MVP, alle nur berechnet oder rein bedienerisch:
 Hinweis-Pille auf Home, Ermutigungszeile, „überfällig seit", hervorgehobener
-fälliger Knopf, Rückfrage vor „verstorben", Avatar-Knopf statt Textlink,
-zweiteiliger Schalter, Leerzustände.
+fälliger Knopf, Rückfrage vor „verstorben", zweiteiliger Schalter,
+Leerzustände.
 
 ---
 
