@@ -28,7 +28,7 @@ import { Kaestchen } from '@/components/bausatz/Kaestchen';
 import { Knopf } from '@/components/bausatz/Knopf';
 import { KnopfLink } from '@/components/bausatz/KnopfLink';
 import { Feld, Eingabe, Auswahl } from '@/components/bausatz/Feld';
-import { AufgabenTabs } from '@/components/AufgabenTabs';
+import { AufgabenTabs, type AufgabenBereich } from '@/components/AufgabenTabs';
 
 interface PlanZeile {
   pflanze: Pflanze;
@@ -147,10 +147,14 @@ function Runde({
   );
 }
 
-export default async function AufgabenSeite() {
+export default async function AufgabenSeite({ searchParams }: { searchParams: Promise<{ bereich?: string }> }) {
   const sitzung = await aktuelleSitzung();
   if (!sitzung) redirect('/start');
   const { nutzerId, gartenId } = sitzung;
+
+  // ?bereich=ernten öffnet den Ernten-Reiter direkt (Sprung aus der Ernte-Vitrine).
+  const { bereich } = await searchParams;
+  const startBereich: AufgabenBereich = bereich === 'duengen' || bereich === 'ernten' ? bereich : 'giessen';
 
   const pflanzen = pflanzenFuerGarten(gartenId, nutzerId).filter((p) => p.lebenszustand === 'lebend');
   const essbarePflanzen = pflanzen.filter((p) => istEssbar(p.art));
@@ -195,6 +199,7 @@ export default async function AufgabenSeite() {
         /* Skizze-Vorgabe: oben die Bereichs-Leiste Gießen | Düngen | Ernten,
            darunter nur der gewählte Bereich (kein Stapel mehr). */
         <AufgabenTabs
+          start={startBereich}
           inhalte={{
             giessen: (
               <Runde
@@ -275,9 +280,11 @@ function ErnteBlock({
             {ernten.map((e) => {
               const datum = new Date(e.datum).toLocaleDateString('de-DE', { day: '2-digit', month: 'short', year: '2-digit' });
               return (
+                // Sprungmarke für die Ernte-Vitrine; der angesprungene Eintrag wird hervorgehoben (:target).
                 <li
                   key={e.id}
-                  className="flex items-start justify-between gap-3 rounded-2xl border border-kante bg-papier-hell px-3 py-2.5 shadow-karte"
+                  id={`ernte-${e.id}`}
+                  className="flex scroll-mt-4 items-start justify-between gap-3 rounded-2xl border border-kante bg-papier-hell px-3 py-2.5 shadow-karte target:border-moos-hell target:bg-moos-zart"
                 >
                   <div className="flex min-w-0 items-start gap-2">
                     <span className="text-lg leading-6">{ernteSymbol(e.pflanzeName, e.pflanzeArt)}</span>

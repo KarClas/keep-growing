@@ -7,8 +7,17 @@ import { useState } from 'react';
  * segmentierte Leiste, darunter nur der Inhalt des gewählten Reiters — statt
  * drei untereinandergestapelten Abschnitten.
  */
-export function AufgabenTabs({ inhalte }: { inhalte: Record<'giessen' | 'duengen' | 'ernten', React.ReactNode> }) {
-  const [aktiv, setAktiv] = useState<'giessen' | 'duengen' | 'ernten'>('giessen');
+export type AufgabenBereich = 'giessen' | 'duengen' | 'ernten';
+
+export function AufgabenTabs({
+  inhalte,
+  start = 'giessen',
+}: {
+  inhalte: Record<AufgabenBereich, React.ReactNode>;
+  /** Anfangs geöffneter Reiter, z. B. „Ernten" beim Sprung aus der Ernte-Vitrine. */
+  start?: AufgabenBereich;
+}) {
+  const [aktiv, setAktiv] = useState<AufgabenBereich>(start);
 
   return (
     <div className="space-y-6">

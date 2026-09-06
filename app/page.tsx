@@ -119,14 +119,23 @@ export default async function Home() {
           <p className="text-sm text-tinte-gedaempft">Noch nichts geerntet.</p>
         ) : (
           <div className="rounded-2xl border border-white/90 border-b-[3px] border-b-kante-dunkel bg-linear-to-b from-white/60 to-white/20 px-4 pb-3 pt-2.5">
-            <div className="flex flex-wrap gap-3 text-2xl">
-              {ernteChronologisch.map((e, i) => {
+            <div className="flex flex-wrap gap-1 text-2xl">
+              {ernteChronologisch.map((e) => {
                 const datum = new Date(e.datum).toLocaleDateString('de-DE', { day: '2-digit', month: 'long' });
                 const titel = `${e.pflanzeName} · ${datum}${e.menge ? ' · ' + e.menge : ''}${e.notiz ? ' — ' + e.notiz : ''}`;
+                // Jedes Symbol öffnet den Ernten-Reiter und springt zum passenden Tagebuch-Eintrag.
+                // Bewusst <a> statt <Link>: nur bei echter Navigation setzt der Browser :target,
+                // und darauf beruht die Hervorhebung des angesprungenen Eintrags.
                 return (
-                  <span key={i} title={titel}>
+                  <a
+                    key={e.id}
+                    href={`/aufgaben?bereich=ernten#ernte-${e.id}`}
+                    title={titel}
+                    aria-label={`Zum Tagebuch-Eintrag: ${titel}`}
+                    className="flex h-11 w-11 items-center justify-center rounded-xl transition hover:bg-white/70 active:opacity-70"
+                  >
                     {ernteSymbol(e.pflanzeName, e.pflanzeArt)}
-                  </span>
+                  </a>
                 );
               })}
             </div>
