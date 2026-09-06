@@ -224,6 +224,7 @@ export function ProfilSchritt2Form({
               type="text"
               name="name"
               required
+              autoComplete="off"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Meine Schatzi"
@@ -247,6 +248,7 @@ export function ProfilSchritt2Form({
               type="text"
               name="art"
               required
+              autoComplete="off"
               value={art}
               onChange={(e) => setArt(e.target.value)}
               placeholder="z. B. Monstera deliciosa"
