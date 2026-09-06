@@ -17,6 +17,7 @@ import {
 } from '@/lib/db/abfragen';
 import { nutzerWaehlen, gartenWaehlen, aktiveNutzerId, aktiveGartenId, abmelden } from '@/lib/session';
 import { fotoSpeichern } from '@/lib/fotos';
+import { verbotenenTextPruefen } from '@/lib/garten/textsperre';
 import {
   parseLichtAusgabe,
   parseOrtAusgabe,
@@ -31,6 +32,13 @@ function textFeld(formData: FormData, feld: string): string {
     throw new Error(`Feld "${feld}" fehlt oder ist leer.`);
   }
   return wert.trim();
+}
+
+/** Rassistische/NS-Begriffe in Name, Art und Notiz blockieren (REGELN: Fehler sichtbar). */
+function pflanzentextePruefen(eingaben: Record<string, string | null | undefined>) {
+  for (const [feld, wert] of Object.entries(eingaben)) {
+    verbotenenTextPruefen(feld, wert ?? '');
+  }
 }
 
 function optionalesTextFeld(formData: FormData, feld: string): string | null {
@@ -95,16 +103,21 @@ export async function pflanzeAnlegenAction(formData: FormData) {
   const gartenId = await aktiveGartenId();
   if (!gartenId) throw new Error('Kein aktiver Garten.');
 
+  const name = textFeld(formData, 'name');
+  const art = optionalesTextFeld(formData, 'art');
+  const notiz = optionalesTextFeld(formData, 'notiz') ?? '';
+  pflanzentextePruefen({ Name: name, Art: art, Notiz: notiz });
+
   const pflanze = pflanzeAnlegen(gartenId, nutzerId, {
-    name: textFeld(formData, 'name'),
-    art: optionalesTextFeld(formData, 'art'),
+    name,
+    art,
     erde: optionalesTextFeld(formData, 'erde'),
     licht: optionalesTextFeld(formData, 'licht'),
     drinnenDraussen: (formData.get('drinnenDraussen') as DrinnenDraussen) ?? 'drinnen',
     giessIntervallTage: optionaleZahl(formData, 'giessIntervallTage') ?? 7,
     duengerIntervallTage: optionaleZahl(formData, 'duengerIntervallTage'),
     duengerTyp: optionalesTextFeld(formData, 'duengerTyp'),
-    notiz: optionalesTextFeld(formData, 'notiz') ?? '',
+    notiz,
   });
 
   redirect(`/pflanze/${pflanze.id}`);
@@ -123,11 +136,15 @@ export async function pflanzeAusScannerAction(formData: FormData) {
   const foto = formData.get('foto');
   const fotoUrl = foto instanceof File && foto.size > 0 ? await fotoSpeichern(foto) : null;
 
+  const art = textFeld(formData, 'art');
+  const name = textFeld(formData, 'name');
+  pflanzentextePruefen({ Art: art, Name: name });
+
   const pflanze = pflanzeAusErkennungAnlegen(
     gartenId,
     nutzerId,
     {
-      art: textFeld(formData, 'art'),
+      art,
       erde: optionalesTextFeld(formData, 'erde'),
       licht: optionalesTextFeld(formData, 'licht'),
       giessIntervallTage: optionaleZahl(formData, 'giessIntervallTage') ?? undefined,
@@ -135,7 +152,7 @@ export async function pflanzeAusScannerAction(formData: FormData) {
       hinweis: optionalesTextFeld(formData, 'hinweis'),
     },
     {
-      name: textFeld(formData, 'name'),
+      name,
       drinnenDraussen: (formData.get('drinnenDraussen') as DrinnenDraussen) ?? 'drinnen',
       aktuelleGroesse: optionalesTextFeld(formData, 'aktuelleGroesse') ?? undefined,
     },
@@ -189,6 +206,8 @@ export async function profilSchritt2AnlegenAction(formData: FormData) {
   const ort = parseOrtAusgabe(optionalesTextFeld(formData, 'ort'));
   const nutzerNotiz = feldWertBereinigen(optionalesTextFeld(formData, 'notiz'));
   const fotoUrl = feldWertBereinigen(optionalesTextFeld(formData, 'fotoUrl'));
+
+  pflanzentextePruefen({ Name: name, Art: art, Notiz: nutzerNotiz });
 
   const drinnenDraussen: DrinnenDraussen = ort === 'draußen' ? 'draussen' : 'drinnen';
   const notiz = nutzerNotiz;
