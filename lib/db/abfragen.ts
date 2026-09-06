@@ -321,6 +321,16 @@ export function naechsteFaelligkeitDuengen(pflanze: Pflanze): Date | null {
   return new Date(basis.getTime() + pflanze.duengerIntervallTage * 24 * 60 * 60 * 1000);
 }
 
+/**
+ * Letzter Zeitpunkt einer Pflegeart, für „zuletzt gegossen vor 2 Tagen" und
+ * blasse „heute schon erledigt"-Zeilen. Wie naechsteFaelligkeit*: die
+ * übergebene Pflanze stammt aus einer bereits eigentümergeprüften Abfrage.
+ */
+export function zuletztGepflegtAm(pflanze: Pflanze, typ: AktivitaetTyp): Date | null {
+  const zuletzt = letzteAktivitaet(pflanze.id, typ);
+  return zuletzt ? new Date(zuletzt) : null;
+}
+
 export function aktivitaetHinzufuegen(
   pflanzeId: string,
   nutzerId: string,
