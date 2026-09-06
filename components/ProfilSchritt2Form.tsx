@@ -267,7 +267,7 @@ export function ProfilSchritt2Form({
 
         {/* c.3 & c.4: Gießrhythmus und Düngrhythmus in einer Zeile nebeneinander */}
         <div className="grid grid-cols-2 gap-3">
-          <Feld label="Gießrhythmus">
+          <Feld label="Gieß-Rhythmus">
             <div className="relative">
               <Eingabe
                 type="number"
@@ -283,7 +283,7 @@ export function ProfilSchritt2Form({
             </div>
           </Feld>
 
-          <Feld label="Düngrhythmus">
+          <Feld label="Dünge-Rhythmus">
             <div className="relative">
               <Eingabe
                 type="number"
