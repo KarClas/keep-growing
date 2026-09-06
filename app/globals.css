@@ -1,6 +1,43 @@
 @import 'tailwindcss';
 
+/*
+ * Design-Tokens der Gestaltung „Gartenregal" (docs/superpowers/specs/
+ * 2026-09-06-gestaltung-gartenregal-design.md, Abschnitt 6). Jede Farbe gibt
+ * es genau hier — Seiten benutzen nur die Namen (bg-papier, text-moos …).
+ */
+@theme {
+  --color-papier: #f5eddc;
+  --color-papier-hell: #fffdf7;
+  --color-kante: #e4d9c2;
+  --color-kante-dunkel: #cbb994;
+  --color-tinte: #2f2a22;
+  --color-tinte-gedaempft: #6b5e45;
+  --color-moos: #3f6b3a;
+  --color-moos-hell: #7a9a6c;
+  --color-moos-dunkel: #2f5230;
+  --color-moos-zart: #e9f2e3;
+  --color-terrakotta: #c97b52;
+  --color-holz-hell: #c9a074;
+  --color-holz-dunkel: #a97b4e;
+  --color-wasser: #bfe3f7;
+  --color-wasser-kraeftig: #8fcdf0;
+  --color-mint: #cdeccb;
+  --color-mint-kraeftig: #a6dba3;
+  --color-sonne: #ffe58a;
+  --color-sonne-kraeftig: #ffd54f;
+  --color-gefahr: #b3402e;
+  --color-gefahr-zart: #f9e6e1;
+
+  --font-anzeige: var(--font-fraunces), Georgia, 'Times New Roman', serif;
+  --font-text: var(--font-figtree), system-ui, sans-serif;
+
+  --shadow-karte: 0 2px 0 #e9dfc9;
+  --shadow-schweben: 0 8px 24px rgba(90, 60, 30, 0.16), 0 1px 0 #e9dfc9;
+  --shadow-brett: 0 6px 10px rgba(90, 60, 30, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
 :root {
+  /* Bewusst nur helles Thema — „Gartenregal" ist ein Papier-Thema (Spec, Abschnitt 5). */
   color-scheme: light;
 }
 
@@ -10,8 +47,19 @@ body {
 }
 
 body {
-  background: #fdfaf4;
-  color: #2f2a22;
+  /* Warmes Papier mit feiner Linienstruktur und hellem Schein oben. */
+  background:
+    radial-gradient(120% 40% at 50% -5%, #fff8ea 0%, rgba(255, 248, 234, 0) 60%),
+    repeating-linear-gradient(0deg, rgba(120, 90, 50, 0.035) 0 1px, transparent 1px 3px),
+    var(--color-papier);
+  color: var(--color-tinte);
+  font-family: var(--font-text);
+}
+
+/* Tastatur-Fokus ist überall sichtbar (Spec, Abschnitt 5). */
+:focus-visible {
+  outline: 2px solid var(--color-moos);
+  outline-offset: 2px;
 }
 
 /* Wachsende Pflanzenteile blenden sanft ein, statt abrupt zu erscheinen. */
@@ -25,4 +73,28 @@ body {
 .wuchs.zu {
   opacity: 0;
   transform: scale(0.35);
+}
+
+/* Die Seite blendet beim Laden einmal sanft ein — die einzige Deko-Bewegung. */
+@keyframes einblenden {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.einblenden {
+  animation: einblenden 0.35s ease-out both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wuchs {
+    transition: none;
+  }
+  .einblenden {
+    animation: none;
+  }
 }
