@@ -5,7 +5,6 @@
  */
 
 export type KnopfVariante = 'primaer' | 'sekundaer' | 'text' | 'gefahr';
-export type PflegeVariante = 'wasser' | 'mint' | 'sonne';
 
 const BASIS =
   'inline-flex min-h-11 items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-50';
@@ -21,19 +20,24 @@ export function knopfKlassen(variante: KnopfVariante, extra = ''): string {
   return `${BASIS} ${VARIANTEN[variante]} ${extra}`.trim();
 }
 
+/*
+ * Pflege-Knöpfe (Gießen/Düngen/Ernten) — Team-Entscheidung „Papierkarten":
+ * alle drei papierweiß wie die Karten, Symbol in Moos; der heute fällige Knopf
+ * bekommt eine zart grüne Fläche und einen grünen Rand — eine Region, eine
+ * Hauptaktion.
+ */
 const PFLEGE_BASIS =
-  'relative flex min-h-[4.5rem] w-full flex-col items-center justify-center gap-1 rounded-2xl px-2 py-2.5 text-sm font-bold text-tinte shadow-karte transition active:scale-[0.98] disabled:opacity-60';
+  'relative flex min-h-[4.5rem] w-full flex-col items-center justify-center gap-1 rounded-2xl border px-2 py-2.5 text-sm font-bold text-tinte shadow-karte transition active:scale-[0.98] disabled:opacity-60';
 
-const PFLEGE_FARBEN: Record<PflegeVariante, { normal: string; faellig: string }> = {
-  wasser: { normal: 'bg-wasser hover:bg-wasser-kraeftig', faellig: 'bg-wasser-kraeftig ring-2 ring-tinte/70' },
-  mint: { normal: 'bg-mint hover:bg-mint-kraeftig', faellig: 'bg-mint-kraeftig ring-2 ring-tinte/70' },
-  sonne: { normal: 'bg-sonne hover:bg-sonne-kraeftig', faellig: 'bg-sonne-kraeftig ring-2 ring-tinte/70' },
-};
+const PFLEGE_RUHE = 'border-kante bg-papier-hell hover:bg-white';
+const PFLEGE_FAELLIG = 'border-moos bg-moos-zart hover:bg-moos-zart';
 
-/** Der heute fällige Knopf ist kräftiger und umrandet — eine Region, eine Hauptaktion. */
-export function pflegeKnopfKlassen(variante: PflegeVariante, faellig: boolean, extra = ''): string {
-  return `${PFLEGE_BASIS} ${PFLEGE_FARBEN[variante][faellig ? 'faellig' : 'normal']} ${extra}`.trim();
+export function pflegeKnopfKlassen(faellig: boolean, extra = ''): string {
+  return `${PFLEGE_BASIS} ${faellig ? PFLEGE_FAELLIG : PFLEGE_RUHE} ${extra}`.trim();
 }
+
+/** Symbolfarbe der Pflege-Knöpfe — immer Moos, unabhängig vom Zustand. */
+export const PFLEGE_SYMBOL_KLASSEN = 'flex h-7 w-7 items-center justify-center text-moos';
 
 export const FAELLIG_ETIKETT_KLASSEN =
   'absolute -top-2 rounded-full bg-tinte px-2 py-0.5 text-[10px] font-bold uppercase tracking-wide text-papier-hell';

@@ -1,6 +1,6 @@
 import Link from 'next/link';
 import type { ComponentProps, ReactNode } from 'react';
-import { knopfKlassen, pflegeKnopfKlassen, type KnopfVariante, type PflegeVariante } from './knopfStil';
+import { knopfKlassen, pflegeKnopfKlassen, PFLEGE_SYMBOL_KLASSEN, type KnopfVariante } from './knopfStil';
 
 type LinkProps = ComponentProps<typeof Link>;
 
@@ -11,15 +11,14 @@ export function KnopfLink({ variante = 'sekundaer', className = '', ...rest }: L
 
 /** Ernten führt zum Formular — deshalb ein Link im Gewand des Pflege-Knopfs. */
 export function PflegeKnopfLink({
-  variante,
   symbol,
   className = '',
   children,
   ...rest
-}: LinkProps & { variante: PflegeVariante; symbol: ReactNode; children: ReactNode }) {
+}: LinkProps & { symbol: ReactNode; children: ReactNode }) {
   return (
-    <Link className={pflegeKnopfKlassen(variante, false, className)} {...rest}>
-      <span className="flex h-7 w-7 items-center justify-center">{symbol}</span>
+    <Link className={pflegeKnopfKlassen(false, className)} {...rest}>
+      <span className={PFLEGE_SYMBOL_KLASSEN}>{symbol}</span>
       {children}
     </Link>
   );

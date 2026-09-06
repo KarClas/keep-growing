@@ -74,18 +74,18 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
           <form action={aktivitaetAction}>
             <input type="hidden" name="pflanzeId" value={pflanze.id} />
             <input type="hidden" name="typ" value="giessen" />
-            <PflegeKnopf variante="wasser" faellig={giessenFaellig} symbol={<IconTropfen className="h-6 w-6" />}>
+            <PflegeKnopf faellig={giessenFaellig} symbol={<IconTropfen className="h-6 w-6" />}>
               Gießen
             </PflegeKnopf>
           </form>
           <form action={aktivitaetAction}>
             <input type="hidden" name="pflanzeId" value={pflanze.id} />
             <input type="hidden" name="typ" value="duengen" />
-            <PflegeKnopf variante="mint" faellig={duengenFaellig} symbol={<IconBlatt className="h-6 w-6" />}>
+            <PflegeKnopf faellig={duengenFaellig} symbol={<IconBlatt className="h-6 w-6" />}>
               Düngen
             </PflegeKnopf>
           </form>
-          <PflegeKnopfLink href={`/pflanze/${pflanze.id}/ernte`} variante="sonne" symbol={<IconKorb className="h-6 w-6" />}>
+          <PflegeKnopfLink href={`/pflanze/${pflanze.id}/ernte`} symbol={<IconKorb className="h-6 w-6" />}>
             Ernten
           </PflegeKnopfLink>
         </div>

@@ -11,7 +11,7 @@ Entschieden vom Team:
 |---|---|
 | Stilrichtung | A „Gartenregal" (warmes Papier, Moosgrün, Terrakotta, Holzbretter) |
 | Untere Leiste | „Home · Aufgaben · Neu" |
-| Pflege-Knöpfe | Bonbon-Pastell: Himmelblau (Gießen), Mint (Düngen), **Gelb** (Ernten) |
+| Pflege-Knöpfe | „Papierkarten" (Team-Entscheidung vom 6. September, ersetzt Bonbon-Pastell): alle drei papierweiß mit Moos-Symbol, der fällige zart grün mit grünem Rand |
 | Pflanzenseite | kein „Wuchsstufe x von y" |
 | Startseite | **kein Tagesgruß** |
 
@@ -107,7 +107,7 @@ Jeder Baustein gibt es genau einmal; Seiten setzen nur zusammen.
 | **Knopf, sekundär** | Papierweiß mit feiner Kante | wie oben |
 | **Knopf, Text** | nur Schrift, für Beiwerk | Ruhe · Fokus |
 | **Knopf, Gefahr** | Text in gedämpftem Rot, nie gefüllt | Ruhe · Fokus · Rückfrage |
-| **Pflege-Knopf** | Pastell-Pille mit Symbol oben, dunkler Schrift: Himmelblau `Gießen`, Mint `Düngen`, Gelb `Ernten` | wie primär; zusätzlich **fällig** (kräftigere Füllung + Etikett) |
+| **Pflege-Knopf** | Papierweiße Karte mit Symbol in Moos oben, dunkler Schrift — für Gießen, Düngen und Ernten gleich | wie primär; zusätzlich **fällig** (zart grüne Fläche, grüner Rand, Etikett) |
 | **Kästchen** | abgerundetes Quadrat, Moosgrün-Rand, Tippfläche ≥ 44 px | offen · wartend · erledigt (gefüllt, Haken) |
 | **Feld** | Beschriftung oben, Eingabe mit weicher Kante auf Papierweiß, Hinweis/Fehler darunter | Ruhe · Fokus (Moosgrün-Ring) · Fehler (Rot-Rand + Satz) · Gesperrt |
 | **Zweiteiliger Schalter** | für Drinnen/Draußen | gewählt · nicht gewählt · Fokus |

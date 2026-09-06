@@ -6,8 +6,8 @@ import {
   knopfKlassen,
   pflegeKnopfKlassen,
   FAELLIG_ETIKETT_KLASSEN,
+  PFLEGE_SYMBOL_KLASSEN,
   type KnopfVariante,
-  type PflegeVariante,
 } from './knopfStil';
 
 export function Spinner({ className = 'h-4 w-4' }: { className?: string }) {
@@ -57,25 +57,24 @@ export function Knopf({
 }
 
 type PflegeKnopfProps = Omit<ButtonHTMLAttributes<HTMLButtonElement>, 'type'> & {
-  variante: PflegeVariante;
   faellig?: boolean;
   symbol: ReactNode;
   children: ReactNode;
 };
 
 /** Gießen/Düngen als Absende-Knopf im Formular; Symbol oben, Wort unten. */
-export function PflegeKnopf({ variante, faellig = false, symbol, className = '', children, ...rest }: PflegeKnopfProps) {
+export function PflegeKnopf({ faellig = false, symbol, className = '', children, ...rest }: PflegeKnopfProps) {
   const { pending } = useFormStatus();
   return (
     <button
       type="submit"
       disabled={pending}
       aria-busy={pending || undefined}
-      className={pflegeKnopfKlassen(variante, faellig, className)}
+      className={pflegeKnopfKlassen(faellig, className)}
       {...rest}
     >
       {faellig && <span className={FAELLIG_ETIKETT_KLASSEN}>fällig</span>}
-      <span className="flex h-7 w-7 items-center justify-center">{pending ? <Spinner className="h-5 w-5" /> : symbol}</span>
+      <span className={PFLEGE_SYMBOL_KLASSEN}>{pending ? <Spinner className="h-5 w-5" /> : symbol}</span>
       {children}
     </button>
   );
