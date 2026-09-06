@@ -1,9 +1,12 @@
-import { IconZurueck, IconKorb } from '@/components/Symbole';
-import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { aktuellerNutzer } from '@/lib/session';
 import { pflanzeMitId } from '@/lib/db/abfragen';
 import { ernteEintragenAction } from '@/app/server-aktionen';
+import { IconKorb } from '@/components/Symbole';
+import { Seitentitel, ZurueckChip } from '@/components/bausatz/Titel';
+import { Karte } from '@/components/bausatz/Karte';
+import { Feld, Eingabe, Textbereich } from '@/components/bausatz/Feld';
+import { Knopf } from '@/components/bausatz/Knopf';
 
 export default async function ErnteEintragen({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -15,44 +18,34 @@ export default async function ErnteEintragen({ params }: { params: Promise<{ id:
 
   return (
     <div className="space-y-6 pb-6">
-      <Link href={`/pflanze/${pflanze.id}`} className="text-sm text-stone-500 underline">
-        <IconZurueck className="h-4 w-4 inline" /> Zurück
-      </Link>
+      <ZurueckChip href={`/pflanze/${pflanze.id}`}>{pflanze.name}</ZurueckChip>
 
-      <h1 className="flex items-center gap-2 text-2xl font-bold"><IconKorb className="h-6 w-6" /> Ernte eintragen</h1>
-      <p className="text-stone-500">{pflanze.name}</p>
+      <header className="space-y-1">
+        <Seitentitel>
+          Ernte <em>eintragen</em>
+        </Seitentitel>
+        <p className="flex items-center gap-1.5 text-sm text-tinte-gedaempft">
+          <IconKorb className="h-4 w-4" /> {pflanze.name}
+        </p>
+      </header>
 
-      <form action={ernteEintragenAction} className="space-y-4">
-        <input type="hidden" name="pflanzeId" value={pflanze.id} />
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Datum</span>
-          <input
-            type="date"
-            name="datum"
-            defaultValue={heute}
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Menge</span>
-          <input
-            name="menge"
-            placeholder="z. B. 500 g, 6 Stück"
-            className="w-full rounded-xl border border-stone-300 px-3 py-2.5"
-          />
-        </label>
-
-        <label className="block">
-          <span className="mb-1 block text-sm font-medium">Notiz</span>
-          <textarea name="notiz" rows={3} className="w-full rounded-xl border border-stone-300 px-3 py-2.5" />
-        </label>
-
-        <button type="submit" className="w-full rounded-xl bg-rose-600 px-4 py-3 font-semibold text-white">
-          Eintragen
-        </button>
-      </form>
+      <Karte className="p-4">
+        <form action={ernteEintragenAction} className="space-y-4">
+          <input type="hidden" name="pflanzeId" value={pflanze.id} />
+          <Feld label="Datum">
+            <Eingabe type="date" name="datum" defaultValue={heute} />
+          </Feld>
+          <Feld label="Menge" hinweis="Frei formuliert, zum Beispiel 500 g oder 6 Stück">
+            <Eingabe name="menge" placeholder="z. B. 500 g, 6 Stück" />
+          </Feld>
+          <Feld label="Notiz">
+            <Textbereich name="notiz" rows={3} placeholder="Wie war's?" />
+          </Feld>
+          <Knopf type="submit" variante="primaer" className="w-full">
+            Eintragen
+          </Knopf>
+        </form>
+      </Karte>
     </div>
   );
 }
