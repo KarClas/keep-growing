@@ -53,14 +53,10 @@ function planZeilen(pflanzen: Pflanze[], typ: 'giessen' | 'duengen', heute: Date
 }
 
 function Zeile({ zeile, typ, heute, zusatz }: { zeile: PlanZeile; typ: AktivitaetTyp; heute: Date; zusatz?: string | null }) {
-  const { pflanze, heuteErledigt } = zeile;
-  const status = heuteErledigt ? 'heute schon erledigt' : beschreibeFaelligkeit(zeile.faelligAm, heute);
+  const { pflanze } = zeile;
+  const status = beschreibeFaelligkeit(zeile.faelligAm, heute);
   return (
-    <li
-      className={`flex items-center gap-3 rounded-2xl border border-kante bg-papier-hell py-1.5 pl-2 pr-1.5 shadow-karte ${
-        heuteErledigt ? 'opacity-60' : ''
-      }`}
-    >
+    <li className="flex items-center gap-3 rounded-2xl border border-kante bg-papier-hell py-1.5 pl-2 pr-1.5 shadow-karte">
       <div className="h-12 w-8 shrink-0">
         <TopfMitGesicht
           id={pflanze.id}
@@ -81,7 +77,7 @@ function Zeile({ zeile, typ, heute, zusatz }: { zeile: PlanZeile; typ: Aktivitae
       <form action={aktivitaetAction}>
         <input type="hidden" name="pflanzeId" value={pflanze.id} />
         <input type="hidden" name="typ" value={typ} />
-        <Kaestchen label={`${pflanze.name}: ${typ === 'giessen' ? 'Gießen' : 'Düngen'} erledigt`} erledigt={heuteErledigt} />
+        <Kaestchen label={`${pflanze.name}: ${typ === 'giessen' ? 'Gießen' : 'Düngen'} erledigt`} />
       </form>
     </li>
   );
@@ -131,8 +127,9 @@ function Runde({
   heute: Date;
   zusatz?: (p: Pflanze) => string | null;
 }) {
+  // Heute erledigte Pflanzen verschwinden aus der Liste (Team-Entscheidung) —
+  // sie zählen nur noch in der Ermutigungszeile oben mit.
   const offenHeute = zeilen.filter((z) => z.gruppe === 'heute' && !z.heuteErledigt);
-  const erledigtHeute = zeilen.filter((z) => z.heuteErledigt);
   const morgen = zeilen.filter((z) => z.gruppe === 'morgen' && !z.heuteErledigt);
   return (
     <section>
@@ -143,8 +140,7 @@ function Runde({
         <span className="text-xs font-semibold text-tinte-gedaempft">{offenHeute.length} offen</span>
       </div>
       <div className="space-y-4">
-        {/* Erledigte bleiben blass sichtbar unter den offenen — der Fortschritt bleibt sichtbar. */}
-        <Gruppe titel="Heute" zeilen={[...offenHeute, ...erledigtHeute]} typ={typ} heute={heute} zusatz={zusatz} />
+        <Gruppe titel="Heute" zeilen={offenHeute} typ={typ} heute={heute} zusatz={zusatz} />
         <Gruppe titel="Morgen" zeilen={morgen} typ={typ} heute={heute} zusatz={zusatz} />
       </div>
     </section>

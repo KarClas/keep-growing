@@ -64,7 +64,7 @@ Pflanze anlegen" (führt zu Neu).
 | Rang | Inhalt |
 |---|---|
 | entscheidend | Überschrift „Heute dran" mit kleiner Datumszeile darüber. Abschnitt „Gießen" (Team hat die Überschriften auf „Gießen"/„Düngen" gekürzt) → Heute: jede Zeile mit kleinem Topf, Name, „seit 3 Tagen überfällig" oder „heute fällig", rechts ein **Kästchen zum Abhaken** (Team-Entscheidung: Kästchen statt Knopf; Tippfläche mindestens 44 px, Kästchen selbst ca. 28 px). |
-| unterstützend | Ermutigungszeile „1 von 3 Töpfen schon versorgt". Gruppe „Morgen". Abschnitt „Düngen" gleich aufgebaut, mit Düngerart als Unterzeile. Erledigte Zeilen bleiben blass sichtbar mit gefülltem Kästchen. |
+| unterstützend | Ermutigungszeile „1 von 3 Töpfen schon versorgt". Gruppe „Morgen". Abschnitt „Düngen" gleich aufgebaut, mit Düngerart als Unterzeile. Heute erledigte Pflanzen verschwinden aus der Liste (Team-Entscheidung vom 6. September, vorher blieben sie blass sichtbar); sie zählen nur in der Ermutigungszeile mit. |
 | Beiwerk | **Erntetagebuch** darunter, wie vom Team gebaut: Formular (Pflanze wählen — nur essbare —, Datum, Menge, Notiz, „Eintragen") in einer Karte, danach die Liste der Ernten, neueste zuerst, mit Symbol, Menge, Datum, Notiz und kleinem Löschen-Kreuz. Funktion bleibt, Aussehen kommt aus dem Bausatz. |
 
 Leere Gruppe: ein kurzer Satz („Nichts offen."), kein leerer Kasten.
