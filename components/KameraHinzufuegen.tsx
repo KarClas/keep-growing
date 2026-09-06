@@ -1,9 +1,12 @@
 'use client';
 
 import { useEffect, useRef, useState, useTransition } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import type { FotoVorschlag } from '@/lib/erkennung/typ';
+import { Knopf } from '@/components/bausatz/Knopf';
+import { KnopfLink } from '@/components/bausatz/KnopfLink';
+import { Fehlerkasten } from '@/components/bausatz/Karte';
+import { IconBlitz, IconKamera } from '@/components/Symbole';
 
 /**
  * Schritt 1: Fotoaufnahme & Erkennung (Kamera-zuerst).
@@ -161,47 +164,42 @@ export function KameraHinzufuegen() {
     <div className="space-y-3">
       {/* Fehlermeldung bei nicht erkannter Pflanze oder API-Fehler */}
       {erkennungsFehler && (
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 shadow-sm">
-          <p className="font-semibold">⚠️ {erkennungsFehler}</p>
-          <div className="mt-3 flex gap-2">
-            <button
-              type="button"
-              onClick={() => setErkennungsFehler(null)}
-              className="rounded-xl border border-stone-300 bg-white px-3 py-1.5 text-xs font-semibold text-stone-700 active:bg-stone-100"
-            >
-              Neues Foto versuchen
-            </button>
-            <Link
-              href={`/hinzufuegen/schritt-2${letztesFotoUrl ? `?fotoUrl=${encodeURIComponent(letztesFotoUrl)}` : ''}`}
-              className="rounded-xl bg-emerald-700 px-3 py-1.5 text-xs font-semibold text-white active:bg-emerald-800"
-            >
-              Manuell fortfahren
-            </Link>
-          </div>
-        </div>
+        <Fehlerkasten
+          titel={erkennungsFehler}
+          aktionen={
+            <>
+              <Knopf variante="sekundaer" onClick={() => setErkennungsFehler(null)}>
+                Neues Foto versuchen
+              </Knopf>
+              <KnopfLink
+                variante="primaer"
+                href={`/hinzufuegen/schritt-2${letztesFotoUrl ? `?fotoUrl=${encodeURIComponent(letztesFotoUrl)}` : ''}`}
+              >
+                Manuell fortfahren
+              </KnopfLink>
+            </>
+          }
+        />
       )}
 
       {/* Navigation oben: Manuell eintragen oder Datei wählen */}
-      <Link
-        href="/hinzufuegen/schritt-2"
-        className="block rounded-2xl border border-stone-300 bg-white px-4 py-3 text-center text-base font-semibold text-stone-700 shadow-sm active:bg-stone-100"
-      >
-        Manuell eintragen
-      </Link>
-      <button
-        type="button"
-        disabled={analysiert}
-        onClick={() => dateiInputRef.current?.click()}
-        className="w-full rounded-2xl border border-stone-300 bg-white px-4 py-3 text-center text-base font-semibold text-stone-700 shadow-sm active:bg-stone-100 disabled:opacity-50"
-      >
-        Datei hinzufügen
-      </button>
+      <div className="grid grid-cols-2 gap-2">
+        <KnopfLink href="/hinzufuegen/schritt-2" variante="sekundaer">
+          Manuell eintragen
+        </KnopfLink>
+        <Knopf variante="sekundaer" disabled={analysiert} onClick={() => dateiInputRef.current?.click()}>
+          Datei hinzufügen
+        </Knopf>
+      </div>
 
       {/* Sucher-Fenster */}
-      <div className="relative h-[58vh] overflow-hidden rounded-3xl bg-stone-900" style={{ height: '58vh' }}>
+      <div
+        className="relative overflow-hidden rounded-[1.75rem] border-4 border-papier-hell bg-tinte shadow-schweben"
+        style={{ height: '58vh' }}
+      >
         {kameraFehler ? (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-stone-400">
-            <span className="text-4xl">📷</span>
+          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 px-6 text-center text-kante">
+            <IconKamera className="h-10 w-10" />
             <p className="text-sm">{kameraFehler}</p>
           </div>
         ) : (
@@ -217,7 +215,7 @@ export function KameraHinzufuegen() {
               'left-0 bottom-0 border-l-2 border-b-2 rounded-bl-xl',
               'right-0 bottom-0 border-r-2 border-b-2 rounded-br-xl',
             ].map((klassen) => (
-              <span key={klassen} className={`absolute h-10 w-10 border-white/80 ${klassen}`} />
+              <span key={klassen} className={`absolute h-10 w-10 border-papier-hell/80 ${klassen}`} />
             ))}
           </div>
         )}
@@ -228,20 +226,24 @@ export function KameraHinzufuegen() {
             type="button"
             onClick={blitzUmschalten}
             aria-label={blitzAn ? 'Blitz ausschalten' : 'Blitz einschalten'}
-            className={`absolute left-3 top-3 flex h-10 w-10 items-center justify-center rounded-full backdrop-blur ${
-              blitzAn ? 'bg-amber-400 text-stone-900' : 'bg-black/40 text-white'
+            aria-pressed={blitzAn}
+            className={`absolute left-3 top-3 flex h-11 w-11 items-center justify-center rounded-full backdrop-blur ${
+              blitzAn ? 'bg-sonne text-tinte' : 'bg-black/40 text-papier-hell'
             }`}
           >
-            ⚡
+            <IconBlitz className="h-5 w-5" />
           </button>
         )}
 
         {/* Overlay während der Analyse */}
         {analysiert && (
-          <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 px-6 text-center text-white backdrop-blur-sm">
-            <div className="h-10 w-10 animate-spin rounded-full border-4 border-emerald-500 border-t-transparent" />
+          <div
+            role="status"
+            className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black/60 px-6 text-center text-papier-hell backdrop-blur-sm"
+          >
+            <div className="h-10 w-10 animate-spin rounded-full border-4 border-mint border-t-transparent" />
             <p className="font-semibold">Pflanze wird analysiert…</p>
-            <p className="text-xs text-stone-300">Art und Pflegeparameter werden ermittelt</p>
+            <p className="text-xs text-kante">Art und Pflegeparameter werden ermittelt</p>
           </div>
         )}
       </div>
@@ -253,9 +255,9 @@ export function KameraHinzufuegen() {
           onClick={aufnehmen}
           disabled={!bereit || analysiert}
           aria-label="Foto aufnehmen"
-          className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-stone-300 bg-white shadow-sm disabled:opacity-40"
+          className="flex h-16 w-16 items-center justify-center rounded-full border-4 border-kante bg-papier-hell shadow-schweben transition active:scale-95 disabled:opacity-40"
         >
-          <span className="h-11 w-11 rounded-full bg-stone-700" />
+          <span className="h-11 w-11 rounded-full bg-moos" />
         </button>
       </div>
 
