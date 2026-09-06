@@ -50,7 +50,7 @@ export default async function Home() {
     <div className="space-y-8 pb-6">
       <header className="space-y-3">
         <Seitentitel>
-          Mein <em>Garten</em>
+          Meine <em>Lieblinge</em>
         </Seitentitel>
         {lebend.length > 0 && (
           <Link

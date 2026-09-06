@@ -35,7 +35,7 @@ Erklärung.
 Rangfolge: **entscheidend** (muss sofort ins Auge fallen) · **unterstützend**
 (auf den zweiten Blick) · **Beiwerk** (klein oder weg).
 
-### Home „Mein Garten"
+### Home „Meine Lieblinge" (Überschrift, Team-Entscheidung vom 6. September; vorher „Mein Garten")
 
 | Rang | Inhalt |
 |---|---|

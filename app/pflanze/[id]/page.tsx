@@ -47,7 +47,7 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
 
   return (
     <div className="space-y-6 pb-6">
-      <ZurueckChip href="/">Mein Garten</ZurueckChip>
+      <ZurueckChip href="/">Meine Lieblinge</ZurueckChip>
 
       {/* Kein Stimmungsschild neben dem Topf (Team-Entscheidung) — das Gesicht sagt es selbst. */}
       <div>
