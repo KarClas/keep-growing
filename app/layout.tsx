@@ -39,9 +39,11 @@ export default async function RootLayout({ children }: { children: React.ReactNo
   return (
     <html lang="de" className={`${fraunces.variable} ${figtree.variable}`}>
       {/* pb-28: Platz für die schwebende untere Leiste, damit sie nichts verdeckt. */}
-      <body className={angemeldet ? 'min-h-screen pb-28' : 'min-h-screen'}>
+      {/* Die Leiste wird immer gerendert — sie war sonst auf /hinzufuegen weg,
+          sobald niemand angemeldet ist (die Seite braucht kein Login). */}
+      <body className={angemeldet ? 'min-h-screen pb-28' : 'min-h-screen pb-28'}>
         <main className="einblenden mx-auto max-w-md px-4 pt-6">{children}</main>
-        {angemeldet && <UntereNavigation />}
+        <UntereNavigation />
       </body>
     </html>
   );
