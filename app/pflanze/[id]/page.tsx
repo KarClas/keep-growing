@@ -4,7 +4,6 @@ import {
   pflanzeMitId,
   pflegestimmungFuerPflanze,
   wuchsstufeFuerPflanze,
-  aktivitaetenFuerPflanze,
   naechsteFaelligkeitGiessen,
   naechsteFaelligkeitDuengen,
   zuletztGepflegtAm,
@@ -20,18 +19,11 @@ import { Regalbrett } from '@/components/bausatz/Regal';
 import { PflegeKnopf } from '@/components/bausatz/Knopf';
 import { PflegeKnopfLink } from '@/components/bausatz/KnopfLink';
 
-const AKTIVITAET_LABEL: Record<string, string> = {
-  giessen: 'Gegossen',
-  duengen: 'Gedüngt',
-  ernten: 'Geerntet',
-};
-
-// Farbpunkte im Verlauf tragen dieselben Farben wie die Pflege-Knöpfe.
-const PUNKT_FARBE: Record<string, string> = {
-  giessen: 'bg-wasser-kraeftig',
-  duengen: 'bg-mint-kraeftig',
-  ernten: 'bg-sonne-kraeftig',
-};
+/** Datum für „zuletzt gegossen am …" — ehrlich „noch nie", wenn es keinen Eintrag gibt. */
+function datumOderNie(zeitpunkt: Date | null): string {
+  if (!zeitpunkt) return 'noch nie';
+  return zeitpunkt.toLocaleDateString('de-DE', { day: 'numeric', month: 'long', year: 'numeric' });
+}
 
 export default async function PflanzenDetail({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
@@ -41,13 +33,13 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
   const pflanze = pflanzeMitId(id, nutzerId);
   const stimmung = pflegestimmungFuerPflanze(pflanze);
   const wuchsstufe = wuchsstufeFuerPflanze(pflanze);
-  const verlauf = aktivitaetenFuerPflanze(pflanze.id, nutzerId).slice(0, 10);
-
   const heute = new Date();
   const giessenFaellig = faelligkeitsgruppe(naechsteFaelligkeitGiessen(pflanze), heute) === 'heute';
   const duengenAm = naechsteFaelligkeitDuengen(pflanze);
   const duengenFaellig = duengenAm !== null && faelligkeitsgruppe(duengenAm, heute) === 'heute';
-  const zuletztGegossen = beschreibeLetztePflege(zuletztGepflegtAm(pflanze, 'giessen'), heute);
+  const zuletztGegossenAm = zuletztGepflegtAm(pflanze, 'giessen');
+  const zuletztGeduengtAm = zuletztGepflegtAm(pflanze, 'duengen');
+  const zuletztGegossen = beschreibeLetztePflege(zuletztGegossenAm, heute);
 
   const untertitel = [pflanze.art, pflanze.drinnenDraussen === 'drinnen' ? 'drinnen' : 'draußen'].filter(Boolean).join(' · ');
   const lebt = pflanze.lebenszustand === 'lebend';
@@ -138,28 +130,25 @@ export default async function PflanzenDetail({ params }: { params: Promise<{ id:
         </Karte>
       </section>
 
-      {verlauf.length > 0 && (
-        <section>
-          <Abschnittstitel>Verlauf</Abschnittstitel>
-          <ol className="ml-2 border-l-2 border-kante pl-4 text-sm">
-            {verlauf.map((a) => (
-              <li key={a.id} className="relative flex justify-between gap-3 py-1.5">
-                <span
-                  aria-hidden="true"
-                  className={`absolute -left-[1.45rem] top-2.5 h-3 w-3 rounded-full ring-4 ring-papier ${PUNKT_FARBE[a.typ] ?? 'bg-kante'}`}
-                />
-                <span>
-                  {AKTIVITAET_LABEL[a.typ] ?? a.typ}
-                  {a.menge ? ` · ${a.menge}` : ''}
-                </span>
-                <span className="shrink-0 text-tinte-gedaempft">
-                  {new Date(a.datum).toLocaleDateString('de-DE', { weekday: 'short', day: 'numeric', month: 'short' })}
-                </span>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      <section>
+        <Abschnittstitel>Zuletzt gepflegt</Abschnittstitel>
+        <Karte className="p-4 text-sm">
+          <dl className="space-y-2">
+            <div className="flex items-center gap-2">
+              <dt className="flex items-center gap-1.5 text-tinte-gedaempft">
+                <IconTropfen className="h-4 w-4 text-wasser-kraeftig" /> zuletzt gegossen am
+              </dt>
+              <dd className="font-semibold">{datumOderNie(zuletztGegossenAm)}</dd>
+            </div>
+            <div className="flex items-center gap-2">
+              <dt className="flex items-center gap-1.5 text-tinte-gedaempft">
+                <IconBlatt className="h-4 w-4 text-moos-hell" /> zuletzt gedüngt am
+              </dt>
+              <dd className="font-semibold">{datumOderNie(zuletztGeduengtAm)}</dd>
+            </div>
+          </dl>
+        </Karte>
+      </section>
 
       {lebt && <VerstorbenMarkieren pflanzeId={pflanze.id} />}
     </div>
