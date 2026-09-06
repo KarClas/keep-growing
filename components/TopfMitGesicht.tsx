@@ -32,7 +32,7 @@ const MASSSTAB = 1.95;
 const VERSCHIEBUNG_X = MITTE - ORIGINAL_MITTE * MASSSTAB;
 const VERSCHIEBUNG_Y = RAND - ORIGINAL_ERDE * MASSSTAB;
 
-const STIMMUNG_BESCHREIBUNG: Record<Pflegestimmung, string> = {
+export const STIMMUNG_BESCHREIBUNG: Record<Pflegestimmung, string> = {
   sehr_gluecklich: 'sehr glücklich',
   sehr_gluecklich_geerntet: 'sehr glücklich, gerade geerntet',
   zufrieden: 'zufrieden',
