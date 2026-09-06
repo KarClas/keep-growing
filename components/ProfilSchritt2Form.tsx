@@ -310,10 +310,10 @@ export function ProfilSchritt2Form({
           <Textbereich name="notiz" rows={3} value={notiz} onChange={(e) => setNotiz(e.target.value)} placeholder="Freie Notiz..." />
         </Feld>
 
-        {/* Am Ende steht: Das Profil anlegen */}
+        {/* Am Ende steht: Hinzufügen */}
         <div className="pt-2">
           <Knopf type="submit" variante="primaer" className="w-full">
-            Das Profil anlegen
+            Hinzufügen
           </Knopf>
         </div>
       </form>
