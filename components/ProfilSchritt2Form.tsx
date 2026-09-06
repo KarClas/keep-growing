@@ -302,7 +302,7 @@ export function ProfilSchritt2Form({
 
         {/* c.5: Erde (Erdmischung) */}
         <Feld label="Erde (Erdmischung)">
-          <Eingabe type="text" name="erde" value={erde} onChange={(e) => setErde(e.target.value)} />
+          <Eingabe type="text" name="erde" value={erde} onChange={(e) => setErde(e.target.value)} placeholder="Kokohum" />
         </Feld>
 
         {/* c.8: Notiz (immer initial leer, nur durch den Nutzer editierbar) */}
