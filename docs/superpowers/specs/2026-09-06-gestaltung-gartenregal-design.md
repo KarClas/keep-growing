@@ -63,9 +63,9 @@ Pflanze anlegen" (führt zu Neu).
 
 | Rang | Inhalt |
 |---|---|
-| entscheidend | Überschrift „Heute dran" mit kleiner Datumszeile darüber. Gießrunde → Heute: jede Zeile mit kleinem Topf, Name, „seit 3 Tagen überfällig" oder „heute fällig", rechts ein runder Haken (mindestens 44 px). |
-| unterstützend | Ermutigungszeile „1 von 3 Töpfen schon versorgt". Gruppe „Morgen". Düngerunde gleich aufgebaut, mit Düngerart als Unterzeile. Erledigte Zeilen bleiben blass sichtbar mit gefülltem Haken. |
-| Beiwerk | „Ernte eintragen" als kompakte Liste darunter (Zeile führt zum Ernteformular). |
+| entscheidend | Überschrift „Heute dran" mit kleiner Datumszeile darüber. Abschnitt „Gießen" (Team hat die Überschriften auf „Gießen"/„Düngen" gekürzt) → Heute: jede Zeile mit kleinem Topf, Name, „seit 3 Tagen überfällig" oder „heute fällig", rechts ein **Kästchen zum Abhaken** (Team-Entscheidung: Kästchen statt Knopf; Tippfläche mindestens 44 px, Kästchen selbst ca. 28 px). |
+| unterstützend | Ermutigungszeile „1 von 3 Töpfen schon versorgt". Gruppe „Morgen". Abschnitt „Düngen" gleich aufgebaut, mit Düngerart als Unterzeile. Erledigte Zeilen bleiben blass sichtbar mit gefülltem Kästchen. |
+| Beiwerk | **Erntetagebuch** darunter, wie vom Team gebaut: Formular (Pflanze wählen — nur essbare —, Datum, Menge, Notiz, „Eintragen") in einer Karte, danach die Liste der Ernten, neueste zuerst, mit Symbol, Menge, Datum, Notiz und kleinem Löschen-Kreuz. Funktion bleibt, Aussehen kommt aus dem Bausatz. |
 
 Leere Gruppe: ein kurzer Satz („Nichts offen."), kein leerer Kasten.
 
@@ -108,7 +108,7 @@ Jeder Baustein gibt es genau einmal; Seiten setzen nur zusammen.
 | **Knopf, Text** | nur Schrift, für Beiwerk | Ruhe · Fokus |
 | **Knopf, Gefahr** | Text in gedämpftem Rot, nie gefüllt | Ruhe · Fokus · Rückfrage |
 | **Pflege-Knopf** | Pastell-Pille mit Symbol oben, dunkler Schrift: Himmelblau `Gießen`, Mint `Düngen`, Gelb `Ernten` | wie primär; zusätzlich **fällig** (kräftigere Füllung + Etikett) |
-| **Haken** | runder Kreis, Moosgrün-Rand, ≥ 44 px | offen · wartend · erledigt (gefüllt) |
+| **Kästchen** | abgerundetes Quadrat, Moosgrün-Rand, Tippfläche ≥ 44 px | offen · wartend · erledigt (gefüllt, Haken) |
 | **Feld** | Beschriftung oben, Eingabe mit weicher Kante auf Papierweiß, Hinweis/Fehler darunter | Ruhe · Fokus (Moosgrün-Ring) · Fehler (Rot-Rand + Satz) · Gesperrt |
 | **Zweiteiliger Schalter** | für Drinnen/Draußen | gewählt · nicht gewählt · Fokus |
 | **Karte** | Papierweiß, feine Kante, weicher Schatten unten | — |
@@ -132,7 +132,7 @@ Hinweis-Pille, Schild am Topf und Ermutigungszeile sind Varianten der Karte.
   gedämpfte Nebentext (der heutige Ton aus den Entwürfen ist dafür zu hell
   und wird nachgedunkelt). Dunkle Schrift auf den Pastell-Pillen.
 - **Bewegung:** Genau zwei bedeutungsvolle Bewegungen — die Pflanze wächst
-  nach einer Pflegeaktion (gibt es schon), und der Haken füllt sich. Ein
+  nach einer Pflegeaktion (gibt es schon), und das Kästchen füllt sich. Ein
   sanftes Einblenden der Seite beim Laden ist erlaubt, sonst keine Deko-
   Bewegung. `prefers-reduced-motion` schaltet alles außer Zustandswechseln ab.
 - **Tippflächen:** mindestens 44 × 44 px. Kein seitliches Scrollen bei 375 px.
